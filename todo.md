@@ -1,1 +1,0 @@
-- Docker setup as mode of deployment
