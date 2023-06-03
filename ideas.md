@@ -1,3 +1,5 @@
+## Ideas
+
 - Flash Card app with KV pairs of definitions 
     - Allows for a range of different questions based on this
     - Streaks to encourage dailty practice
@@ -11,3 +13,5 @@
 - Tailwind for styling
 - hero icons for icons
 - docker to deploy
+- figma to create wire frames
+- modern fetch js to allow for data without realoding
