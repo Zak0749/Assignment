@@ -1,0 +1,29 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "PHP Run",
+      "type": "shell",
+      "command": "php",
+      "args": ["-S", "localhost:8000", "-t", "./public"],
+      "dependsOn": ["Tailwind Build"]
+    },
+    {
+      "label": "Tailwind Build",
+      "type": "shell",
+      "command": "npx",
+      "args": [
+        "tailwindcss",
+        "-i",
+        "./public/styles.css",
+        "-o",
+        "./public/dist.css"
+      ]
+    },
+    {
+      "label": "Docker Compose",
+      "command": "docker-compose",
+      "args": ["up", "--build"]
+    }
+  ]
+}
