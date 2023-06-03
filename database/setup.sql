@@ -1,0 +1,5 @@
+DROP TABLE IF EXISTS User;
+
+CREATE TABLE User(
+    username TEXT NOT NULL
+);

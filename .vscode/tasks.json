@@ -6,7 +6,7 @@
       "type": "shell",
       "command": "php",
       "args": ["-S", "localhost:8000", "-t", "./public"],
-      "dependsOn": ["Tailwind Build"]
+      "dependsOn": ["Tailwind Build", "Setup Database"]
     },
     {
       "label": "Tailwind Build",
@@ -24,6 +24,11 @@
       "label": "Docker Compose",
       "command": "docker-compose",
       "args": ["up", "--build"]
+    },
+    {
+      "label": "Setup Database",
+      "type": "shell",
+      "command": "sqlite3 'database/db.sqlite' < database/setup.sql"
     }
   ]
 }
