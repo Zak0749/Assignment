@@ -6,7 +6,7 @@
       "type": "shell",
       "command": "php",
       "args": ["-S", "localhost:8000", "-t", "./public"],
-      "dependsOn": ["Tailwind Build", "Setup Database"]
+      "dependsOn": ["Setup Database"]
     },
     {
       "label": "Docker Compose",
