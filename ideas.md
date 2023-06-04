@@ -10,8 +10,9 @@
 
 ## Tech Specs
 
-- Tailwind for styling
-- hero icons for icons
+- google icons
+- google fonts
+- light / dark theme
 - docker to deploy
 - figma to create wire frames
 - modern fetch js to allow for data without realoding

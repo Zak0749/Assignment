@@ -1,16 +1,4 @@
-FROM node:18.16.0 as css_builder
-
-WORKDIR /usr/public/app
-
-COPY package.json .
-
-RUN npm install
-
-COPY ./public .
-
-RUN npx tailwindcss build styles.css -o dist.css
-
-FROM ubuntu:trusty as db_builder
+FROM ubuntu:trusty as builder
 
 RUN sudo apt-get -y update
 
@@ -28,10 +16,7 @@ FROM php:8.2.6
 
 WORKDIR /usr/public/app
 
-COPY --from=css_builder /usr/public/app/dist.css ./
-
-COPY --from=db_builder /usr/public/app/database/db.sqlite ./database/db.sqlite
-
+COPY --from=builder /usr/public/app/database/db.sqlite ./database/db.sqlite
 
 COPY ./public ./public
 

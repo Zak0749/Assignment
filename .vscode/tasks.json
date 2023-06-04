@@ -9,18 +9,6 @@
       "dependsOn": ["Tailwind Build", "Setup Database"]
     },
     {
-      "label": "Tailwind Build",
-      "type": "shell",
-      "command": "npx",
-      "args": [
-        "tailwindcss",
-        "-i",
-        "./public/styles.css",
-        "-o",
-        "./public/dist.css"
-      ]
-    },
-    {
       "label": "Docker Compose",
       "command": "docker-compose",
       "args": ["up", "--build"]
