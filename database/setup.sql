@@ -6,10 +6,12 @@ DROP TABLE IF EXISTS Deck_Topic;
 DROP TABLE IF EXISTS User_Likes;
 DROP TABLE IF EXISTS User_Save;
 DROP TABLE IF EXISTS User_Play;
+-- password no need hased as gonna be hexed
 CREATE TABLE User(
     user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT NOT NULL,
+    username TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
+    avatar TEXT NOT NULL,
     streak_start DATETIME,
     streak_last DATETIME,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -19,18 +21,17 @@ CREATE TABLE Deck(
     user_id INTEGER NOT NULL,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
-    private BOOL NOT NULL,
-    featured BOOL NOT NULL,
+    featured BOOL NOT NULL DEFAULT 0,
     plays INT NOT NULL DEFAULT 0,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(user_id) REFERENCES User(user_id)
+    FOREIGN KEY(user_id) REFERENCES User(user_id) ON DELETE CASCADE
 );
 CREATE TABLE Question(
     question_id INTEGER PRIMARY KEY AUTOINCREMENT,
     deck_id INTEGER NOT NULL,
     key TEXT NOT NULL,
     value TEXT NOT NULL,
-    FOREIGN KEY(deck_id) REFERENCES Deck(deck_id)
+    FOREIGN KEY(deck_id) REFERENCES Deck(deck_id) ON DELETE CASCADE
 );
 CREATE TABLE Tag(
     tag_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,166 +40,191 @@ CREATE TABLE Tag(
 CREATE TABLE Deck_Topic(
     deck_id INTEGER NOT NULL,
     tag_id INTEGER NOT NULL,
-    FOREIGN KEY(deck_id) REFERENCES Deck(deck_id),
-    FOREIGN KEY(tag_id) REFERENCES Tag(tag_id)
+    FOREIGN KEY(deck_id) REFERENCES Deck(deck_id) ON DELETE CASCADE,
+    FOREIGN KEY(tag_id) REFERENCES Tag(tag_id) ON DELETE CASCADE
 );
 CREATE TABLE User_Likes(
     user_id INTEGER NOT NULL,
     tag_id INTEGER NOT NULL,
-    FOREIGN KEY(user_id) REFERENCES User(user_id),
-    FOREIGN KEY(tag_id) REFERENCES Tag(tag_id)
+    FOREIGN KEY(user_id) REFERENCES User(user_id) ON DELETE CASCADE,
+    FOREIGN KEY(tag_id) REFERENCES Tag(tag_id) ON DELETE CASCADE
 );
 CREATE TABLE User_Save(
     user_id INTEGER NOT NULL,
     deck_id INTEGER NOT NULL,
-    FOREIGN KEY(user_id) REFERENCES User(user_id),
-    FOREIGN KEY(deck_id) REFERENCES Deck(deck_id)
+    FOREIGN KEY(user_id) REFERENCES User(user_id) ON DELETE CASCADE,
+    FOREIGN KEY(deck_id) REFERENCES Deck(deck_id) ON DELETE CASCADE,
+    PRIMARY KEY (user_id, deck_id)
 );
 CREATE TABLE User_Play(
     play_id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
     deck_id INTEGER NOT NULL,
     score INTEGER NOT NULL,
-    FOREIGN KEY(user_id) REFERENCES User(user_id),
-    FOREIGN KEY(deck_id) REFERENCES Deck(deck_id)
+    FOREIGN KEY(user_id) REFERENCES User(user_id) ON DELETE CASCADE,
+    FOREIGN KEY(deck_id) REFERENCES Deck(deck_id) ON DELETE CASCADE
 );
 CREATE INDEX username_index ON User (username);
 CREATE INDEX deck_title_index ON Deck (title);
 CREATE INDEX tag_index ON Tag (title);
--- Inserting Users
-INSERT INTO User (username, password, streak_start, streak_last)
+INSERT INTO User (
+        username,
+        avatar,
+        password,
+        streak_start,
+        streak_last
+    )
 VALUES (
         'Zak',
-        'password1',
+        '1a45c9050d',
+        '$2y$10$0rnzqHGDH7cb/U6ZQy5vguNbpzTJZABngTEsMF.k9.yhS5da6SlAC',
         '2023-08-01 08:00:00',
         '2023-08-15 12:30:00'
     ),
     (
         'Freya',
+        '89b5913c87',
         'password2',
         '2023-07-20 10:00:00',
         '2023-08-14 18:45:00'
     ),
     (
         'Harris',
+        '008c9d108e',
         'password3',
         '2023-08-10 09:00:00',
         '2023-08-16 14:20:00'
     ),
     (
         'Keeley',
+        '61b50b0043',
         'password4',
         '2023-07-15 11:30:00',
         '2023-08-13 17:10:00'
     ),
     (
         'Finn',
+        '52015b3fa9',
         'password5',
         '2023-08-05 07:45:00',
         '2023-08-17 20:00:00'
     ),
     (
-        'Callum',
+        'Calum',
+        'db9164c5f2',
         'password6',
         '2023-07-25 14:00:00',
         '2023-08-18 09:30:00'
     ),
     (
         'Adam',
+        '35f3a98768',
         'password7',
         '2023-08-12 12:15:00',
         '2023-08-19 15:45:00'
     ),
     (
         'Liam',
+        '401011e373',
         'password8',
         '2023-07-28 16:30:00',
         '2023-08-12 11:00:00'
     ),
     (
         'Daniel',
+        '5770b036c4',
         'password9',
         '2023-08-08 13:45:00',
         '2023-08-16 08:15:00'
     ),
     (
         'Alister',
+        'cc48d2f915',
         'password10',
         '2023-07-18 18:00:00',
         '2023-08-14 23:30:00'
     ),
     (
         'Ryan',
+        '516f5a524e',
         'password11',
         '2023-08-02 22:00:00',
         '2023-08-15 19:45:00'
     ),
     (
         'Isla',
+        '67469c0a77',
         'password12',
         '2023-07-21 04:15:00',
         '2023-08-13 13:20:00'
     ),
     (
         'Micheal',
+        'f7d95826bd',
         'password13',
         '2023-08-09 10:30:00',
         '2023-08-17 10:10:00'
     ),
     (
         'Conlan',
+        '8a7aee6683',
         'password14',
         '2023-07-16 15:45:00',
         '2023-08-18 07:00:00'
     ),
     (
-        'Mrs Ferguson',
+        'Mrs_Ferguson',
+        'fbc90a8d47',
         'password15',
         '2023-08-06 08:00:00',
         '2023-08-19 12:30:00'
     ),
     (
-        'Miss Douglas',
+        'Miss_Douglas',
+        '78f49a8ff4',
         'password16',
         '2023-07-26 11:00:00',
         '2023-08-12 18:45:00'
     ),
     (
-        'Mrs Young',
+        'Mrs_Young',
+        'cc74a4d568',
         'password17',
         '2023-08-13 14:15:00',
         '2023-08-16 09:20:00'
     ),
     (
-        'Mrs Sinclair',
+        'Mr_Mcinnis',
+        '0fb14900a4',
         'password18',
         '2023-07-29 16:30:00',
         '2023-08-17 14:00:00'
     ),
     (
-        'Mr Mercer',
+        'Mr_Mercer',
+        'af0e0b568b',
         'password19',
         '2023-08-07 19:45:00',
         '2023-08-13 17:15:00'
     ),
     (
-        'Mr Clancy',
+        'Mr_Clancy',
+        'e0c3f8f017',
         'password20',
         '2023-07-17 23:00:00',
         '2023-08-18 20:30:00'
     ),
     (
         'Bob',
+        '7cd5712433',
         'password21',
         '2023-08-01 08:00:00',
         '2023-08-15 12:30:00'
     );
--- Inserting Decks
 INSERT INTO Deck (
         user_id,
         title,
         description,
-        private,
         featured,
         plays
     )
@@ -206,7 +232,6 @@ VALUES (
         1,
         'Science Facts',
         'Interesting science facts',
-        0,
         1,
         120
     ),
@@ -214,7 +239,6 @@ VALUES (
         2,
         'Vocabulary Builder',
         'Expand your vocabulary',
-        1,
         0,
         75
     ),
@@ -222,7 +246,6 @@ VALUES (
         3,
         'History Trivia',
         'Test your knowledge of historical events',
-        0,
         1,
         90
     ),
@@ -230,7 +253,6 @@ VALUES (
         3,
         'Math Challenges',
         'Sharpen your math skills',
-        1,
         0,
         50
     ),
@@ -238,7 +260,6 @@ VALUES (
         4,
         'Nature and Wildlife',
         'Learn about animals and ecosystems',
-        0,
         1,
         105
     ),
@@ -246,7 +267,6 @@ VALUES (
         5,
         'Word Puzzles',
         'Solve fun word puzzles',
-        1,
         0,
         60
     ),
@@ -254,7 +274,6 @@ VALUES (
         6,
         'Geography Quiz',
         'Explore the world with geography questions',
-        0,
         1,
         70
     ),
@@ -262,7 +281,6 @@ VALUES (
         6,
         'Art Appreciation',
         'Discover famous artworks and artists',
-        1,
         0,
         40
     ),
@@ -271,14 +289,12 @@ VALUES (
         'Literature Classics',
         'Explore classic literature works',
         0,
-        0,
         25
     ),
     (
         7,
         'Music History',
         'Learn about the evolution of music',
-        1,
         0,
         55
     ),
@@ -286,7 +302,6 @@ VALUES (
         7,
         'Famous Quotes',
         'Guess the authors of famous quotes',
-        0,
         1,
         80
     ),
@@ -294,7 +309,6 @@ VALUES (
         8,
         'Astronomy Wonders',
         'Explore the universe and celestial bodies',
-        1,
         0,
         65
     ),
@@ -303,14 +317,12 @@ VALUES (
         'Healthy Living Tips',
         'Get insights into maintaining a healthy lifestyle',
         0,
-        0,
         30
     ),
     (
         10,
         'World Cuisine',
         'Discover cuisines from around the globe',
-        0,
         1,
         110
     ),
@@ -318,7 +330,6 @@ VALUES (
         10,
         'Travel Destinations',
         'Plan your next travel adventure',
-        1,
         0,
         45
     ),
@@ -326,7 +337,6 @@ VALUES (
         10,
         'Movie Trivia',
         'Test your knowledge of popular movies',
-        0,
         1,
         95
     ),
@@ -334,7 +344,6 @@ VALUES (
         11,
         'Famous Inventors',
         'Learn about inventors who shaped history',
-        1,
         0,
         70
     ),
@@ -343,7 +352,6 @@ VALUES (
         'Language Learning',
         'Basic phrases in different languages',
         0,
-        0,
         20
     ),
     (
@@ -351,14 +359,12 @@ VALUES (
         'Space Exploration',
         'Explore achievements in space exploration',
         0,
-        0,
         35
     ),
     (
         12,
         'Sports Legends',
         'Celebrate iconic athletes and sports moments',
-        0,
         1,
         85
     ),
@@ -366,7 +372,6 @@ VALUES (
         13,
         'Environmental Issues',
         'Raise awareness about environmental challenges',
-        1,
         0,
         40
     ),
@@ -374,7 +379,6 @@ VALUES (
         14,
         'Mindful Meditation',
         'Practice mindfulness and meditation',
-        0,
         1,
         75
     ),
@@ -383,7 +387,6 @@ VALUES (
         'Tech Innovations',
         'Discover breakthroughs in technology',
         0,
-        0,
         30
     ),
     (
@@ -391,14 +394,12 @@ VALUES (
         'Classic Novels',
         'Explore timeless literary works',
         0,
-        0,
         25
     ),
     (
         15,
         'Animal Kingdom',
         'Learn about diverse animal species',
-        1,
         0,
         50
     ),
@@ -406,7 +407,6 @@ VALUES (
         16,
         'Physics Concepts',
         'Explore fundamental principles of physics',
-        0,
         1,
         65
     ),
@@ -414,7 +414,6 @@ VALUES (
         17,
         'Celebrities Trivia',
         'Test your knowledge of celebrities',
-        1,
         0,
         55
     ),
@@ -422,7 +421,6 @@ VALUES (
         18,
         'Gardening Tips',
         'Grow your own garden with these tips',
-        0,
         1,
         90
     ),
@@ -431,64 +429,100 @@ VALUES (
         'Cooking Techniques',
         'Master essential cooking methods',
         0,
-        0,
         40
     ),
     (
         19,
         'Famous Landmarks',
         'Discover iconic landmarks from around the world',
-        1,
         0,
         60
-    ),(
-        1,
-        'BOB',
-        'Interesting science facts',
-        0,
-        1,
-        120
     );
 INSERT INTO Question (deck_id, key, value)
-VALUES (1, 'Planks Constant', '6.63 * 10^-32'),
+VALUES (1, 'Speed of light', '3 x 10^8 m/s'),
+    (1, 'Theory of Relativity', 'Albert Einstein'),
+    (1, 'Electric Current Unit', 'Ampere (A)'),
+    (1, 'SI Unit of Energy', 'Joule (J)'),
     (
         1,
-        'What is the photo electric effect',
-        'The photoelectric effect is the emission of electrons
-when electromagnetic radiation,
-such as light,
-hits a material.'
+        'Velocity Definition',
+        'The rate of change of displacement with respect to time'
     ),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^'),
-    (1, 'Speed of Light', '3x10^');
+    (
+        1,
+        'Conservation of Energy Law',
+        'Energy cannot be created or destroyed, only transformed'
+    ),
+    (
+        1,
+        'Newtons First Law',
+        'An object at rest tends to stay at rest, and an object in motion tends to stay in motion unless acted upon by an external force'
+    ),
+    (
+        1,
+        'Electromagnetic Spectrum',
+        'The range of all types of electromagnetic radiation'
+    ),
+    (
+        1,
+        'Work Done Formula',
+        'Work (W) = Force (F) x Distance (d) x cos(θ)'
+    ),
+    (
+        1,
+        'Buoyancy Principle',
+        'An object immersed in a fluid experiences an upward buoyant force equal to the weight of the fluid it displaces'
+    ),
+    (
+        1,
+        'Inertia Concept',
+        'The tendency of an object to resist changes in its state of motion'
+    ),
+    (
+        1,
+        'Law of Reflection',
+        'The angle of incidence is equal to the angle of reflection'
+    ),
+    (
+        1,
+        'Hookes Law Explanation',
+        'The force exerted by a spring is directly proportional to the displacement of the spring from its equilibrium position'
+    ),
+    (
+        1,
+        'Speed vs. Velocity',
+        'Speed is the magnitude of velocity without direction'
+    ),
+    (
+        1,
+        'Kinetic Energy Definition',
+        'The energy of an object in motion'
+    ),
+    (
+        1,
+        'Conservation of Momentum Principle',
+        'The total momentum of a closed system remains constant'
+    ),
+    (
+        1,
+        'Frequency-Wavelength Relationship',
+        'Speed of light (c) = Frequency (f) x Wavelength (λ)'
+    ),
+    (
+        1,
+        'Electric Potential Energy',
+        'The energy associated with the position of an electric charge in an electric field'
+    ),
+    (
+        1,
+        'Universal Gravitation Law',
+        'Every point mass attracts every other point mass by a force acting along the line intersecting both points'
+    ),
+    (
+        1,
+        'Light Behavior in Prism',
+        'Dispersion of light into its constituent colors due to refraction'
+    );
 INSERT INTO Question (deck_id, key, value)
 VALUES (2, 'Word1', 'Ephemeral'),
     (2, 'Word2', 'Ubiquitous'),
@@ -926,11 +960,36 @@ VALUES (
         'What is the concept of cultivating awareness of ones own thoughts and feelings?'
     );
 INSERT INTO Tag (title)
-VALUES ('Science'),
-    ('Language'),
-    ('History'),
-    ('Health'),
-    ('Art');
+VALUES ('Maths'),
+    ("Science"),
+    ('Physics'),
+    ('Biology'),
+    ("Chemistry"),
+    ("Business"),
+    ("Admin"),
+    ("Economics"),
+    ("Computing Science"),
+    ("Social Subjects"),
+    ("History"),
+    ("Modern Studies"),
+    ("Geography"),
+    ("English"),
+    ("Languages"),
+    ("French"),
+    ("German"),
+    ("Gaelic"),
+    ("Latin"),
+    ("Art"),
+    ("Music"),
+    ("Design and Technology"),
+    ("Graphic Communication"),
+    ("Engineering Science"),
+    ("Design and Manufacture"),
+    ("PE"),
+    ("National 4"),
+    ("National 5"),
+    ("Higher"),
+    ("Advanced Higher");
 -- Assigning Tags to Decks
 -- Science Facts deck tagged with 'Science'
 INSERT INTO Deck_Topic (deck_id, tag_id)

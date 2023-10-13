@@ -1,0 +1,230 @@
+.form-field {
+    width: 100%;
+}
+
+.form-field input,
+.form-field textarea {
+    width: 100%;
+    background-color: var(--secondary-background);
+    border: 1px solid transparent;
+    height: 60px;
+    border-radius: 10px;
+    padding: 10px;
+    color: var(--primary-text);
+}
+
+.form-field input {
+    font-size: 24px;
+}
+
+.form-field {
+    margin: 5px 0;
+}
+
+/* If the input is invalid */
+.form-field input:invalid,
+.form-field textarea:invalid {
+    border: 1px solid var(--danger);
+}
+
+.form-field label {
+    color: var(--primary-text);
+}
+
+/* Remove the padding while in form-fields so label is not pushed away */
+.form-field .primary-button,
+.form-field .secondary-button {
+    margin: 0;
+}
+
+@media screen and (min-width: 600px) {
+    .small-only-dialog {
+        display: block;
+        position: relative;
+        z-index: 1;
+        box-shadow: none;
+        padding: 0;
+        margin: 0;
+        max-width: unset;
+        width: unset;
+    }
+}
+
+.tag-select-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+.tag-select {
+    min-height: 30px;
+}
+
+.tag-select span {
+    border-width: 1px;
+    border-radius: 15px;
+    border-color: var(--accent);
+    color: var(--primary-text);
+    border-style: solid;
+    padding: 5px 20px;
+}
+
+.tag-select input[type="checkbox"]:checked+span {
+    background-color: var(--accent);
+    color: var(--light-text);
+}
+
+.tag-select input[type="checkbox"] {
+    display: none;
+}
+
+.avatar-input {
+    border: none;
+    background: none;
+    width: 100%;
+    background-repeat: no-repeat;
+    height: auto;
+    aspect-ratio: 1 / 1;
+
+    /* Allows icon to be moved about inside */
+    position: relative;
+
+    border-radius: 10px;
+
+    background-image: 'url(' attr(value) ')';
+}
+
+.avatar-input span {
+    font-size: 48px;
+    position: absolute;
+    top: 5%;
+    left: 5%;
+}
+
+.error-text {
+    color: var(--danger);
+}
+
+.danger-dialog {
+    background-color: var(--danger-background);
+    color: var(--light-text);
+}
+
+.danger-dialog h2,
+.danger-dialog p {
+    color: var(--light-text)
+}
+
+fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+textarea {
+    resize: none;
+    font-size: 16px;
+    min-height: 60px;
+}
+
+#question-tab[data-mode="edit"] .question-delete-button {
+    display: none;
+}
+
+#question-tab[data-mode="edit"] #delete-buttons {
+    display: none;
+}
+
+#question-tab[data-mode="delete"] #edit-buttons {
+    display: none;
+}
+
+#question-list {
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+}
+
+#question-list li {
+    padding: 0;
+}
+
+.question-pair {
+    display: flex;
+    flex-direction: column;
+}
+
+.question-pair .question-key {
+    border-bottom: 1px solid grey;
+    border-radius: 5px 5px 0 0;
+}
+
+.question-pair .question-value {
+    border-radius: 0 0 5px 5px;
+}
+
+@media only screen and (min-width: 600px) {
+    .question-pair {
+        flex-direction: row;
+    }
+
+    .question-pair .question-key {
+        border-radius: 5px 0 0 5px;
+        border-bottom: none;
+        border-right: 1px solid grey;
+    }
+
+    .question-pair .question-value {
+        border-radius: 0 5px 5px 0;
+    }
+
+    #question-tab[data-mode="delete"] .question-pair .question-value {
+        border-radius: 0;
+    }
+}
+
+#question-tab[data-mode="delete"] .question-pair .question-key {
+    border-top-right-radius: 0;
+}
+
+#question-tab[data-mode="delete"] .question-pair .question-value {
+    border-bottom-right-radius: 0;
+}
+
+.question {
+    display: flex;
+}
+
+.question-delete-button {
+    background-color: var(--danger);
+    color: var(--light-text);
+    border: none;
+    margin: 5px 0;
+    border-radius: 0 5px 5px 0;
+}
+
+.question-delete-button:hover {
+    background-color: var(--danger-hover);
+}
+
+/* Chrome, Safari, Edge, Opera */
+#question-counter::-webkit-outer-spin-button,
+#question-counter::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#question-counter {
+    border: none;
+    background: none;
+    color: var(--primary-text);
+    font-size: 16px;
+    -moz-appearance: textfield;
+    width: 50px;
+    pointer-events: none;
+}
+
+.question[data-remove="true"] {
+    display: none !important;
+}

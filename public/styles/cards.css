@@ -1,0 +1,233 @@
+.deck-grid {
+    /* A two row horizontally scrolling list */
+    display: grid;
+    grid-auto-flow: column;
+    gap: 10px;
+    overflow-x: scroll;
+    grid-template-rows: auto auto;
+    justify-content: start;
+
+    /* Remove ul default styles */
+    margin: 0;
+    list-style-type: none;
+
+    /* Add page spacing */
+    padding-left: var(--page-horizontal-padding);
+}
+
+.deck-card {
+    /* General size and colours */
+    width: 150px;
+    height: 150px;
+    border-radius: 10px;
+    background-color: var(--secondary-background);
+}
+
+/* Highlight when hover */
+.deck-card:hover {
+    background-color: var(--secondary-background-hover);
+}
+
+
+.deck-card a {
+    /* Remove default styles */
+    text-decoration: none;
+    color: var(--primary-text);
+
+    /* Push top of card and bottom of card apart */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    /* Don't hit the edges of the element */
+    padding: 5px;
+    box-sizing: border-box;
+
+    /* Fill up the whole card */
+    height: 100%;
+
+
+}
+
+/* Push the titles and the save icons apart */
+.deck-card header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+/* Normal text color */
+.deck-card h3 {
+    color: var(--primary-text);
+}
+
+/* Give it less emphasis than the title */
+.deck-card .plays {
+    color: var(--secondary-text);
+}
+
+/* Give emphasis to username and indicate it will become a link */
+.deck-card header p {
+    color: var(--accent);
+}
+
+.deck-card ul {
+    /* Make sure text doesn't grow past the card */
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+
+    /* Remove default styles */
+    padding: 0;
+    text-decoration: none;
+    color: var(--secondary-text);
+}
+
+/* Styles for larger devices */
+@media only screen and (min-width: 600px) {
+
+    /* Make larger for bigger screens */
+    .deck-card {
+        width: 300px;
+        height: 120px;
+    }
+}
+
+.tag-list {
+    /* 1 row horizontally scrolling list */
+    gap: 10px;
+    display: grid;
+    grid-auto-flow: column;
+    justify-content: start;
+    overflow-x: scroll;
+
+    /* Remove default styles */
+    margin: 10px 0;
+    padding-left: var(--page-horizontal-padding);
+    list-style-type: none;
+}
+
+
+.tag-card {
+    /* Sizing and colours */
+    background-color: var(--accent);
+    border-radius: 25px;
+    height: 40px;
+
+    /* Reset default styles */
+    list-style-type: none;
+}
+
+/* Highlight when hovered */
+.tag-card:hover {
+    background-color: var(--accent-hover);
+    color: var(--light-text-hover)
+}
+
+.tag-card a {
+    /* Sizing */
+    padding: 5px 10px;
+    height: 100%;
+
+    /* Remove anchor default styles */
+    text-decoration: none;
+    color: var(--light-text);
+    white-space: nowrap;
+
+    /* Vertically centre text */
+    display: flex;
+    align-items: center;
+}
+
+.user-grid {
+    /* A one row horizontally scrolling grid */
+    display: grid;
+    gap: 10px;
+    grid-auto-flow: column;
+    grid-template-rows: auto;
+    justify-content: start;
+    overflow-x: scroll;
+
+    /* Add page spacing */
+    padding-left: var(--page-horizontal-padding);
+
+    /* Remove default ul styles */
+    margin: 0;
+    list-style-type: none;
+}
+
+/* Sizes and colours */
+.user-card {
+    width: 150px;
+    background-color: var(--secondary-background);
+    border-radius: 10px;
+    padding: 5px;
+}
+
+/* Avatar sizes */
+.user-card img {
+    height: 140px;
+    width: 140px;
+    border-radius: 5px;
+}
+
+/* Highlights when hovered */
+.user-card:hover {
+    background-color: var(--secondary-background-hover);
+}
+
+
+.user-card a {
+    /* Horizontally split card */
+    flex-direction: column;
+    gap: 5px;
+    display: flex;
+
+    /* Removes link default styles */
+    text-decoration: none;
+    color: var(--primary-text);
+}
+
+/* Vertical list */
+.user-card div {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Override link color */
+.user-card h3 {
+    color: var(--primary-text);
+}
+
+.user-card p {
+    /* Emphasises the element with the accent color */
+    color: var(--accent);
+}
+
+
+/* Larger Screens */
+@media only screen and (min-width: 600px) {
+
+    /* Makes the user card bigged */
+    .user-card {
+        width: 300px;
+    }
+
+    /* Sizes the avatar to the large card */
+    .user-card img {
+        height: 100px;
+        width: 100px;
+        border-radius: 5px;
+    }
+
+    /* Flips the card to horizontal */
+    .user-card a {
+        flex-direction: row;
+        gap: 10px;
+    }
+
+    /* Adds another row for a larger screen */
+    .user-grid {
+        grid-template-rows: auto auto;
+    }
+}

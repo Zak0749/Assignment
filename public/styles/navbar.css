@@ -1,0 +1,72 @@
+/* Has a vertical grid with the main page then an navbar at the bottom */
+body {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  grid-template-areas: "page" "navbar";
+}
+
+.navbar {
+  /* Make it different from page to easier to identify */
+  background-color: var(--secondary-background);
+
+  /* Identify the navbar for the main grid */
+  grid-area: navbar;
+  height: 80px;
+}
+
+.navbar ul {
+  /* A grid list going horizontal */
+  display: grid;
+  grid-auto-flow: column;
+  gap: 10px;
+
+  /* Remove ul default styles */
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+}
+
+.navbar a {
+  /* Text styles */
+  color: var(--primary-text);
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+
+  /* Horizontally and vertically centre */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  /* Sizing of element */
+  height: 70px;
+  margin: 5px;
+  border-radius: 10px;
+}
+
+/* Add effect to indicate hover */
+.navbar a:hover {
+  background-color: var(--secondary-background-hover);
+}
+
+/* Styles for larger devices */
+@media only screen and (min-width: 600px) {
+
+  /* Move the navbar to the side */
+  body {
+    grid-template-rows: 1fr;
+    grid-template-columns: auto 1fr;
+    grid-template-areas: "navbar page";
+  }
+
+  .navbar {
+    width: 80px;
+    height: unset;
+  }
+
+  /* Have the link list go vertically */
+  .navbar ul {
+    grid-auto-flow: row;
+  }
+}

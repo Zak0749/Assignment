@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <table id="results-table">
+  <thead>
+    <tr>
+      <th>No.</th>
+      <th>Question</th>
+      <th>Result</th>
+    </tr>
+  </thead>
+  <tbody id="results-table-body">
+
+    <tr>
+      <td>0</td>
+      <td>g</td>
+      <td>correct</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>a</td>
+      <td>correct</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>f</td>
+      <td>wrong</td>
+    </tr>
+    <tr><th>
+Retries
+    </th></tr>
+    <tr>
+      <td>2</td>
+      <td>f</td>
+      <td>correct</td>
+    </tr>
+  </tbody>
+</table>
+
+</body>
+
+<style>
+:root {
+  /* Padding style to reduce having a media query for each element */
+  --page-horizontal-padding: 10px;
+
+  /* Light mode styles */
+  --primary-text: #2f3639ff;
+  --secondary-text: #454f54ff;
+
+  --accent: hsl(200, 40%, 60%);
+  --accent-hover: hsl(200, 40%, 50%);
+
+  --light-text: hsl(0, 0%, 90%);
+  --light-text-hover: hsl(0, 0%, 85%);
+
+  --primary-background: hsl(200, 50%, 95%);
+
+  --secondary-background: #d5e0ec;
+  --secondary-background-hover: hsl(211, 38%, 78%);
+
+  --danger: hsl(10, 40%, 60%);
+  --danger-hover: hsl(10, 40%, 50%);
+  --danger-background: hsl(10, 40%, 70%);
+
+  --warning: hsl(50, 40%, 60%);
+  --warning-hover: hsl(50, 40%, 50%);
+  --warning-background: hsl(50, 40%, 70%);
+
+  --success: hsl(120, 40%, 60%);
+  --success-hover: hsl(120, 40%, 50%);
+  --success-background: hsl(120, 40%, 70%);
+}
+
+
+#results-table {
+   border-radius: 10px;
+   overflow: hidden;
+   width: 100%;
+   border: none;
+   border-collapse: collapse;
+}
+
+th:nth-child(1) {
+    width: 20px;
+}
+
+th:nth-child(3) {
+    width: 60px;
+}
+
+tbody tr:nth-child(odd) {
+       background-color: var(--secondary-background);
+
+}
+
+
+
+th {
+  background-color: var(--accent);
+}
+
+</style>
+</html>

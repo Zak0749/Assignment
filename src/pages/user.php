@@ -1,155 +1,123 @@
-<?php include "../src/components/navbar.php"; ?>
-<div class="page">
+<?php
 
-    <?php
+// Imports
+use database\DB;
+use function cards\deck_card;
+use function cards\tag_card;
+use function helpers\calculate_streak;
 
-    use database\DB;
+// If user_id is not set send user to error page
+if (!isset($_GET["user_id"])) {
+    require 'pages/errors/not_found.php';
+    return;
+}
 
-    use function cards\deck_card;
-    use function cards\tag_card;
+// Establish Db connection
+$db = new DB();
 
-    $db = new DB();
+$user_query = $db->getUser($_GET["user_id"]);
 
-    $query = $db->prepare(<<<SQL
-    SELECT User.user_id, username, 
-        timestamp,
-        streak_start,
-        streak_last,
-        COALESCE(decks, 0) as decks,
-        COALESCE(total_plays, 0) as total_plays,
-        COALESCE(average_score, 0) as average_score
+// If error occurred while getting the user send the user to an error page
+if (!$user_query->isOk()) {
+    require 'pages/errors/internal_server_error.php';
+    return;
+}
 
-    FROM User 
-        LEFT JOIN (
-            SELECT COUNT(Deck.user_id) as decks, 
-                SUM(Deck.plays) as total_plays,
-                Deck.user_id 
-            FROM Deck 
-            GROUP BY user_id
-        )
-        AS Decks ON Decks.user_id=User.user_id
-        LEFT JOIN (SELECT AVG(User_Play.score) as average_score, user_id FROM User_Play GROUP BY user_id) AS Previous ON Previous.user_id=:user_id
+// If user doesn't exist send the user to an error page
+if ($user_query->isEmpty()) {
+    require 'pages/errors/not_found.php';
+    return;
+}
 
-    WHERE User.user_id=:user_id
-SQL);
-    $query->bindValue(":user_id", $_GET["user_id"] ?? null);
-    $result = $query->execute();
+$user = $user_query->single();
+?>
+<header>
+    <div class="beside">
+        <img class="large-avatar" src="https://api.dicebear.com/7.x/bottts/svg?backgroundColor=ffadad,ffd6a5,fdffb6,caffbf,9bf6ff,a0c4ff,bdb2ff,ffc6ff,fffffc&seed=<?= $user["avatar"] ?>">
 
-    $user = $result->fetchArray();
-
-    $streak_start = strtotime($user["streak_start"]);
-    $streak_last =  strtotime($user["streak_last"]);
-    $date_difference = $streak_last - $streak_start;
-
-    if ($user == false) { ?>
-
-        <header>
-            <h1>User not found</h1>
-        </header>
-        <main>
-            <p>The user requested does not exist</p>
-        </main>
-
-
-    <?php
-    } else { ?>
-        <header>
-            <h1><?= $user["username"] ?></h1>
+        <div>
+            <h1>
+                <?= htmlspecialchars($user["username"]) ?>
+            </h1>
 
             <h2 class="subtitle">Joined <?= date("s/m/y", strtotime($user["timestamp"])) ?></h2>
+        </div>
+    </div>
+</header>
 
-        </header>
+<main>
+    <section>
+        <ul class="statistic-grid-large">
+            <figure class="statistic">
+                <span class="material-symbols-outlined">
+                    add
+                </span>
+                <span>
+                    <h3><?= $user["decks"] ?></h3>
+                    <figcaption>Deck's Made</figcaption>
+                </span>
+            </figure>
+            <figure class="statistic">
+                <span class="material-symbols-outlined">
+                    local_fire_department
+                </span>
+                <span>
+                    <h3><?= calculate_streak($user) ?></h3>
+                    <figcaption>Day Streak</figcaption>
+                </span>
+            </figure>
+            <figure class="statistic">
+                <span class="material-symbols-outlined">
+                    playing_cards
+                </span>
+                <span>
+                    <h3><?= $user["total_plays"] ?></h3>
+                    <figcaption>Total Plays</figcaption>
+                </span>
+            </figure>
+            <figure class="statistic">
+                <span class="material-symbols-outlined">
+                    target
+                </span>
+                <span>
+                    <h3><?= $user["average_score"] ?>/12</h3>
+                    <figcaption>Avg Score</figcaption>
+                </span>
+            </figure>
+        </ul>
+    </section>
 
-        <main>
-            <section class="figure-grid">
-                <figure class="statistic">
-                    <span class="material-symbols-outlined">
-                        add
-                    </span>
-                    <span>
-                        <h3><?= $user["decks"] ?></h3>
-                        <figcaption>Deck's Made</figcaption>
-                    </span>
-                </figure>
-                <figure class="statistic">
-                    <span class="material-symbols-outlined">
-                        local_fire_department
-                    </span>
-                    <span>
-                        <h3><?= floor($date_difference / 86400) ?></h3>
-                        <figcaption>Saves</figcaption>
-                    </span>
-                </figure>
-                <figure class="statistic">
-                    <span class="material-symbols-outlined">
-                        playing_cards
-                    </span>
-                    <span>
-                        <h3><?= $user["total_plays"] ?></h3>
-                        <figcaption>Total Plays</figcaption>
-                    </span>
-                </figure>
-                <figure class="statistic">
-                    <span class="material-symbols-outlined">
-                        target
-                    </span>
-                    <span>
-                        <h3><?= $user["average_score"] ?></h3>
-                        <figcaption>Avg Score</figcaption>
-                    </span>
-                </figure>
-            </section>
+    <section>
+        <h2>Likes</h2>
+        <ul class="tag-list">
+            <?php
+            $likes = $db->getLikes($_GET["user_id"]);
+            if (@$likes->isOk()) : ?>
+                <p>There was an error loading the users tags please try again</p>
+            <?php elseif ($likes->isEmpty()) : ?>
+                <p>This user currently has no likes, check back later</p>
+            <?php else : ?>
+                <?php foreach ($likes->iterate() as $tag) {
+                    echo tag_card($tag);
+                } ?>
+            <?php endif; ?>
+        </ul>
+    </section>
 
-            <section>
-                <h2>Likes</h2>
-                <ul class="horizontal-list">
-                    <?php $query = $db->prepare(<<<SQL
-                    SELECT title, 
-                        User_Likes.tag_id 
-                    FROM User_Likes 
-                        INNER JOIN Tag ON Tag.tag_id = User_Likes.tag_id
-                    WHERE user_id=:user_id
-                SQL);
-                    $query->bindValue(":user_id", $_GET["user_id"] ?? null);
-                    $result = $query->execute();
-                    while ($tag = $result->fetchArray()) {
-                        echo tag_card($tag);
-                    } ?>
-                </ul>
-            </section>
-
-            <section>
-                <h2>Decks</h2>
-                <ul class="grid-list">
-                    <?php
-                    $query = $db->prepare(<<<SQL
-                    SELECT Deck.deck_id, 
-                        Deck.title, 
-                        Deck.plays, 
-                        User.username,
-                        CASE WHEN :user_id IS NULL THEN 0
-                        WHEN EXISTS (
-                        SELECT 1
-                        FROM User_Save
-                        WHERE User_Save.user_id = :user_id
-                        AND User_Save.deck_id = Deck.deck_id
-                        ) THEN 1 ELSE 0 END AS saved
-
-                FROM Deck
-                    INNER JOIN User ON Deck.user_id = User.user_id
-                WHERE Deck.user_id = :user_id
-                LIMIT 10
-                SQL);
-
-                    $query->bindValue(":user_id", $_GET["user_id"] ?? null);
-                    $featured = $query->execute();
-
-                    while ($deck = $featured->fetchArray()) {
-                        echo deck_card($deck);
-                    }
-                    ?>
-                </ul>
-            </section>
-        </main>
-    <?php } ?>
-</div>
+    <section>
+        <h2>Creations</h2>
+        <ul class="deck-grid">
+            <?php
+            $creations = $db->getCreations($_GET["user_id"]);
+            if (!$creations->isOk()) : ?>
+                <p>There was an error loading the users creations please try again</p>
+            <?php elseif ($creations->isEmpty()) : ?>
+                <p>This user currently has no creations, check back later </p>
+            <?php else : ?>
+                <?php foreach ($creations->iterate() as $deck) {
+                    echo deck_card($deck, $db->getTopics($deck["deck_id"]));
+                } ?>
+            <?php endif; ?>
+        </ul>
+    </section>
+</main>

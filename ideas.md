@@ -37,11 +37,66 @@
 -- struggled to work out how to count and average in query
 -- COALESCE to find if zero
 -- used normalise.css to get rid of anoying browser defaults creating incosistance - used online package as it doens;t need to be tested
+-- dialog box to open up modal for tag select
+-- dialog click outside handler as users expect on mobile
+
+-- used robot icons as would be complex to create a editor and peeps would like thing to be like them so random no work but users are human so cool
+-- spin css animation needed to use focus and atvie - active had to hold but found sollution on stack voerflow
+-- extract URL param from css
+
+-- data-seed property to store avatar on signup
+
+-- look up for auto expanding text area: https://saturncloud.io/blog/creating-a-textarea-with-autoresize/ -23 to account for padding as line up
+
+-- overflow-clip margin for horizontal list
+
+-- decided to go with a patern where everything is extracted to other file allowing Model code to look good and logic to be seperate
+
+-- things got very complicated so i decided to seperate into code file and view file to hold functions for most things
+
+password_hash() and password verify for sequirty
+
+
+use prepare n stuff to prevent hacking
+
+-- chose to vaildate on both ends to ensure security
+
+-- validate in php in seperate file as sqlite doesn;t support regexp
+wrote own database abstarction to remove unesary code from the pages making the site cleaner
+
+-- use regxp to check no special characters in JS
+-- use regex to validate in php server side only use it as no messages need to be returned whereas JS more specific as help user
+-- chartJS graphs <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+-- idea flash bacgrkound to hieghlight correct
+
+SEQUIRITY 
+
+-- htmlspecialchars() - stop html injections
+-- prepare() - stop sql injections
+
+-- try and fix padding, margin for elements as is always inconsistant 
+
+
+## error
+
+-- Password check will break
 
 ## mics
 -- plays is seperate for anyomous users
 
 ## tongight
 
--- finish user
--- fix sign in styles
+--work out how to auto have the 
+-- add sequrity stuff in it to make sure others can URL manipulate
+
+-- fix add auto height for edit onload
+
+
+## TODO
+
+-- EDIT DECK
+-- DELETE DECK
+-- PLAY
+-- NOTIFICATIONS
+-- VALIDATE ALL INPUTS ON SERVER

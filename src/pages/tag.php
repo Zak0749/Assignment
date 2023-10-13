@@ -1,102 +1,85 @@
 <?php
-include "../src/components/navbar.php"; ?>
 
-<div class="page">
-    <?php
+// Imports
+use database\DB;
+use function cards\deck_card;
 
-    use database\DB;
+// If tag_id is not set send user to error page
+if (!isset($_GET["tag_id"])) {
+	require 'pages/errors/bad_request.php';
+	return;
+}
 
-    use function cards\deck_card;
+// Establish Db connection
+$db = new DB();
 
-    $db = new DB();
-    $query = $db->prepare(<<<SQL
-    SELECT title FROM Tag WHERE tag_id = :tag_id
-SQL);
+$tag_query = $db->getTag($_GET["tag_id"]);
 
-    $query->bindValue(":tag_id", $_GET["tag_id"]);
+// If error occurred while getting the tag send the user to an error page
+if (!$tag_query->isOk()) {
+	require 'pages/errors/internal_server_error.php.php';
+	return;
+}
 
-    $result = $query->execute();
+// If tag doesn't exist send the user to an error page
+if ($tag_query->isEmpty()) {
+	require 'pages/errors/not_found.php';
+	return;
+}
 
-    $tag = $result->fetchArray();
+$tag = $tag_query->single()
 
-    if ($tag) :
-    ?>
-        <header>
-            <h1><?= $tag["title"] ?></h1>
-        </header>
+?>
+<header>
+	<h1><?= $tag["title"] ?></h1>
+</header>
 
-        <main>
+<main>
+	<section>
+		<h2>Popular</h2>
 
-            <section>
-                <h2>Popular</h2>
+		<?php
+		$popular = $db->popularByTag($_GET["tag_id"]);
 
-                <ul class="grid-list">
-                    <?php
-                    $query = $db->prepare("SELECT Deck.deck_id, Deck.title, Deck.plays, User.username, 
-                CASE WHEN :user_id IS NULL THEN 0
-                WHEN EXISTS (
-                    SELECT 1
-                    FROM User_Save
-                    WHERE User_Save.user_id = :user_id
-                    AND User_Save.deck_id = Deck.deck_id
-                ) THEN 1 ELSE 0 END AS saved 
+		if (!$popular->isOk()) : ?>
+			<p>
+				There was an error trying to find popular decks with this tags please try again
+			</p>
+		<?php elseif ($popular->isEmpty()) : ?>
+			<p>
+				There are no popular decks with this tag,
+				when they are created they will appear here
+			</p>
+		<?php else : ?>
+			<ul class="deck-grid">
+				<?php foreach ($popular->iterate() as $deck) {
+					echo deck_card($deck, $db->getTopics($deck["deck_id"]));
+				} ?>
+			</ul>
+		<?php endif; ?>
+	</section>
 
-                FROM Deck_Topic   
-                    INNER JOIN Deck ON Deck_Topic.deck_id = Deck.deck_id   
-                    INNER JOIN User ON Deck.user_id = User.user_id 
-                ORDER BY plays DESC 
-                LIMIT 10");
+	<section>
+		<h2>New</h2>
 
-                    $query->bindValue(":user_id", $_SESSION["user_id"] ?? null);
-                    $query->bindValue(":user_id", $_GET["tag_id"]);
-                    $featured = $query->execute();
+		<?php
+		$new = $db->newByTag($_GET["tag_id"]);
 
-                    while ($deck = $featured->fetchArray()) {
-                        echo deck_card($deck);
-                    }
-                    ?>
-                </ul>
-            </section>
-
-            <section>
-                <h2>New</h2>
-
-                <ul class="grid-list">
-                    <?php
-                    $query = $db->prepare("SELECT Deck.deck_id, Deck.title, Deck.plays, User.username, 
-                CASE WHEN :user_id IS NULL THEN 0
-                WHEN EXISTS (
-                    SELECT 1
-                    FROM User_Save
-                    WHERE User_Save.user_id = :user_id
-                    AND User_Save.deck_id = Deck.deck_id
-                ) THEN 1 ELSE 0 END AS saved 
-
-                FROM Deck_Topic   
-                    INNER JOIN Deck ON Deck_Topic.deck_id = Deck.deck_id   
-                    INNER JOIN User ON Deck.user_id = User.user_id 
-                ORDER BY Deck.timestamp ASC 
-                LIMIT 10");
-
-                    $query->bindValue(":user_id", $_SESSION["user_id"] ?? null);
-                    $query->bindValue(":user_id", $_GET["tag_id"]);
-                    $featured = $query->execute();
-
-                    while ($deck = $featured->fetchArray()) {
-                        echo deck_card($deck);
-                    }
-                    ?>
-                </ul>
-            </section>
-        </main>
-
-    <?php else : ?>
-        <header>
-            <h1>Tag not found</h1>
-        </header>
-        <main>
-            <p>The tag requested does not exist</p>
-        </main>
-    <?php endif ?>
-
-</div>
+		if (!$new->isOk()) : ?>
+			<p>
+				There was an error trying to find new decks with this tags please try again
+			</p>
+		<?php elseif ($new->isEmpty()) : ?>
+			<p>
+				There are no new decks with this tag,
+				when they are created they will appear here
+			</p>
+		<?php else : ?>
+			<ul class="deck-grid">
+				<?php foreach ($new->iterate() as $deck) {
+					echo deck_card($deck, $db->getTopics($deck["deck_id"]));
+				} ?>
+			</ul>
+		<?php endif; ?>
+	</section>
+</main>

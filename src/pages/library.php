@@ -1,111 +1,79 @@
 <?php
-
+// Imports
 use database\DB;
-
 use function cards\deck_card;
 
-include "../src/components/navbar.php";
+// If the user is not logged in send them to an error page
+if (!isset($_SESSION["user_id"])) {
+    require 'pages/errors/unauthorized.php';
+    return;
+}
 
+// Establish Db connection
 $db = new DB();
 ?>
-<div class="page">
 
-    <header>
-        <h1 class="page-title">
-            Discover
-        </h1>
-    </header>
+<header>
+    <h1>
+        Library
+    </h1>
+</header>
 
-    <main>
+<main>
+    <section>
+        <h2>Saved</h2>
 
-
-        <section>
-            <h2>Saved</h2>
-
-            <ul class="grid-list">
-                <?php
-                $query = $db->prepare("SELECT Deck.deck_id, Deck.title, Deck.plays, User.username, 
-                CASE WHEN :user_id IS NULL THEN 0
-                WHEN EXISTS (
-                    SELECT 1
-                    FROM User_Save
-                    WHERE User_Save.user_id = :user_id
-                    AND User_Save.deck_id = Deck.deck_id
-                ) THEN 1 ELSE 0 END AS saved 
-                
-                FROM User_Save  
-                    INNER JOIN Deck ON User_Save.deck_id = Deck.deck_id
-                    INNER JOIN User ON Deck.user_id = User.user_id 
-                WHERE User_Save.user_id = :user_id
-                LIMIT 10");
-
-                $query->bindValue(":user_id", $_SESSION["user_id"] ?? null);
-                $featured = $query->execute();
-
-                while ($deck = $featured->fetchArray()) {
-                    echo deck_card($deck);
-                }
-                ?>
+        <?php
+        $saved = $db->getSaved();
+        if (!$saved->isOk()) :
+        ?>
+            <p>An error occurred, please try again</p>
+        <?php elseif ($saved->isEmpty()) : ?>
+            <p>You have no saved decks when you save some they will appear here</p>
+        <?php else : ?>
+            <ul class="deck-grid">
+                <?php foreach ($saved->iterate() as $deck) {
+                    echo deck_card($deck, $db->getTopics($deck["deck_id"]));
+                } ?>
             </ul>
-        </section>
+        <?php endif; ?>
+    </section>
 
-        <section>
-            <h2>Creations</h2>
+    <section>
+        <h2>Creations</h2>
 
-            <ul class="grid-list">
-                <?php
-                $query = $db->prepare("SELECT Deck.deck_id, Deck.title, Deck.plays, User.username, 
-                CASE WHEN :user_id IS NULL THEN 0
-                WHEN EXISTS (
-                    SELECT 1
-                    FROM User_Save
-                    WHERE User_Save.user_id = :user_id
-                    AND User_Save.deck_id = Deck.deck_id
-                ) THEN 1 ELSE 0 END AS saved 
-                
-                FROM Deck  
-                    INNER JOIN User ON Deck.user_id = User.user_id 
-                WHERE Deck.user_id = :user_id
-                LIMIT 10");
-
-                $query->bindValue(":user_id", $_SESSION["user_id"] ?? null);
-                $featured = $query->execute();
-
-                while ($deck = $featured->fetchArray()) {
-                    echo deck_card($deck);
-                }
-                ?>
+        <?php
+        $creations = $db->getCreations($_SESSION["user_id"]);
+        if (!$creations->isOk()) :
+        ?>
+            <p>An error occurred, please try again</p>
+        <?php elseif ($creations->isEmpty()) : ?>
+            <p>You have not created any decks yet, when you do they will appear here</p>
+        <?php else : ?>
+            <ul class="deck-grid">
+                <?php foreach ($creations->iterate() as $deck) {
+                    echo deck_card($deck, $db->getTopics($deck["deck_id"]));
+                } ?>
             </ul>
-        </section>
+        <?php endif; ?>
+    </section>
 
-        <section>
-            <h2>Recents</h2>
+    <section>
+        <h2>Recent</h2>
 
-            <ul class="grid-list">
-                <?php
-                $query = $db->prepare("SELECT Deck.deck_id, Deck.title, Deck.plays, User.username, 
-                CASE WHEN :user_id IS NULL THEN 0
-                WHEN EXISTS (
-                    SELECT 1
-                    FROM User_Save
-                    WHERE User_Save.user_id = :user_id
-                    AND User_Save.deck_id = Deck.deck_id
-                ) THEN 1 ELSE 0 END AS saved 
-                
-                FROM User_Play  
-                    INNER JOIN Deck ON User_Play .deck_id = Deck.deck_id
-                    INNER JOIN User ON Deck.user_id = User.user_id 
-                WHERE User_Play.user_id = :user_id
-                LIMIT 10");
-
-                $query->bindValue(":user_id", $_SESSION["user_id"] ?? null);
-                $featured = $query->execute();
-
-                while ($deck = $featured->fetchArray()) {
-                    echo deck_card($deck);
-                }
-                ?>
+        <?php
+        $recent = $db->getRecent($_SESSION["user_id"]);
+        if (!$recent->isOk()) :
+        ?>
+            <p>An error occurred, please try again</p>
+        <?php elseif ($recent->isEmpty()) : ?>
+            <p>You have not played any decks yet, when you do they will appear here</p>
+        <?php else : ?>
+            <ul class="deck-grid">
+                <?php foreach ($recent->iterate() as $deck) {
+                    echo deck_card($deck, $db->getTopics($deck["deck_id"]));
+                } ?>
             </ul>
-        </section>
-    </main>
-</div>
+        <?php endif; ?>
+    </section>
+</main>

@@ -1,5 +1,10 @@
 {
   "cSpell.enableFiletypes": ["sql", "sqlite"],
-  "cSpell.words": ["AUTOINCREMENT"],
-  "cSpell.language": "en-GB"
+  "cSpell.words": [
+    "AUTOINCREMENT",
+    "Learnify"
+  ],
+  "cSpell.language": "en-GB",
+  "php.validate.run": "onType",
+  "html.format.templating": true
 }
