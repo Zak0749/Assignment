@@ -55,3 +55,12 @@
     --secondary-background-hover: hsl(200, 10%, 40%);
   }
 }
+
+:root {
+  --ambiguous-color: #AAAAAA;
+  --failed-color: #BBBBBB;
+  --not-defined-color: #CCCCCC;
+  --passed-color: #DDDDDD;
+  --pending-color: #EEEEEE;
+  --skipped-color: #FFFFFF;
+}

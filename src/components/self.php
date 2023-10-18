@@ -55,4 +55,8 @@ $answer_part = $question_part == "key" ? "value" : "key";
             Wrong
         </h2>
 
-        <button onclick="nextQuestion(this)" class="dang
+        <button onclick="nextQuestion(this)" class="danger-button">
+            Next
+        </button>
+    </footer>
+</section>

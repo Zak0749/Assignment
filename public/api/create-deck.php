@@ -32,4 +32,18 @@ if (
 
 $result = $db->createDeck(
     $body["title"],
-    
+    $body["description"],
+    $body["topics"],
+    $body["questions"]
+);
+
+if ($result->isOk()) {
+    // Give response of `Created`
+    http_response_code(201);
+
+    // Give the new id of the deck
+    echo $result->value;
+} else {
+    // Response of `Internal Server Error`
+    http_response_code(500);
+}

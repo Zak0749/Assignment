@@ -90,4 +90,30 @@ $db = new DB();
                             <?php // Display the card for each featured deck
                             foreach ($for_you_query->iterate() as $deck) {
                                 echo deck_card($deck, $db->getTopics($deck["deck_id"]));
-                            } 
+                            } ?>
+                        </ul>
+                    <?php endif; ?>
+                </section>
+            <?php endif ?>
+
+            <section>
+                <h2>Popular</h2>
+
+                <?php
+                $popular_query = $db->getPopular();
+                if (!$popular_query->isOk()) :
+                ?>
+                    <p>An error occurred, please try again</p>
+                <?php elseif ($popular_query->isEmpty()) : ?>
+                    <p>There is currently no popular decks check back later and there might be</p>
+                <?php else : ?>
+                    <ul class="deck-grid">
+                        <?php foreach ($popular_query->iterate() as $deck) { // Display the card for each featured deck
+                            echo deck_card($deck, $db->getTopics($deck["deck_id"]));
+                        } ?>
+                    </ul>
+                <?php endif; ?>
+            </section>
+        </main>
+    </div>
+</body>

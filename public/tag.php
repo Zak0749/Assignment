@@ -87,4 +87,17 @@ $tag = $tag_query->single()
 					</p>
 				<?php elseif ($new->isEmpty()) : ?>
 					<p>
-				
+						There are no new decks with this tag,
+						when they are created they will appear here
+					</p>
+				<?php else : ?>
+					<ul class="deck-grid">
+						<?php foreach ($new->iterate() as $deck) {
+							echo deck_card($deck, $db->getTopics($deck["deck_id"]));
+						} ?>
+					</ul>
+				<?php endif; ?>
+			</section>
+		</main>
+	</div>
+</body>

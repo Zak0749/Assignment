@@ -258,3 +258,44 @@ button.play-value:hover {
     display: flex;
     gap: 10px;
 }
+
+#correct-number,
+#wrong-number {
+    display: inline;
+}
+
+#play-results {
+    width: 100%;
+}
+
+#results-table {
+    border-radius: 10px;
+    overflow: hidden;
+    width: 100%;
+    border: none;
+    border-collapse: collapse;
+}
+
+th:nth-child(1) {
+    width: 40px;
+
+}
+
+th:nth-child(3) {
+    width: 80px;
+}
+
+th,
+td {
+    padding: 10px;
+}
+
+tbody tr:nth-child(odd) {
+    background-color: var(--secondary-background);
+
+}
+
+th {
+    background-color: var(--accent);
+    color: var(--light-text)
+}

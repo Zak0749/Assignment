@@ -117,3 +117,5 @@ json responces cammel
 rather than use weird post can use url parms
 
 https://rapidapi.com/guides/query-parameters-fetch
+
+erorr messages on server do not need to give message as client knows about them so ovs some sus stuff going on

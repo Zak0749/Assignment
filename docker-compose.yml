@@ -7,17 +7,3 @@ services:
       dockerfile: Dockerfile
     ports:
       - 8080:8080
-    environment:
-      - PORT=8080
-    develop:
-      watch:
-        - path: ./public
-          action: sync
-          target: /var/www/html
-        - path: ./src
-          action: sync
-          target: /var/www/src
-        - path: database/setup.sql
-          action: rebuild
-        - path: .htaccess
-          action: rebuild
