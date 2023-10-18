@@ -1,23 +1,93 @@
 <?php
-
-// Gets the URL from the request and filters out the location and parameters
-$path = parse_url($_SERVER['REQUEST_URI'])["path"];
-
-// Sets where all my includes and requires will be based from
-set_include_path("../src");
-
 // Begins the session for authenticating the user
-session_start();
 
 
-// Adds all the functions/classes to be available to all routes 
-require "modules/database.php";
-require "modules/helpers.php";
-require "components/cards.php";
+// Adds all the functions/classes to be available to all routes
+// Imports
+use database\DB;
+use function cards\deck_card;
+use function helpers\calculate_streak;
 
-// Determines if the request is to get a page or preform an action and routes accordingly
-if (str_contains($path, "api")) {
-    include "api.php";
-} else {
-    include "page.php";
-}
+// Establish Db connection
+$db = new DB();
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <?php require "components/head.php" ?>
+</head>
+
+<body>
+    <?php require "components/navbar.php" ?>
+
+    <div class="page">
+
+        <header>
+            <div class="spaced-apart">
+                <h1>
+                    Discover
+                </h1>
+
+                <?php
+                if (isset($_SESSION["user_id"])) :
+                    $user_query = $db->getUser($_SESSION["user_id"]);
+                    if ($user_query->isOk() && !$user_query->isEmpty()) : ?>
+                        <span class="streak-display">
+                            <span class="material-symbols-outlined">
+                                local_fire_department
+                            </span>
+
+                            <h1>
+                                <?= calculate_streak($user_query->single()) ?>
+                            </h1>
+                        </span>
+                <?php
+                    endif;
+                endif;
+                ?>
+            </div>
+        </header>
+
+        <main>
+            <section>
+                <h2>Featured</h2>
+
+                <?php
+                $featured_query = $db->getFeatured();
+                if (!$featured_query->isOk()) :
+                ?>
+                    <p>An error occurred, please try again</p>
+                <?php elseif ($featured_query->isEmpty()) : ?>
+                    <p>There is currently no popular decks check back later and there might be</p>
+                <?php else : ?>
+                    <ul class="deck-grid">
+                        <?php // Display the card for each featured deck
+                        foreach ($featured_query->iterate() as $deck) {
+                            echo deck_card($deck, $db->getTopics($deck["deck_id"]));
+                        } ?>
+                    </ul>
+                <?php endif; ?>
+            </section>
+
+            <?php
+            // Show the user if logged in
+            if (isset($_SESSION["user_id"])) :
+            ?>
+                <section>
+                    <h2>For You</h2>
+
+                    <?php
+                    $for_you_query = $db->getForYou();
+                    if (!$for_you_query->isOk()) :
+                    ?>
+                        <p>An error occurred, please try again</p>
+                    <?php elseif ($for_you_query->isEmpty()) : ?>
+                        <p>There is currently no recommended decks, check back later and there might be</p>
+                    <?php else : ?>
+                        <ul class="deck-grid">
+                            <?php // Display the card for each featured deck
+                            foreach ($for_you_query->iterate() as $deck) {
+                                echo deck_card($deck, $db->getTopics($deck["deck_id"]));
+                            } 

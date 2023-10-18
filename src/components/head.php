@@ -1,0 +1,24 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/images/favicon.ico" sizes="any">
+<link rel="icon" href="/images/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+
+<!-- Styling -->
+<link href="styles/styles.css" rel="stylesheet">
+<link href="styles/navbar.css" rel="stylesheet">
+<link href="styles/cards.css" rel="stylesheet">
+<link href="styles/variables.css" rel="stylesheet">
+<link href="styles/search.css" rel="stylesheet">
+<link href="styles/forms.css" rel="stylesheet">
+<link href="styles/play.css" rel="stylesheet">
+
+<!-- Fonts and icons -->
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet">
+
+<!-- Scripts -->
+<script type="text/javascript" src="scripts/scripts.js"></script>
+
+<!-- Set page title -->
+<title>Learnify</title>

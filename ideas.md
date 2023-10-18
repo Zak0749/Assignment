@@ -100,3 +100,20 @@ SEQUIRITY
 -- PLAY
 -- NOTIFICATIONS
 -- VALIDATE ALL INPUTS ON SERVER
+
+## if graph is broken need to add chart file before the mainnhead
+
+# cases
+
+files, urls: kebab case e.g. search-results
+everything in js cammelCase e.g. searchResults
+url params: snake_case
+php var & func snake
+php method cammel
+json responces cammel
+
+# get rid of the .php its dum
+
+rather than use weird post can use url parms
+
+https://rapidapi.com/guides/query-parameters-fetch

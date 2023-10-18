@@ -12,12 +12,10 @@ RUN sqlite3 'db.sqlite' < 'setup.sql'
 
 FROM php:apache
 
-WORKDIR /var/www
-
-COPY --from=builder db.sqlite ./database/db.sqlite
-
-COPY public/ html
-
-COPY src/ src
-
-EXPOSE 80
+RUN docker-php-ext-install -j "$(nproc)" opcache
+RUN set -ex; \
+  { \
+    echo "; Cloud Run enforces memory & timeouts"; \
+    echo "memory_limit = -1"; \
+    echo "max_execution_time = 0"; \
+    echo "; Fil

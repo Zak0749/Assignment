@@ -1,0 +1,1 @@
+ok for all exept question array gotta work out how to do well

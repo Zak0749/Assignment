@@ -47,8 +47,4 @@ $questions = random_from_array($all_questions, 4);
             Wrong
         </h2>
 
-        <button onclick="nextQuestion(this)" class="danger-button">
-            Next
-        </button>
-    </footer>
-</section>
+        <button onclick="nextQuestion(this)" class="danger-

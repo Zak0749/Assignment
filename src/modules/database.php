@@ -19,7 +19,7 @@ class Db
     public function __construct()
     {
         // Connects to the database
-        $this->db = new SQLite3("../database/db.sqlite");
+        $this->db = new SQLite3($_ENV["PWD"] . "/database/db.sqlite");
     }
 
     // Gets the title and id of all tags and returns a generator yielding each tag

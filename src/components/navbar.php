@@ -1,7 +1,7 @@
 <nav class="navbar">
 	<ul>
 		<li>
-			<a href="/">
+			<a href="index">
 				<span class="material-symbols-outlined">
 					explore
 				</span>
@@ -12,7 +12,7 @@
 		<!-- If signed in add library and create pages to navbar -->
 		<?php if (isset($_SESSION["user_id"])) : ?>
 			<li>
-				<a href="/library">
+				<a href="library">
 					<span class="material-symbols-outlined">
 						library_books
 					</span>
@@ -21,7 +21,7 @@
 				</a>
 			</li>
 			<li>
-				<a href="/create_deck">
+				<a href="create-deck">
 					<span class="material-symbols-outlined">
 						add
 					</span>
@@ -31,7 +31,7 @@
 			</li>
 		<?php endif ?>
 		<li>
-			<a href="<?= isset($_SESSION["user_id"]) ? '/my_account' : '/not_logged_in' ?>">
+			<a href="<?= isset($_SESSION["user_id"]) ? 'my-account' : 'not-logged-in' ?>">
 				<span class="material-symbols-outlined">
 					person
 				</span>
@@ -41,7 +41,7 @@
 		</li>
 
 		<li>
-			<a href="/search">
+			<a href="search">
 				<span class="material-symbols-outlined">
 					search
 				</span>
