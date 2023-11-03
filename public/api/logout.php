@@ -10,6 +10,7 @@ if (!isset($_SESSION["user_id"])) {
 }
 
 // Removes the user_id on the session
+// Would have used session_destroy() but decided not to as if other data was stored on SESSION could cause unexpected behavior 
 unset($_SESSION["user_id"]);
 
 // Response of `No Content`

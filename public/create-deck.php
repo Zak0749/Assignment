@@ -1,7 +1,4 @@
 <?php
-// Begins the session for authenticating the user
-
-
 // Imports
 use database\Db;
 
@@ -32,10 +29,10 @@ $db = new Db();
             <h1>Create</h1>
 
             <nav class="tab-bar">
-                <button onclick="changeTab(this,'info-tab')" class="selected-tab-button">
+                <button onclick="changeTab(this,'info-tab')" class="selected-tab-button" keyboard-shortcut="i">
                     Info
                 </button>
-                <button id="question-tab-button" onclick="changeTab(this,'question-tab')">
+                <button id="question-tab-button" onclick="changeTab(this,'question-tab')" keyboard-shortcut="q">
                     Questions
                 </button>
             </nav>
@@ -57,7 +54,7 @@ $db = new Db();
 
                         <div class="form-field hide-large">
                             <label>Topics</label>
-                            <button class="secondary-button" type="button" onclick="open_dialog('tag-select-dialog')">
+                            <button class="secondary-button" type="button" onclick="open_dialog('tag-select-dialog')" keyboard-shortcut="t">
                                 Show
                             </button>
                         </div>
@@ -77,7 +74,7 @@ $db = new Db();
                                 </label>
 
                                 <div class="icon-bar hide-large">
-                                    <button class="header-icon" type="button" onclick="close_dialog('tag-select-dialog')">
+                                    <button class="header-icon" type="button" onclick="close_dialog('tag-select-dialog')" keyboard-shortcut="e">
                                         <span class="material-symbols-outlined">
                                             close
                                         </span>
@@ -93,7 +90,7 @@ $db = new Db();
                                     <ul class="tag-select-list">
                                         <?php foreach ($tag_query->iterate() as $tag) : ?>
                                             <label class="tag-select">
-                                                <input type="checkbox" name="topics" value="<?= $tag["tag_id"] ?>">
+                                                <input type="checkbox" name="topics" value="<?= htmlspecialchars($tag["tag_id"]) ?>">
                                                 <span class="tag-pill-label">
                                                     <?= htmlspecialchars($tag["title"]) ?>
                                                 </span>
@@ -110,7 +107,7 @@ $db = new Db();
                 <section id="question-tab" data-mode="edit">
                     <legend>Questions:
                         <!-- Pointer events stop clicking and inputing while still validating as readoly stops html validaiton -->
-                        <input id="question-counter" type="number" value="1" min="8" oninvalid="changeTab(document.getElementById('question-tab-button'),'question-tab')">
+                        <input id="question-counter" type="number" value="1" min="8" oninvalid="changeTab(document.getElementById('question-tab-button'), 'question-tab')">
                     </legend>
 
                     <ul id="question-list">
@@ -129,14 +126,14 @@ $db = new Db();
                         </li>
                     </ul>
                     <div class="beside" id="edit-buttons">
-                        <button type="button" class="primary-button" onclick="addQuestion()">
+                        <button type="button" class="primary-button" onclick="addQuestion()" keyboard-shortcut="+">
                             <span class="material-symbols-outlined">
                                 add
                             </span>
 
                             Add Question
                         </button>
-                        <button type="button" onclick="question_mode_delete()" class="danger-button">
+                        <button type="button" onclick="question_mode_delete()" class="danger-button" keyboard-shortcut="m">
                             <span class="material-symbols-outlined">
                                 delete
                             </span>
@@ -146,7 +143,7 @@ $db = new Db();
 
                     </div>
                     <div class="beside" id="delete-buttons">
-                        <button type="button" onclick="undoDeletions()" class="secondary-button">
+                        <button type="button" onclick="undoDeletions()" class="secondary-button" keyboard-shortcut="u">
                             <span class="material-symbols-outlined">
                                 undo
                             </span>
@@ -154,7 +151,7 @@ $db = new Db();
                             Undo Deletions
                         </button>
 
-                        <button type="button" onclick="question_mode_edit()" class="primary-button edit-mode-button">
+                        <button type="button" onclick="question_mode_edit()" class="primary-button edit-mode-button" keyboard-shortcut="m">
                             <span class="material-symbols-outlined">
                                 edit
                             </span>

@@ -47,12 +47,10 @@ if (isset($_SESSION["user_id"])) {
 
                 <p>
                     Don't have an account?
-                    <a href="create-account">
+                    <a href="create-account" keyboard-shortcut="c">
                         Create an account
                     </a>
                 </p>
-
-                <p id="general-error"></p>
             </form>
         </main>
     </div>

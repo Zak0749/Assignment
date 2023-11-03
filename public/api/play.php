@@ -5,19 +5,21 @@ header("Content-type:application/json");
 // Imports
 use database\Db;
 
-use function helpers\get_body;
-use function helpers\validate_number;
-
-$body = get_body();
+$body = filter_input_array(INPUT_POST, [
+    "deck_id" => [
+        "filter" => FILTER_VALIDATE_INT,
+    ],
+    "score" => [
+        "filter" => FILTER_VALIDATE_INT,
+        "options" => [
+            "min_range" => 0,
+            "max_range" => 12
+        ]
+    ]
+]);
 
 // If deck not specified 
-if (!isset($body["deck_id"])) {
-    http_response_code(400);
-    return;
-}
-
-// If score not specified 
-if (!validate_number($body, "score", max: 12, min: 0)) {
+if (in_array(null, $body, true) || in_array(false, $body, true)) {
     http_response_code(400);
     return;
 }

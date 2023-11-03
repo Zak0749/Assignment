@@ -2,10 +2,6 @@
 // Imports
 use database\DB;
 
-use function helpers\get_body;
-use function helpers\validate_string;
-use function helpers\validate_text;
-
 // Sets the response type
 header("Content-type:application/json");
 
@@ -15,12 +11,37 @@ if (isset($_SESSION["user_id"])) {
 	return;
 }
 
-$body = get_body();
+$body = filter_input_array(INPUT_POST, [
+	"username" => [
+		"filter" => FILTER_VALIDATE_REGEXP,
+		"options" => [
+			'regexp' => "/^[\w]{3,16}$/"
+		]
+	],
+	"password" => [
+		"filter" => FILTER_VALIDATE_REGEXP,
+		"options" => [
+			'regexp' => "/^[\S]{8,24}$/"
+		]
+	],
+	"avatar" => [
+		"filter" => FILTER_VALIDATE_REGEXP,
+		'options' => [
+			'regexp' => "/^[0-9, a-f]{8}$/"
+		],
+	],
+	"likes" => [
+		"filter" => FILTER_VALIDATE_INT,
+		'flags' => FILTER_FORCE_ARRAY
+	],
+]);
 
 if (
-	!validate_string($body, "username", required: true, pattern: "/^[\w]{3,16}$/") &&
-	!validate_string($body, "password", required: true, pattern: "/^[\S]{8,24}$/") &&
-	!validate_string($body, "avatar", required: true, pattern: "/^[0-9, a-f]{8}$/")
+	in_array(false, $body, true) || // If any fields are invalid
+	($body["likes"] !== null && in_array(false, $body["likes"], true)) || // If likes exists and any of them are invalid
+	$body["username"] === null || // If username is not set
+	$body["password"] === null || // If password is not set
+	$body["avatar"] === null // If avatar is not set
 ) {
 	http_response_code(400);
 	return;
@@ -30,11 +51,9 @@ if (
 // Establish Db connection
 $db = new DB();
 
-
 $result = $db->createAccount(
 	$body["username"],
-	// Hash password for security 
-	password_hash($body["username"], PASSWORD_DEFAULT),
+	password_hash($body["password"], PASSWORD_DEFAULT), // Hash password so even if passwords are gotten out of the database attackers cannot get plain text password
 	$body["avatar"],
 	$body["likes"]
 );

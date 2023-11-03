@@ -3,8 +3,6 @@
 
 use database\Db;
 
-use function helpers\get_body;
-
 // Sets the response type
 header("Content-type:application/json");
 
@@ -13,17 +11,113 @@ if (!isset($_SESSION["user_id"])) {
     return;
 }
 
+$body = filter_input_array(INPUT_POST, [
+    "deck_id" => [
+        "filter" => FILTER_VALIDATE_INT,
+    ],
+    "title" => [
+        "filter" => FILTER_VALIDATE_REGEXP,
+        "options" => [
+            'regexp' => "/^.{3,32}$/"
+        ]
+    ],
+    "description" => [
+        "filter" => FILTER_VALIDATE_REGEXP,
+        "options" => [
+            'regexp' => "/^.{3,256}$/"
+        ]
+    ],
+    "added_topics" => [
+        "filter" => FILTER_VALIDATE_INT,
+        "flags" => FILTER_FORCE_ARRAY
+    ],
+    "removed_topics" => [
+        "filter" => FILTER_VALIDATE_INT,
+        "flags" => FILTER_FORCE_ARRAY
+    ],
+    "new_questions" => [
+        "flags" => FILTER_FORCE_ARRAY
+    ],
+    "edited_questions" => [
+        "flags" => FILTER_FORCE_ARRAY,
+    ],
+    "removed_questions" => [
+        "filter" => FILTER_VALIDATE_INT,
+        "flags" => FILTER_FORCE_ARRAY
+    ]
+]);
+
+// If not null or valid
+if ($body["new_questions"]) {
+    $body["new_questions"] = array_map(function ($question) {
+        $question = filter_var_array($question, [
+            "key" => [
+                "filter" => FILTER_VALIDATE_REGEXP,
+                "options" => [
+                    'regexp' => "/^.{0,32}$/"
+                ]
+            ],
+            "value" => [
+                "filter" => FILTER_VALIDATE_REGEXP,
+                "options" => [
+                    'regexp' => "/^.{0,256}$/"
+                ]
+            ],
+        ]);
+
+        if (in_array(false, $question, true) || in_array(null, $question, true)) {
+            return false;
+        } else {
+            return $question;
+        }
+    }, $body["new_questions"]);
+}
+
+if ($body["edited_questions"]) {
+    $body["edited_questions"] = array_map(function ($question) {
+        $question = filter_var_array($question, [
+            "id" => FILTER_VALIDATE_INT,
+            "key" => [
+                "filter" => FILTER_VALIDATE_REGEXP,
+                "options" => [
+                    'regexp' => "/^.{0,32}$/"
+                ]
+            ],
+            "value" => [
+                "filter" => FILTER_VALIDATE_REGEXP,
+                "options" => [
+                    'regexp' => "/^.{0,256}$/"
+                ]
+            ],
+        ]);
+
+        // If any fields are invalid or the id is not set
+        if (in_array(false, $question, true) || $question["id"] === null) {
+            return false;
+        } else {
+            return $question;
+        }
+    }, $body["edited_questions"]);
+}
+
 // If deck is not specified give error code and stop request
-if (!isset($_REQUEST["deck_id"])) {
+if (
+    in_array(false, $body, true) || // Ensure all values are not false as false means invalid
+    $body["deck_id"] === null || // Ensure the id of the deck is set
+    ($body["added_topics"] !== null && in_array(false, $body["added_topics"], true)) || // Ensure added each topic is either null or is valid
+    ($body["removed_topics"] !== null && in_array(false, $body["removed_topics"], true)) || //  Ensure added each removed topic is either null or is valid
+    ($body["edited_questions"] !== null && in_array(false, $body["edited_questions"], true)) || // Ensure each new question is either null or is valid
+    ($body["edited_questions"] !== null && in_array(false, $body["edited_questions"], true)) || // Ensure each edited question is either null or is valid
+    ($body["removed_questions"] !== null && in_array(false, $body["removed_questions"], true)) // Ensure each removed question is either null or is valid
+) {
     http_response_code(400);
+    var_dump($body);
     return;
 }
 
-$body = get_body();
-
 $db = new Db();
 
-$deck = $db->getDeck($_REQUEST["deck_id"]);
+$deck = $db->getDeck($body["deck_id"]);
 
 // If getting deck had an error give error code then stop request
 if (!$deck->isOk()) {
@@ -44,14 +138,14 @@ if ($_SESSION["user_id"] != $deck->single()["user_id"]) {
 }
 
 $result = $db->updateDeck(
-    $_REQUEST["deck_id"],
-    $_REQUEST["title"],
-    $_REQUEST["description"],
-    $_REQUEST["added_topics"],
-    $_REQUEST["removed_topics"],
-    $_REQUEST["new_questions"],
-    $_REQUEST["edited_questions"],
-    $_REQUEST["removed_questions"]
+    $body["deck_id"],
+    $body["title"],
+    $body["description"],
+    $body["added_topics"],
+    $body["removed_topics"],
+    $body["new_questions"],
+    $body["edited_questions"],
+    $body["removed_questions"]
 );
 
 if ($result->isOk()) {

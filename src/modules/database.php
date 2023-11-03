@@ -3,7 +3,6 @@
 namespace database;
 
 use Generator;
-use Iterator;
 use SQLite3;
 use SQLite3Result;
 
@@ -20,6 +19,7 @@ class Db
     {
         // Connects to the database
         $this->db = new SQLite3($_ENV["PWD"] . "/database/db.sqlite");
+        $this->db->enableExtendedResultCodes(true);
     }
 
     // Gets the title and id of all tags and returns a generator yielding each tag
@@ -300,7 +300,7 @@ class Db
         string $username,
         string $password,
         string $avatar,
-        array $likes
+        array | null $likes
     ): DbResult {
         $query = $this->db->prepare(
             <<<SQL
@@ -319,20 +319,22 @@ class Db
 
         $user_id = $this->db->lastInsertRowID();
 
-        $query = $this->db->prepare(
-            <<<SQL
+        if ($likes !== null) {
+            $query = $this->db->prepare(
+                <<<SQL
             INSERT INTO User_Likes (user_id, tag_id) VALUES (:user_id, :tag_id)
             SQL
-        );
+            );
 
-        $query->bindValue(":user_id", $user_id, SQLITE3_INTEGER);
-        $query->bindParam("tag_id", $tag, SQLITE3_TEXT);
+            $query->bindValue(":user_id", $user_id, SQLITE3_INTEGER);
+            $query->bindParam("tag_id", $tag, SQLITE3_TEXT);
 
 
-        foreach ($likes as $tag) {
-            $result = $query->execute();
-            if ($result === false) {
-                return DbResult::error($this->db->lastErrorCode());
+            foreach ($likes as $tag) {
+                $result = $query->execute();
+                if ($result === false) {
+                    return DbResult::error($this->db->lastErrorCode());
+                }
             }
         }
 
@@ -342,16 +344,49 @@ class Db
     function getUser(
         int $user_id
     ): DbResult {
+        // PS Actaully look at code as middle bit not sure on
+        // I GOT IT WORKING YAAAAAAS
         $query = $this->db->prepare(
             <<<SQL
             SELECT User.user_id, username, 
                 timestamp,
-                streak_start,
-                streak_last,
+                COALESCE((WITH EventsWithGaps AS (
+                    SELECT timestamp,
+                        julianday(
+                            date(
+                                LAG (timestamp, -1, julianday("now") + 1) OVER (
+                                    ORDER BY timestamp ASC
+                                )
+                            )
+                        ) - julianday(date(timestamp)) as untilNext
+                    FROM User_Play
+                    WHERE User_Play.user_id = User.user_id
+                    ORDER BY timestamp
+                    )
+                    SELECT SUM(consecutive_ones) AS consecutive_ones_count
+                    FROM (
+                            SELECT *,
+                                ROW_NUMBER() OVER (
+                                    ORDER BY timestamp
+                                ) - ROW_NUMBER() OVER (
+                                    PARTITION BY untilNext
+                                    ORDER BY timestamp
+                                ) AS grp,
+                                CASE
+                                    WHEN untilNext = 1 THEN 1
+                                    ELSE 0
+                                END AS consecutive_ones
+                            FROM EventsWithGaps
+                        ) AS subquery
+                    WHERE grp = 0
+                        AND untilNext >= 1
+                    LIMIT 1
+            ), 0) as streak,
+
                 avatar,
                 COALESCE(decks, 0) as decks,
                 COALESCE(total_plays, 0) as total_plays,
-                COALESCE(average_score, 0) as average_score
+                COALESCE(average_score, 2) as average_score
 
             FROM User 
                 LEFT JOIN (
@@ -381,6 +416,8 @@ class Db
         if ($result === false) {
             return DbResult::error($this->db->lastErrorCode());
         }
+
+
 
         return DbResult::result($result);
     }
@@ -703,6 +740,7 @@ class Db
                     INNER JOIN Deck ON User_Play .deck_id = Deck.deck_id
                     INNER JOIN User ON Deck.user_id = User.user_id 
                 WHERE User_Play.user_id = :user_id
+                GROUP BY User_Play.deck_id
                 LIMIT 16
             SQL
         );
@@ -823,45 +861,50 @@ class Db
         $query->bindValue(":avatar", $avatar, SQLITE3_TEXT);
         $query->bindValue(":user_id", $_SESSION["user_id"], SQLITE3_INTEGER);
 
+
         $result = $query->execute();
 
         if ($result === false) {
             return DbResult::error($this->db->lastErrorCode());
         }
 
-        $query = $this->db->prepare(
-            <<<SQL
+        if ($added_likes !== null) {
+            $query = $this->db->prepare(
+                <<<SQL
             INSERT INTO User_Likes (user_id, tag_id) 
             VALUES (:user_id, :tag_id) 
             SQL
-        );
+            );
 
-        $query->bindValue(":user_id", $_SESSION["user_id"], SQLITE3_INTEGER);
-        $query->bindParam(":tag_id", $like, SQLITE3_INTEGER);
+            $query->bindValue(":user_id", $_SESSION["user_id"], SQLITE3_INTEGER);
+            $query->bindParam(":tag_id", $like, SQLITE3_INTEGER);
 
-        foreach ($added_likes as $like) {
-            $result = $query->execute();
+            foreach ($added_likes as $like) {
+                $result = $query->execute();
 
-            if ($result === false) {
-                return DbResult::error($this->db->lastErrorCode());
+                if ($result === false) {
+                    return DbResult::error($this->db->lastErrorCode());
+                }
             }
         }
 
-        $query = $this->db->prepare(
-            <<<SQL
+        if ($removed_likes !== null) {
+            $query = $this->db->prepare(
+                <<<SQL
             DELETE FROM User_Likes 
             WHERE user_id=:user_id AND tag_id=:tag_id 
             SQL
-        );
+            );
 
-        $query->bindValue(":user_id", $_SESSION["user_id"], SQLITE3_INTEGER);
-        $query->bindParam(":tag_id", $like, SQLITE3_INTEGER);
+            $query->bindValue(":user_id", $_SESSION["user_id"], SQLITE3_INTEGER);
+            $query->bindParam(":tag_id", $like, SQLITE3_INTEGER);
 
-        foreach ($removed_likes as $like) {
-            $result = $query->execute();
+            foreach ($removed_likes as $like) {
+                $result = $query->execute();
 
-            if ($result === false) {
-                return DbResult::error($this->db->lastErrorCode());
+                if ($result === false) {
+                    return DbResult::error($this->db->lastErrorCode());
+                }
             }
         }
 
@@ -886,7 +929,7 @@ class Db
     function createDeck(
         string $title,
         string $description,
-        array $topics,
+        array | null $topics,
         array $questions
     ): DbResult {
         $query = $this->db->prepare(<<<SQL
@@ -941,8 +984,10 @@ class Db
             }
         }
 
-        $query = $this->db->prepare(
-            <<<SQL
+
+        if ($topics !== null) {
+            $query = $this->db->prepare(
+                <<<SQL
                 INSERT INTO Deck_Topic (
                     deck_id, tag_id
                 )
@@ -951,18 +996,19 @@ class Db
                     :tag_id
                 )
         SQL
-        );
+            );
 
-        $topic = "";
+            $topic = "";
 
-        $query->bindValue(":deck_id", $deck_id, SQLITE3_INTEGER);
-        $query->bindParam(":tag_id", $topic, SQLITE3_INTEGER);
+            $query->bindValue(":deck_id", $deck_id, SQLITE3_INTEGER);
+            $query->bindParam(":tag_id", $topic, SQLITE3_INTEGER);
 
-        foreach ($topics as $topic) {
-            $result = $query->execute();
+            foreach ($topics as $topic) {
+                $result = $query->execute();
 
-            if ($result == false) {
-                return DbResult::error($this->db->lastErrorCode());
+                if ($result == false) {
+                    return DbResult::error($this->db->lastErrorCode());
+                }
             }
         }
 
@@ -1006,11 +1052,11 @@ class Db
         int $deck_id,
         string | null $title,
         string | null $description,
-        array $added_topics,
-        array $removed_topics,
-        array $new_questions,
-        array $edited_questions,
-        array $deleted_questions
+        array | null $added_topics,
+        array | null $removed_topics,
+        array | null $new_questions,
+        array | null $edited_questions,
+        array | null $deleted_questions
     ): DbResult {
         // Title and description
 
@@ -1028,88 +1074,95 @@ class Db
 
         // Now update topics
 
-        $query = $this->db->prepare(
-            <<<SQL
+        if ($added_topics !== null) {
+            $query = $this->db->prepare(
+                <<<SQL
             INSERT INTO Deck_Topic (deck_id, tag_id) 
             VALUES (:deck_id, :tag_id) 
             SQL
-        );
+            );
 
-        $query->bindValue(":deck_id", $deck_id, SQLITE3_INTEGER);
-        $query->bindParam(":tag_id", $like, SQLITE3_INTEGER);
+            $query->bindValue(":deck_id", $deck_id, SQLITE3_INTEGER);
+            $query->bindParam(":tag_id", $topic, SQLITE3_INTEGER);
 
-        foreach ($added_topics as $like) {
-            $result = $query->execute();
+            foreach ($added_topics as $topic) {
+                $result = $query->execute();
 
-            if ($result === false) {
-                return DbResult::error($this->db->lastErrorCode());
+                if ($result === false) {
+                    return DbResult::error($this->db->lastErrorCode());
+                }
             }
         }
 
-        $query = $this->db->prepare(
-            <<<SQL
-            DELETE FROM Deck_Topic 
-            WHERE deck_id=:deck_id AND tag_id=:tag_id 
-            SQL
-        );
+        if ($removed_topics !== null) {
+            $query = $this->db->prepare(
+                <<<SQL
+                    DELETE FROM Deck_Topic 
+                    WHERE deck_id=:deck_id AND tag_id=:tag_id 
+                SQL
+            );
 
-        $query->bindValue(":deck_id", $deck_id, SQLITE3_INTEGER);
-        $query->bindParam(":tag_id", $like, SQLITE3_INTEGER);
+            $query->bindValue(":deck_id", $deck_id, SQLITE3_INTEGER);
+            $query->bindParam(":tag_id", $like, SQLITE3_INTEGER);
 
-        foreach ($removed_topics as $like) {
-            $result = $query->execute();
+            foreach ($removed_topics as $like) {
+                $result = $query->execute();
 
-            if ($result === false) {
-                return DbResult::error($this->db->lastErrorCode());
+                if ($result === false) {
+                    return DbResult::error($this->db->lastErrorCode());
+                }
             }
         }
 
         // Question edits
-
-        $query = $this->db->prepare(<<<SQL
+        if ($deleted_questions !== null) {
+            $query = $this->db->prepare(<<<SQL
             DELETE FROM Question WHERE question_id=:question_id AND deck_id = :deck_id
-        
         SQL);
 
-        $question_id = null;
-        $query->bindParam(":question_id", $question_id, SQLITE3_INTEGER);
-        $query->bindValue(":deck_id", $deck_id, SQLITE3_INTEGER);
+            $question_id = null;
+            $query->bindParam(":question_id", $question_id, SQLITE3_INTEGER);
+            $query->bindValue(":deck_id", $deck_id, SQLITE3_INTEGER);
 
-        foreach ($deleted_questions as $question_id) {
-            $result = $query->execute();
+            foreach ($deleted_questions as $question_id) {
+                $result = $query->execute();
 
-            if ($result == false) {
-                return DbResult::error($this->db->lastErrorCode());
+                if ($result == false) {
+                    return DbResult::error($this->db->lastErrorCode());
+                }
             }
         }
 
-        $query = $this->db->prepare(<<<SQL
-            UPDATE Question SET
-                key = COALESCE(:key, key),
-                value = COALESCE(:value, value)
-            WHERE question_id = :question_id AND deck_id = :deck_id
-        SQL);
+        if ($edited_questions !== null) {
+            $query = $this->db->prepare(<<<SQL
+                UPDATE Question SET
+                    key = COALESCE(:key, key),
+                    value = COALESCE(:value, value)
+                WHERE question_id = :question_id AND deck_id = :deck_id
+            SQL);
 
-        $key = null;
-        $value = null;
-        $question_id = null;
+            $key = null;
+            $value = null;
+            $question_id = null;
 
-        $query->bindValue(":deck_id", $deck_id, SQLITE3_INTEGER);
-        $query->bindParam(":key", $key, SQLITE3_TEXT);
-        $query->bindParam(":value", $value, SQLITE3_TEXT);
-        $query->bindParam(":question_id", $question_id, SQLITE3_TEXT);
+            $query->bindValue(":deck_id", $deck_id, SQLITE3_INTEGER);
+            $query->bindParam(":key", $key, SQLITE3_TEXT);
+            $query->bindParam(":value", $value, SQLITE3_TEXT);
+            $query->bindParam(":question_id", $question_id, SQLITE3_TEXT);
 
-        foreach ($edited_questions as $question) {
-            ["key" => $key, "value" => $value, "id" => $question_id] = $question;
+            foreach ($edited_questions as $question) {
+                ["key" => $key, "value" => $value, "id" => $question_id] = $question;
 
-            $result = $query->execute();
+                $result = $query->execute();
 
-            if ($result == false) {
-                return DbResult::error($this->db->lastErrorCode());
+                if ($result == false) {
+                    return DbResult::error($this->db->lastErrorCode());
+                }
             }
         }
 
-        $query = $this->db->prepare(<<<SQL
+        if ($new_questions !== null) {
+            $query = $this->db->prepare(<<<SQL
             INSERT INTO Question (
                 deck_id, key, value
             )
@@ -1120,19 +1173,20 @@ class Db
             )
         SQL);
 
-        $key = "";
-        $value = "";
+            $key = "";
+            $value = "";
 
-        $query->bindValue(":deck_id", $deck_id, SQLITE3_INTEGER);
-        $query->bindParam(":key", $key, SQLITE3_TEXT);
-        $query->bindParam(":value", $value, SQLITE3_TEXT);
+            $query->bindValue(":deck_id", $deck_id, SQLITE3_INTEGER);
+            $query->bindParam(":key", $key, SQLITE3_TEXT);
+            $query->bindParam(":value", $value, SQLITE3_TEXT);
 
-        foreach ($new_questions as $question) {
-            ["key" => $key, "value" => $value] = $question;
-            $result = $query->execute();
+            foreach ($new_questions as $question) {
+                ["key" => $key, "value" => $value] = $question;
+                $result = $query->execute();
 
-            if ($result == false) {
-                return DbResult::error($this->db->lastErrorCode());
+                if ($result == false) {
+                    return DbResult::error($this->db->lastErrorCode());
+                }
             }
         }
 
@@ -1250,7 +1304,7 @@ class DbResult
     private function __construct(
         SQLite3Result | null $result,
         int | null $error,
-        $value
+        mixed $value
     ) {
         $this->result = $result;
         $this->error = $error;

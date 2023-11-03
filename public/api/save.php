@@ -2,8 +2,6 @@
 // Imports
 use database\Db;
 
-use function helpers\get_body;
-
 // Sets the response type
 header("Content-type:application/json");
 
@@ -13,10 +11,13 @@ if (!isset($_SESSION["user_id"])) {
     return;
 }
 
-$body = get_body();
+// Gets the search string
+// If not set it will be null
+// If not a number it will be false
+$deck_id = filter_input(INPUT_POST, "deck_id", FILTER_VALIDATE_INT);
 
-// If deck not specified 
-if (!isset($body["deck_id"])) {
+// If deck id not specified or not a number
+if ($deck_id == false || $deck_id == null) {
     http_response_code(400);
     return;
 }
@@ -25,7 +26,7 @@ if (!isset($body["deck_id"])) {
 $db = new Db();
 
 // Saves the deck_id
-$result = $db->save($body["deck_id"]);
+$result = $db->save($deck_id);
 
 // If save was successful
 if ($result->isOk()) {

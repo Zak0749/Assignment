@@ -5,7 +5,9 @@ body {
 }
 
 /* When setting width and height padding is included */
-* {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
 }
 

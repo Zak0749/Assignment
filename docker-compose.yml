@@ -2,6 +2,7 @@ version: '3'
 
 services:
   app:
+    restart: no
     build:
       context: .
       dockerfile: Dockerfile
@@ -11,13 +12,30 @@ services:
       - PORT=8080
     develop:
       watch:
-        - path: ./public
+        - path: public
           action: sync
-          target: /var/www/html
-        - path: ./src
+          target: var/www/html
+        - path: public/api
           action: sync
-          target: /var/www/src
-        - path: database/setup.sql
+          target: var/www/html/api
+        - path: public/images
+          action: sync
+          target: var/www/html/images
+        - path: public/scripts
+          action: sync
+          target: var/www/html/scripts
+        - path: public/styles
+          action: sync
+          target: var/www/html/styles
+        - path: src/modules
+          action: sync
+          target: var/www/src/modules
+        - path: src/errors
+          action: sync
+          target: var/www/src/errors
+        - path: src/components
+          action: sync
+          target: var/www/src/components
+        - path: .htacess
           action: rebuild
-        - path: .htaccess
-          action: rebuild
+          target: .

@@ -2,10 +2,6 @@
 // Imports
 use database\Db;
 
-use function helpers\get_body;
-use function helpers\validate_array_key;
-use function helpers\validate_string;
-
 // Sets the response type
 header("Content-type:application/json");
 
@@ -18,12 +14,67 @@ if (!isset($_SESSION["user_id"])) {
 // Establish Db connection
 $db = new Db();
 
-$body = get_body();
+$body = filter_input_array(INPUT_POST, [
+    "title" => [
+        "filter" => FILTER_VALIDATE_REGEXP,
+        'options' => [
+            'regexp' => "/^.{3,32}$/"
+        ]
+    ],
+    "description" => [
+        "filter" => FILTER_VALIDATE_REGEXP,
+        "options" => [
+            'regexp' => "/^.{3,256}$/"
+        ]
+    ],
+    "topics" => [
+        "filter" => FILTER_VALIDATE_INT,
+        'flags' => FILTER_FORCE_ARRAY
+    ],
+    "questions" => [
+        'flags' => FILTER_FORCE_ARRAY,
+    ]
+]);
 
 if (
-    !validate_string($body, "title", required: true, pattern: "/^.{3,32}$/") ||
-    !validate_string($body, "description", required: true, pattern: "/^.{3,256}$/") ||
-    
+    in_array(false, $body, true) ||
+    $body["title"] === null ||
+    $body["description"] === null ||
+    $body["questions"] === null ||
+    count($body["questions"]) < 8
+) {
+    http_response_code(400);
+    return;
+}
+
+$body["questions"] = array_map(function ($question) {
+    $question = filter_var_array($question, [
+        "key" => [
+            "filter" => FILTER_VALIDATE_REGEXP,
+            "options" => [
+                'regexp' => "/^.{0,32}$/"
+            ]
+        ],
+        "value" => [
+            "filter" => FILTER_VALIDATE_REGEXP,
+            "options" => [
+                'regexp' => "/^.{0,256}$/"
+            ]
+        ],
+    ]);
+
+    if (in_array(false, $question, true) || in_array(null, $question, true)) {
+        return false;
+    } else {
+        return $question;
+    }
+}, $body["questions"]);
+
+if (
+    $title === null || $title === false ||
+    $description === null || $description === false ||
+    ($topics != null && in_array(false, $topics, true)) ||
+    in_array(false, $questions, true)
 ) {
     http_response_code(400);
     return;
@@ -31,10 +82,10 @@ if (
 
 
 $result = $db->createDeck(
-    $body["title"],
-    $body["description"],
-    $body["topics"],
-    $body["questions"]
+    $title,
+    $description,
+    $topics,
+    $questions
 );
 
 if ($result->isOk()) {

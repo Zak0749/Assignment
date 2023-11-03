@@ -5,8 +5,10 @@ use database\Db;
 
 use function helpers\random_from_array;
 
-// If deck_id is not set send user to error page
-if (!isset($_GET["deck_id"])) {
+$deck_id = filter_input(INPUT_GET, "deck_id", FILTER_VALIDATE_INT);
+
+// If deck_id is invalid or not set send user to error page
+if ($deck_id === null || $deck_id === false) {
     http_response_code(400);
     require("errors/400.php");
     exit;
@@ -16,7 +18,7 @@ if (!isset($_GET["deck_id"])) {
 $db = new Db();
 
 // Get the deck
-$deck_query = $db->getDeck($_GET["deck_id"]);
+$deck_query = $db->getDeck($deck_id);
 
 // If error occurred when getting deck send user to error page
 if (!$deck_query->isOk()) {
@@ -35,7 +37,7 @@ if ($deck_query->isEmpty()) {
 $deck = $deck_query->single();
 
 // Get the deck
-$question_query = $db->getPlayQuestions($_GET["deck_id"]);
+$question_query = $db->getPlayQuestions($deck_id);
 
 // If error occurred when getting the questions send user to error page
 if (!$question_query->isOk()) {
@@ -70,20 +72,17 @@ $question_types = ["select", "match", "self"];
             <progress id="play-progress" value="0" max="12"></progress>
 
             <div class="icon-bar">
-                <a class="header-icon" type="button" href="/deck?deck_id=<?= htmlspecialchars($_GET["deck_id"]) ?>">
+                <a class="header-icon" type="button" href="/deck?deck_id=<?= htmlspecialchars($deck_id) ?>" keyboard-shortcut="esc">
                     <span class="material-symbols-outlined">
                         close
                     </span>
                 </a>
             </div>
         </header>
-        <!-- was 11 -->
         <main class="full-screen">
-            <ul id="play-question-list" data-deck-id="<?= htmlspecialchars($_GET["deck_id"]) ?>">
+            <ul id="play-question-list" data-deck-id="<?= htmlspecialchars($deck_id) ?>">
 
-
-                <?php foreach (range(0, 11) as $i) : ?>
-                    <?php
+                <?php foreach (range(0, 2) as $i) :
                     // Chooses a random question type out of the array
                     $type = random_from_array($question_types);
 
@@ -93,27 +92,25 @@ $question_types = ["select", "match", "self"];
                         'match' => 'components/match.php',
                         'self' => 'components/self.php'
                     };
-                    ?>
-                    </section>
+                ?>
                 <?php endforeach ?>
 
-                <section class="play-question retry-page">
+                <section class="retry-page">
                     <header>
                         <h2>Retry</h2>
                         <p>Now it's time to retry all the questions you got wrong and fix your mistakes</p>
                     </header>
 
                     <main>
-                        <button onclick="nextQuestion(this)" class="secondary-button">
+                        <button onclick="nextQuestion(this)" class="secondary-button" keyboard-shortcut="n">
                             Next
                         </button>
                     </main>
-
                 </section>
             </ul>
 
             <section id="play-results" style="display:none;">
-                <h1>Results for <?= $deck["title"] ?></h1>
+                <h1>Results for <?= htmlspecialchars($deck["title"]) ?></h1>
 
                 <div class="result-chart-section">
                     <canvas id="results-chart"></canvas>
@@ -136,7 +133,7 @@ $question_types = ["select", "match", "self"];
                 </div>
 
                 <div>
-                    <a class="primary-button" href="deck?deck_id=<?= htmlspecialchars($_GET["deck_id"]) ?>">
+                    <a class="primary-button" href="deck?deck_id=<?= htmlspecialchars($deck_id) ?>" keyboard-shortcut="esc">
                         Exit
                     </a>
                 </div>

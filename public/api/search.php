@@ -7,17 +7,17 @@ use function cards\user_card;
 
 header("Content-Type: text/html");
 
-// Gets the search string but if not there or invalid will be null
+// Gets the search string
+// If not set it will be null
+// If too short it will be false
 $search_string = filter_input(INPUT_GET, "search_string", FILTER_VALIDATE_REGEXP, [
 	'options' => [
 		'regexp' => "/^.{3,}+$/"
 	]
 ]);
 
-var_export($search_string);
-
-// If search string was not set or not valid give `Bad Request` code
-if (!$search_string) {
+// If search string was not set or not valid give `Bad Request` response code 
+if ($search_string == false || $search_string == null) {
 	http_response_code(400);
 	return;
 }
@@ -49,7 +49,6 @@ if (!$user_query->isOk()) :
 ?>
 	<p>An error occurred trying to find users please try again</p>
 <?php
-	echo $user_query->isEmpty();
 elseif (!$user_query->isEmpty()) : ?>
 	<section>
 		<h2>Users</h2>

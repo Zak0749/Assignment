@@ -5,8 +5,10 @@
 // Imports
 use database\Db;
 
-// If deck_id is not set send user to error page
-if (!isset($_GET["deck_id"])) {
+$deck_id = filter_input(INPUT_GET, "deck_id", FILTER_VALIDATE_INT);
+
+// If deck_id is invalid or not set send user to error page
+if ($deck_id === null || $deck_id === false) {
     http_response_code(400);
     require("errors/400.php");
     exit;
@@ -21,7 +23,7 @@ if (!isset($_SESSION["user_id"])) {
 
 $db = new Db();
 
-$deck_query = $db->getDeck($_GET["deck_id"]);
+$deck_query = $db->getDeck($deck_id);
 
 if (!$deck_query->isOk()) {
     http_response_code(500);
@@ -65,12 +67,12 @@ if ($_SESSION["user_id"] != $deck["user_id"]) {
                 </h1>
 
                 <div class="icon-bar">
-                    <button class="header-icon" type="button" onclick="open_dialog('delete-dialog')">
+                    <button class="header-icon" type="button" onclick="open_dialog('delete-dialog')" keyboard-shortcut="d">
                         <span class="material-symbols-outlined">
                             delete
                         </span>
                     </button>
-                    <a class="header-icon" type="button" href="deck?deck_id=<?= htmlspecialchars($_GET["deck_id"]) ?>">
+                    <a class="header-icon" type="button" href="deck?deck_id=<?= htmlspecialchars($deck_id) ?>" keyboard-shortcut="esc">
                         <span class="material-symbols-outlined">
                             close
                         </span>
@@ -91,7 +93,7 @@ if ($_SESSION["user_id"] != $deck["user_id"]) {
 
 
         <main>
-            <form class="tabbed-main" data-deck-id="<?= htmlspecialchars($_GET["deck_id"]) ?>" onsubmit="submitEditDeck(this); return false" oninput="contentChanged()">
+            <form class="tabbed-main" data-deck-id="<?= htmlspecialchars($deck_id) ?>" onsubmit="submitEditDeck(this); return false" oninput="contentChanged()">
                 <section id="info-tab" class="split-main selected-tab">
                     <section>
                         <div class="form-field">
@@ -106,7 +108,7 @@ if ($_SESSION["user_id"] != $deck["user_id"]) {
 
                         <div class="form-field hide-large">
                             <label>Topics</label>
-                            <button class="secondary-button" type="button" onclick="open_dialog('tag-select-dialog')">
+                            <button class="secondary-button" type="button" onclick="open_dialog('tag-select-dialog')" keyboard-shortcut="t">
                                 Show
                             </button>
                         </div>
@@ -126,7 +128,7 @@ if ($_SESSION["user_id"] != $deck["user_id"]) {
                                 </label>
 
                                 <div class="icon-bar hide-large">
-                                    <button class="header-icon" type="button" onclick="close_dialog('tag-select-dialog')">
+                                    <button class="header-icon" type="button" onclick="close_dialog('tag-select-dialog')" keyboard-shortcut="e">
                                         <span class="material-symbols-outlined">
                                             close
                                         </span>
@@ -136,7 +138,7 @@ if ($_SESSION["user_id"] != $deck["user_id"]) {
 
                             <fieldset>
                                 <?php
-                                $tags = $db->getAnnotatedTopics($_GET["deck_id"]);
+                                $tags = $db->getAnnotatedTopics($deck_id);
 
                                 if (!$tags->isOk() || $tags->isEmpty()) : ?>
                                     <p>There was an error loading the tags please try again</p>
@@ -144,7 +146,7 @@ if ($_SESSION["user_id"] != $deck["user_id"]) {
                                     <ul class="tag-select-list">
                                         <?php foreach ($tags->iterate() as $tag) : ?>
                                             <label class="tag-select">
-                                                <input type="checkbox" name="likes" value="<?= $tag["tag_id"] ?>" <?= $tag["checked"] ? "checked" : "" ?>>
+                                                <input type="checkbox" name="topics" value="<?= htmlspecialchars($tag["tag_id"]) ?>" <?= $tag["checked"] ? "checked" : "" ?>>
                                                 <span class="tag-pill-label"><?= htmlspecialchars($tag["title"]) ?></span>
                                             </label>
 
@@ -159,11 +161,11 @@ if ($_SESSION["user_id"] != $deck["user_id"]) {
                 <section id="question-tab" data-mode="edit">
                     <legend>Questions:
                         <!-- Pointer events stop clicking and inputing while still validating as readoly stops html validaiton -->
-                        <input id="question-counter" type="number" value="<?= $deck["questions"] ?>" min="8" oninvalid="changeTab(document.getElementById('question-tab-button'),'question-tab')">
+                        <input id="question-counter" type="number" value="<?= htmlspecialchars($deck["questions"]) ?>" min="8" oninvalid="changeTab(document.getElementById('question-tab-button'),'question-tab')">
                     </legend>
 
                     <?php
-                    $questions = $db->getDeckQuestions($_GET["deck_id"]);
+                    $questions = $db->getDeckQuestions($deck_id);
                     if (!$questions->isOk() || $questions->isEmpty()) : ?>
                         <p>There was an error loading the questions please try again </p>
                     <?php else : ?>
@@ -172,8 +174,8 @@ if ($_SESSION["user_id"] != $deck["user_id"]) {
                                 <li>
                                     <fieldset name="questions" class="question" id="<?= htmlspecialchars($question["question_id"]) ?>">
                                         <div class="question-pair form-field" oninput="matchHeights(this)">
-                                            <textarea placeholder="Key" name="key" class="question-key" required maxlength="128" oninvalid="changeTab(document.getElementById('question-tab-button'),'question-tab')"><?= $question["key"] ?></textarea>
-                                            <textarea placeholder="Value" name="value" class="question-value" required maxlength="256" oninvalid="changeTab(document.getElementById('question-tab-button'),'question-tab')"><?= $question["value"] ?></textarea>
+                                            <textarea placeholder="Key" name="key" class="question-key" required maxlength="128" oninvalid="changeTab(document.getElementById('question-tab-button'),'question-tab')"><?= htmlspecialchars($question["key"]) ?></textarea>
+                                            <textarea placeholder="Value" name="value" class="question-value" required maxlength="256" oninvalid="changeTab(document.getElementById('question-tab-button'),'question-tab')"><?= htmlspecialchars($question["value"]) ?></textarea>
                                         </div>
                                         <button class="question-delete-button" type="button" onclick="removeQuestion(this)">
                                             <span class="material-symbols-outlined">
@@ -187,14 +189,14 @@ if ($_SESSION["user_id"] != $deck["user_id"]) {
                     <?php endif; ?>
 
                     <div class="beside" id="edit-buttons">
-                        <button type="button" class="primary-button" onclick="addQuestion()">
+                        <button type="button" class="primary-button" onclick="addQuestion()" keyboard-shortcut="+">
                             <span class="material-symbols-outlined">
                                 add
                             </span>
 
                             Add Question
                         </button>
-                        <button type="button" onclick="question_mode_delete()" class="danger-button">
+                        <button type="button" onclick="question_mode_delete()" class="danger-button" keyboard-shortcut="m">
                             <span class="material-symbols-outlined">
                                 delete
                             </span>
@@ -204,7 +206,7 @@ if ($_SESSION["user_id"] != $deck["user_id"]) {
 
                     </div>
                     <div class="beside" id="delete-buttons">
-                        <button type="button" onclick="undoDeletions()" class="secondary-button">
+                        <button type="button" onclick="undoDeletions()" class="secondary-button" keyboard-shortcut="u">
                             <span class="material-symbols-outlined">
                                 undo
                             </span>
@@ -212,7 +214,7 @@ if ($_SESSION["user_id"] != $deck["user_id"]) {
                             Undo Deletions
                         </button>
 
-                        <button type="button" onclick="question_mode_edit()" class="primary-button edit-mode-button">
+                        <button type="button" onclick="question_mode_edit()" class="primary-button edit-mode-button" keyboard-shortcut="m">
                             <span class="material-symbols-outlined">
                                 edit
                             </span>
@@ -226,7 +228,8 @@ if ($_SESSION["user_id"] != $deck["user_id"]) {
             <dialog class="danger-dialog" id="delete-dialog">
                 <h2>Delete Deck</h2>
                 <div class="beside">
-                    <button class="light-danger-button" onclick="close_dialog('delete-dialog')">Cancel</button>
+                    <button class="light-danger-button" onclick="close_dialog('delete-dialog')" keyboard-shortcut="e">Cancel</button>
+                    <!-- No keyboard shortcut as want users to be sure -->
                     <button class="danger-button" onclick="deleteDeck()">Delete</button>
                 </div>
             </dialog>

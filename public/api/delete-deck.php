@@ -3,29 +3,29 @@
 
 use database\Db;
 
-use function helpers\get_body;
-
 // Sets the response type
 header("Content-type:application/json");
 
+// If not logged in
 if (!isset($_SESSION["user_id"])) {
     http_response_code(401);
     return;
 }
 
-// If deck is not specified give error code and stop request
-if (!isset($_REQUEST["deck_id"])) {
+// Get the deck id from the request
+$deck_id = filter_input(INPUT_POST, "deck_id", FILTER_VALIDATE_INT);
+
+// If deck id not specified or not a number
+if ($deck_id == false || $deck_id == null) {
     http_response_code(400);
     return;
 }
 
-$body = get_body();
-
-
+// Establish database connection
 $db = new Db();
 
-
-$deck = $db->getDeck($_REQUEST["deck_id"]);
+// Get the specified deck from the database
+$deck = $db->getDeck($deck_id);
 
 // If getting deck had an error give error code then stop request
 if (!$deck->isOk()) {
@@ -45,7 +45,7 @@ if ($_SESSION["user_id"] != $deck->single()["user_id"]) {
     return;
 }
 
-$result = $db->deleteDeck($_REQUEST["deck_id"]);
+$result = $db->deleteDeck($deck_id);
 
 if ($result->isOk()) {
     http_response_code(204);

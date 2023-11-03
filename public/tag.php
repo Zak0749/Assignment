@@ -6,8 +6,10 @@
 use database\DB;
 use function cards\deck_card;
 
-// If tag_id is not set send user to error page
-if (!isset($_GET["tag_id"])) {
+$tag_id = filter_input(INPUT_GET, "tag_id", FILTER_VALIDATE_INT);
+
+// If deck_id is invalid or not set send user to error page
+if ($tag_id === null || $tag_id === false) {
 	http_response_code(400);
 	require("errors/400.php");
 	exit;
@@ -16,7 +18,7 @@ if (!isset($_GET["tag_id"])) {
 // Establish Db connection
 $db = new DB();
 
-$tag_query = $db->getTag($_GET["tag_id"]);
+$tag_query = $db->getTag($tag_id);
 
 // If error occurred while getting the tag send the user to an error page
 if (!$tag_query->isOk()) {
@@ -47,7 +49,7 @@ $tag = $tag_query->single()
 
 	<div class="page">
 		<header>
-			<h1><?= $tag["title"] ?></h1>
+			<h1><?= htmlspecialchars($tag["title"]) ?></h1>
 		</header>
 
 		<main>
@@ -55,7 +57,7 @@ $tag = $tag_query->single()
 				<h2>Popular</h2>
 
 				<?php
-				$popular = $db->popularByTag($_GET["tag_id"]);
+				$popular = $db->popularByTag($tag_id);
 
 				if (!$popular->isOk()) : ?>
 					<p>
@@ -79,7 +81,7 @@ $tag = $tag_query->single()
 				<h2>New</h2>
 
 				<?php
-				$new = $db->newByTag($_GET["tag_id"]);
+				$new = $db->newByTag($tag_id);
 
 				if (!$new->isOk()) : ?>
 					<p>

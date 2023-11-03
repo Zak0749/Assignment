@@ -54,12 +54,12 @@ $user = $user_query->single();
 			</h1>
 
 			<div class="icon-bar">
-				<button class="header-icon" type="button" onclick="open_dialog('delete-dialog')">
+				<button class="header-icon" type="button" onclick="open_dialog('delete-dialog')" keyboard-shortcut="d">
 					<span class="material-symbols-outlined">
 						delete
 					</span>
 				</button>
-				<a class="header-icon" type="button" href="my-account">
+				<a class="header-icon" type="button" href="my-account" keyboard-shortcut="esc">
 					<span class="material-symbols-outlined">
 						close
 					</span>
@@ -68,10 +68,10 @@ $user = $user_query->single();
 		</header>
 
 		<main>
-			<form class="split-main" onsubmit="submit_edit_account(this); return false;" oninput="contentChanged()">
+			<form class="split-main" onsubmit="submitEditAccount(this); return false;" oninput="contentChanged()">
 				<section>
 					<?php $seed = randomise_avatar() ?>
-					<button name="avatar" class="avatar-input" type="button" value="<?= $user["avatar"] ?>" style="background-image: url(https://api.dicebear.com/7.x/bottts/svg?backgroundColor=ffadad,ffd6a5,fdffb6,caffbf,9bf6ff,a0c4ff,bdb2ff,ffc6ff,fffffc&seed=<?= $user["avatar"] ?>" onclick="randomise_avatar(this);">
+					<button name="avatar" class="avatar-input" type="button" value="<?= htmlspecialchars($user["avatar"]) ?>" style="background-image: url(https://api.dicebear.com/7.x/bottts/svg?backgroundColor=ffadad,ffd6a5,fdffb6,caffbf,9bf6ff,a0c4ff,bdb2ff,ffc6ff,fffffc&seed=<?= htmlspecialchars($user["avatar"]) ?>" onclick="randomiseAvatar(this);" keyboard-shortcut="r">
 						<span class=" material-symbols-outlined">
 							change_circle
 						</span>
@@ -79,22 +79,22 @@ $user = $user_query->single();
 
 					<div class="form-field">
 						<label for="username">Username</label>
-						<input name="username" type="username" value="<?= $user["username"] ?>" required minlength="3" maxlength="16" pattern="[\w]+" />
+						<input name="username" type="username" value="<?= htmlspecialchars($user["username"]) ?>" required minlength="3" maxlength="16" pattern="[\w]+" oninput="this.setCustomValidity('');" />
 					</div>
 
 					<div class="form-field">
 						<label for="password">Password</label>
-						<input minlength="8" maxlength="24" pattern="[\S]+" name="password" type="password" />
+						<input minlength="8" maxlength="24" pattern="[\S]+" name="password" type="password" oninput="checkPasswordsMatch(this)" />
 					</div>
 
 					<div class="form-field">
 						<label for="confirm-password">Confirm Password</label>
-						<input name="confirm-password" type="password" minlength="8" maxlength="24" pattern="[\S]+" name="password" type="password" oninput="check_password_match(this)" />
+						<input name="confirm-password" type="password" minlength="8" maxlength="24" pattern="[\S]+" name="password" type="password" oninput="checkPasswordsMatch(this)" />
 					</div>
 
 					<div class="form-field hide-large">
 						<label>Likes</label>
-						<button class="secondary-button" type="button" onclick="open_dialog('tag-select-dialog')">
+						<button class="secondary-button" type="button" onclick="open_dialog('tag-select-dialog')" keyboard-shortcut="l">
 							Show
 						</button>
 					</div>
@@ -115,7 +115,7 @@ $user = $user_query->single();
 							</label>
 
 							<div class="icon-bar hide-large">
-								<button class="header-icon" type="button" onclick="close_dialog('tag-select-dialog')">
+								<button class="header-icon" type="button" onclick="close_dialog('tag-select-dialog')" keyboard-shortcut="e">
 									<span class="material-symbols-outlined">
 										close
 									</span>
@@ -133,7 +133,7 @@ $user = $user_query->single();
 								<ul class="tag-select-list">
 									<?php foreach ($tags->iterate() as $tag) : ?>
 										<label class="tag-select">
-											<input type="checkbox" name="likes" value="<?= $tag["tag_id"] ?>" <?= $tag["checked"] ? "checked" : "" ?>>
+											<input type="checkbox" name="likes" value="<?= htmlspecialchars($tag["tag_id"]) ?>" <?= $tag["checked"] ? "checked" : "" ?>>
 											<span class="tag-pill-label"><?= htmlspecialchars($tag["title"]) ?></span>
 										</label>
 
@@ -149,7 +149,8 @@ $user = $user_query->single();
 				<h2>Delete Account</h2>
 				<p>We are sorry to see you go, hope you come back soon!</p>
 				<div class="beside">
-					<button class="light-danger-button" onclick="close_dialog('delete-dialog')">Cancel</button>
+					<button class="light-danger-button" onclick="close_dialog('delete-dialog')" keyboard-shortcut="e">Cancel</button>
+					<!-- No keyboard shortcut as want users to be sure -->
 					<button class="danger-button" onclick="delete_account()">Delete</button>
 				</div>
 			</dialog>

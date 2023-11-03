@@ -1,13 +1,13 @@
 <?php
-// Begins the session for authenticating the user
-
 
 // Imports
 use database\DB;
 use function cards\tag_card;
 
-// If deck_id is not set send user to error page
-if (!isset($_GET["deck_id"])) {
+$deck_id = filter_input(INPUT_GET, "deck_id", FILTER_VALIDATE_INT);
+
+// If deck_id is invalid or not set send user to error page
+if ($deck_id === null || $deck_id === false) {
     http_response_code(400);
     require("errors/400.php");
     exit;
@@ -16,7 +16,7 @@ if (!isset($_GET["deck_id"])) {
 // Establish Db connection
 $db = new DB();
 
-$deck_query = $db->getDeck($_GET["deck_id"]);
+$deck_query = $db->getDeck($deck_id);
 
 // If error occurred send the user to an error page
 if (!$deck_query->isOk()) {
@@ -54,8 +54,16 @@ $deck = $deck_query->single();
                 </h1>
 
                 <div class="icon-bar">
+                    <?php if (isset($_SESSION["user_id"]) && $_SESSION["user_id"] == $deck["user_id"]) : ?>
+                        <a href="edit-deck?deck_id=<?= htmlspecialchars($deck_id) ?>" class="header-icon" keyboard-shortcut="e">
+                            <span class=" material-symbols-outlined">
+                                edit
+                            </span>
+                        </a>
+                    <?php endif ?>
+
                     <?php if (isset($_SESSION["user_id"])) : ?>
-                        <button data-deck-id="<?= htmlspecialchars($_GET['deck_id']) ?>" data-save="<?= boolval($deck["saved"]) ?>" id="save_toggle" class="header-icon" onclick="toggle_save(this)">
+                        <button data-deck-id="<?= htmlspecialchars($deck_id) ?>" data-save="<?= boolval($deck["saved"]) ?>" id="save_toggle" class="header-icon" onclick="toggleSave(this)" keyboard-shortcut="s">
                             <?php if ($deck["saved"]) : ?>
                                 <span class="material-symbols-outlined">
                                     bookmark_added
@@ -67,30 +75,23 @@ $deck = $deck_query->single();
                             <?php endif ?>
                         </button>
                     <?php endif ?>
-
-                    <?php if (isset($_SESSION["user_id"]) && $_SESSION["user_id"] == $deck["user_id"]) : ?>
-                        <a href="edit-deck?deck_id=<?= htmlspecialchars($_GET["deck_id"]) ?>" class="header-icon">
-                            <span class=" material-symbols-outlined">
-                                edit
-                            </span>
-                        </a>
-                    <?php endif ?>
                 </div>
-
             </div>
+
             <div class="spaced-apart">
                 <h2>
-                    <a href="user?user_id=<?= $deck["user_id"] ?>">
+                    <a href="user?user_id=<?= htmlspecialchars($deck["user_id"]) ?>">
                         <?= htmlspecialchars($deck["username"]) ?>
                     </a>
                 </h2>
+
                 <h2 class="subtitle">
                     <?= date("s/m/y", strtotime($deck["timestamp"])) ?>
                 </h2>
             </div>
 
             <?php
-            $topics = $db->getTopics($_GET["deck_id"]);
+            $topics = $db->getTopics($deck_id);
             if (!$topics->isOk()) :
             ?>
                 <p>An error occurred when loading the tags please try again</p>
@@ -113,7 +114,7 @@ $deck = $deck_query->single();
                             playing_cards
                         </span>
                         <span>
-                            <h3><?= $deck["plays"] ?></h3>
+                            <h3><?= htmlspecialchars($deck["plays"]) ?></h3>
                             <figcaption>Plays</figcaption>
                         </span>
                     </figure>
@@ -122,7 +123,7 @@ $deck = $deck_query->single();
                             bookmark
                         </span>
                         <span>
-                            <h3><?= $deck["saves"] ?></h3>
+                            <h3><?= htmlspecialchars($deck["saves"]) ?></h3>
                             <figcaption>Saves</figcaption>
                         </span>
                     </figure>
@@ -141,20 +142,20 @@ $deck = $deck_query->single();
                                 target
                             </span>
                             <span>
-                                <h3><?= $deck["average_score"] ?></h3>
+                                <h3><?= round($deck["average_score"], 2) ?></h3>
                                 <figcaption>Avg Score</figcaption>
                             </span>
                         </figure>
                     <?php endif ?>
                 </ul>
 
-                <a class="primary-button" href="play?deck_id=<?= htmlspecialchars($_GET["deck_id"]) ?>">Play Round!</a>
+                <a class="primary-button" href="play?deck_id=<?= htmlspecialchars($deck_id) ?>" keyboard-shortcut="enter">Play Round!</a>
             </section>
 
             <section>
-                <h2>Questions: <?= $deck["questions"] ?></h2>
+                <h2>Questions: <?= htmlspecialchars($deck["questions"]) ?></h2>
                 <?php
-                $questions = $db->getDeckQuestions($_GET["deck_id"]);
+                $questions = $db->getDeckQuestions($deck_id);
                 if (!$questions->isOk() || $questions->isEmpty()) : ?>
                     <p>There was an error loading the questions please try again </p>
                 <?php else : ?>

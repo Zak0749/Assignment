@@ -10,7 +10,7 @@ $question_part = random_from_array(["key", "value"]);
 $answer_part = $question_part == "key" ? "value" : "key";
 ?>
 
-<section class="play-question select-question" data-correct-id="<?= $correct_question["question_id"] ?>" data-question-text="<?= $correct_question["key"] ?>" data-index="<?= $i + 1 ?>">
+<section class="play-question select-question" data-correct-id="<?= htmlspecialchars($correct_question["question_id"]) ?>" data-question-text="<?= htmlspecialchars($correct_question["key"]) ?>" data-index="<?= $i + 1 ?>" data-original="true">
 
         <header class="question-display">
                 <p class="play-<?= $question_part ?>">
@@ -19,8 +19,8 @@ $answer_part = $question_part == "key" ? "value" : "key";
         </header>
 
         <main class="question-answers-grid">
-                <?php foreach ($questions as $question) : ?>
-                        <button class="play-<?= $answer_part ?>" data-answer-id="<?= $question["question_id"] ?>" onclick="selectAnswer(this);">
+                <?php foreach ($questions as $index => $question) : ?>
+                        <button class="play-<?= $answer_part ?>" data-answer-id="<?= htmlspecialchars($question["question_id"]) ?>" onclick="selectAnswer(this);" keyboard-shortcut="<?= $index + 1 ?>">
                                 <?= htmlspecialchars($question[$answer_part]) ?>
                         </button>
                 <?php endforeach; ?>
@@ -34,7 +34,7 @@ $answer_part = $question_part == "key" ? "value" : "key";
                         Correct
                 </h2>
 
-                <button onclick="nextQuestion(this)" class="success-button">
+                <button onclick="nextQuestion(this)" class="success-button" keyboard-shortcut="n">
                         Next
                 </button>
         </footer>
@@ -48,7 +48,7 @@ $answer_part = $question_part == "key" ? "value" : "key";
 
                 <p><?= htmlspecialchars($correct_question[$answer_part]) ?></p>
 
-                <button onclick="nextQuestion(this)" class="danger-button">
+                <button onclick="nextQuestion(this)" class="danger-button" keyboard-shortcut="n">
                         Next
                 </button>
         </footer>

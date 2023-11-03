@@ -15,7 +15,7 @@
         <main class="center-main">
             <section>
                 <h2>401</h2>
-                <p>You are not authorised to do this, login <a href="not-logged-in.php">here</a></p>
+                <p>You are not authorised to do this, login <a keyboard-shortcut="enter" href="not-logged-in.php">here</a></p>
             </section>
         </main>
     </div>

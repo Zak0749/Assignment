@@ -2,8 +2,6 @@
 // Imports
 use database\Db;
 
-use function helpers\get_body;
-
 // Sets the response type
 header("Content-type:application/json");
 

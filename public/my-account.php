@@ -12,7 +12,6 @@ if (!isset($_SESSION["user_id"])) {
 use database\DB;
 use function cards\deck_card;
 use function cards\tag_card;
-use function helpers\calculate_streak;
 
 // Establish Db connection
 $db = new DB();
@@ -47,7 +46,7 @@ $user = $user_query->single();
 
         <header class="spaced-apart">
             <div class="beside">
-                <img class="large-avatar" src="https://api.dicebear.com/7.x/bottts/svg?backgroundColor=ffadad,ffd6a5,fdffb6,caffbf,9bf6ff,a0c4ff,bdb2ff,ffc6ff,fffffc&seed=<?= $user["avatar"] ?>">
+                <img class="large-avatar" src="https://api.dicebear.com/7.x/bottts/svg?backgroundColor=ffadad,ffd6a5,fdffb6,caffbf,9bf6ff,a0c4ff,bdb2ff,ffc6ff,fffffc&seed=<?= htmlspecialchars($user["avatar"]) ?>">
 
                 <div>
                     <h1>
@@ -60,14 +59,14 @@ $user = $user_query->single();
 
             <ul class="icon-bar">
                 <li>
-                    <a href="edit-account" class="header-icon">
+                    <a href="edit-account" class="header-icon" keyboard-shortcut="e">
                         <span class=" material-symbols-outlined">
                             edit
                         </span>
                     </a>
                 </li>
                 <li>
-                    <button type="button" onclick="logout()" class="header-icon">
+                    <button type="button" onclick="logout()" class="header-icon" keyboard-shortcut="l">
                         <span class=" material-symbols-outlined">
                             logout
                         </span>
@@ -84,7 +83,7 @@ $user = $user_query->single();
                             add
                         </span>
                         <span>
-                            <h3><?= $user["decks"] ?></h3>
+                            <h3><?= htmlspecialchars($user["decks"]) ?></h3>
                             <figcaption>Deck's Made</figcaption>
                         </span>
                     </figure>
@@ -93,7 +92,7 @@ $user = $user_query->single();
                             local_fire_department
                         </span>
                         <span>
-                            <h3><?= calculate_streak($user) ?></h3>
+                            <h3><?= htmlspecialchars($user["streak"]) ?></h3>
                             <figcaption>Day Streak</figcaption>
                         </span>
                     </figure>
@@ -102,7 +101,7 @@ $user = $user_query->single();
                             playing_cards
                         </span>
                         <span>
-                            <h3><?= $user["total_plays"] ?></h3>
+                            <h3><?= htmlspecialchars($user["total_plays"]) ?></h3>
                             <figcaption>Total Plays</figcaption>
                         </span>
                     </figure>
@@ -111,7 +110,7 @@ $user = $user_query->single();
                             target
                         </span>
                         <span>
-                            <h3><?= $user["average_score"] ?>/12</h3>
+                            <h3><?= round($user["average_score"], 2) ?></h3>
                             <figcaption>Avg Score</figcaption>
                         </span>
                     </figure>

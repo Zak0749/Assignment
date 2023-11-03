@@ -1,12 +1,7 @@
 <?php
-// Begins the session for authenticating the user
-
-
-// Adds all the functions/classes to be available to all routes
 // Imports
 use database\DB;
 use function cards\deck_card;
-use function helpers\calculate_streak;
 
 // Establish Db connection
 $db = new DB();
@@ -40,7 +35,7 @@ $db = new DB();
                             </span>
 
                             <h1>
-                                <?= calculate_streak($user_query->single()) ?>
+                                <?= htmlspecialchars($user_query->single()["streak"]) ?>
                             </h1>
                         </span>
                 <?php

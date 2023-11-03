@@ -12,8 +12,6 @@ CREATE TABLE User(
     username TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
     avatar TEXT NOT NULL,
-    streak_start DATETIME,
-    streak_last DATETIME,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE Deck(
@@ -61,6 +59,7 @@ CREATE TABLE User_Play(
     user_id INTEGER NOT NULL,
     deck_id INTEGER NOT NULL,
     score INTEGER NOT NULL,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(user_id) REFERENCES User(user_id) ON DELETE CASCADE,
     FOREIGN KEY(deck_id) REFERENCES Deck(deck_id) ON DELETE CASCADE
 );
@@ -70,156 +69,112 @@ CREATE INDEX tag_index ON Tag (title);
 INSERT INTO User (
         username,
         avatar,
-        password,
-        streak_start,
-        streak_last
+        password
     )
 VALUES (
         'Zak',
-        '1a45c9050d',
-        '$2y$10$0rnzqHGDH7cb/U6ZQy5vguNbpzTJZABngTEsMF.k9.yhS5da6SlAC',
-        '2023-08-01 08:00:00',
-        '2023-08-15 12:30:00'
+        '1a45050d',
+        '$2y$10$0rnzqHGDH7cb/U6ZQy5vguNbpzTJZABngTEsMF.k9.yhS5da6SlAC'
     ),
     (
         'Freya',
-        '89b5913c87',
-        'password2',
-        '2023-07-20 10:00:00',
-        '2023-08-14 18:45:00'
+        '89b59c87',
+        'password2'
     ),
     (
-        'Harris',
-        '008c9d108e',
-        'password3',
-        '2023-08-10 09:00:00',
-        '2023-08-16 14:20:00'
+        'king_bob',
+        '008d108e',
+        'password3'
     ),
     (
         'Keeley',
-        '61b50b0043',
-        'password4',
-        '2023-07-15 11:30:00',
-        '2023-08-13 17:10:00'
+        '610b0043',
+        'password4'
     ),
     (
         'Finn',
-        '52015b3fa9',
-        'password5',
-        '2023-08-05 07:45:00',
-        '2023-08-17 20:00:00'
+        '52015ba9',
+        'password5'
     ),
     (
         'Calum',
-        'db9164c5f2',
-        'password6',
-        '2023-07-25 14:00:00',
-        '2023-08-18 09:30:00'
+        'db9164c2',
+        'password6'
     ),
     (
         'Adam',
-        '35f3a98768',
-        'password7',
-        '2023-08-12 12:15:00',
-        '2023-08-19 15:45:00'
+        '35f3a987',
+        'password7'
     ),
     (
         'Liam',
-        '401011e373',
-        'password8',
-        '2023-07-28 16:30:00',
-        '2023-08-12 11:00:00'
+        '401011e3',
+        'password8'
     ),
     (
         'Daniel',
-        '5770b036c4',
-        'password9',
-        '2023-08-08 13:45:00',
-        '2023-08-16 08:15:00'
+        '5770b036',
+        'password9'
     ),
     (
         'Alister',
-        'cc48d2f915',
-        'password10',
-        '2023-07-18 18:00:00',
-        '2023-08-14 23:30:00'
+        'cc48d2f9',
+        'password10'
     ),
     (
         'Ryan',
-        '516f5a524e',
-        'password11',
-        '2023-08-02 22:00:00',
-        '2023-08-15 19:45:00'
+        '516f5a52',
+        'password11'
     ),
     (
         'Isla',
-        '67469c0a77',
-        'password12',
-        '2023-07-21 04:15:00',
-        '2023-08-13 13:20:00'
+        '67469c0a',
+        'password12'
     ),
     (
         'Micheal',
-        'f7d95826bd',
-        'password13',
-        '2023-08-09 10:30:00',
-        '2023-08-17 10:10:00'
+        'f7d95826',
+        'password13'
     ),
     (
         'Conlan',
-        '8a7aee6683',
-        'password14',
-        '2023-07-16 15:45:00',
-        '2023-08-18 07:00:00'
+        '8a7aee66',
+        'password14'
     ),
     (
         'Mrs_Ferguson',
-        'fbc90a8d47',
-        'password15',
-        '2023-08-06 08:00:00',
-        '2023-08-19 12:30:00'
+        'fbc90a8d',
+        'password15'
     ),
     (
         'Miss_Douglas',
-        '78f49a8ff4',
-        'password16',
-        '2023-07-26 11:00:00',
-        '2023-08-12 18:45:00'
+        '78f49a8f',
+        'password16'
     ),
     (
         'Mrs_Young',
-        'cc74a4d568',
-        'password17',
-        '2023-08-13 14:15:00',
-        '2023-08-16 09:20:00'
+        'cc74a4d5',
+        'password17'
     ),
     (
         'Mr_Mcinnis',
-        '0fb14900a4',
-        'password18',
-        '2023-07-29 16:30:00',
-        '2023-08-17 14:00:00'
+        '0fb14900',
+        'password18'
     ),
     (
         'Mr_Mercer',
-        'af0e0b568b',
-        'password19',
-        '2023-08-07 19:45:00',
-        '2023-08-13 17:15:00'
+        'af0e0b56',
+        'password19'
     ),
     (
         'Mr_Clancy',
-        'e0c3f8f017',
-        'password20',
-        '2023-07-17 23:00:00',
-        '2023-08-18 20:30:00'
+        'e0c3f8f0',
+        'password20'
     ),
     (
         'Bob',
-        '7cd5712433',
-        'password21',
-        '2023-08-01 08:00:00',
-        '2023-08-15 12:30:00'
+        '7cd57124',
+        'password21'
     );
 INSERT INTO Deck (
         user_id,
@@ -1154,3 +1109,13 @@ VALUES (9, 12, 70);
 -- User 10 plays 'Healthy Living Tips' with a score of 80
 INSERT INTO User_Play (user_id, deck_id, score)
 VALUES (10, 13, 80);
+INSERT INTO User_Play (user_id, deck_id, score, timestamp)
+VALUES (1, 1, 9, "2023-10-13 22:24:57"),
+    (1, 1, 9, "2023-10-14 22:24:57"),
+    (1, 1, 9, "2023-10-15 01:24:57"),
+    (1, 1, 9, "2023-10-16 22:24:57"),
+    (1, 1, 9, "2023-10-17 22:24:57"),
+    (1, 1, 9, "2023-10-19 22:24:57"),
+    (1, 1, 9, "2023-10-20 22:24:57"),
+    (1, 1, 9, "2023-10-21 03:24:57"),
+    (1, 1, 9, "2023-10-22 22:24:57");

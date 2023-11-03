@@ -1,7 +1,4 @@
 <?php
-// Begins the session for authenticating the user
-
-
 // Imports
 use database\DB;
 use function cards\deck_card;

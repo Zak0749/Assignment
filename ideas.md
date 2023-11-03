@@ -119,3 +119,47 @@ rather than use weird post can use url parms
 https://rapidapi.com/guides/query-parameters-fetch
 
 erorr messages on server do not need to give message as client knows about them so ovs some sus stuff going on
+
+struggled to get streak
+
+SELECT 
+  timestamp,
+  julianday(date(LAG ( timestamp, -1,  julianday("now") + 1 ) OVER ( 
+		ORDER BY timestamp ASC
+	))) - julianday(date(timestamp)) as untilNext
+FROM Events
+GROUP BY date(timestamp) 
+ORDER BY date(timestamp) DESC
+
+this gets the gap between dates
+
+need to find a way to get the number of ones to start
+
+PHP Cron SchedulerPHP Cron SchedulerPHP Cron SchedulerPHP Cron SchedulerPHP Cron SchedulerPHP Cron SchedulerPHP Cron SchedulerPHP Cron SchedulerPHP Cron SchedulerPHP Cron Scheduler
+PHP Cron Scheduler
+PHP Cron Scheduler
+
+PHP Cron SchedulerPHP Cron Scheduler
+PHP Cron Scheduler
+PHP Cron Scheduler
+PHP Cron Scheduler
+PHP Cron Scheduler
+PHP Cron Scheduler
+PHP Cron Scheduler
+PHP Cron Scheduler
+v
+PHP Cron Scheduler
+PHP Cron Scheduler
+PHP Cron Scheduler
+
+
+PHP Cron SchedulerL
+
+LOOK UP FURTURE ME OR ELSE!!!!!!!!!!!!!!!!
+
+
+Try to avoid redirects to make nicer
+
+Was planning to use a JS library for keyboard shortcuts but decided to write my own code as none of them did it inline so i used mousetrap with my own code to get it good
+
+Tried to use mouse trap but deicde to use hotkeysw-js

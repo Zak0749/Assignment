@@ -2,9 +2,6 @@
 // Import database class
 use database\DB;
 
-use function helpers\get_body;
-use function helpers\validate_string;
-
 header('Content-Type: application/json');
 
 // If logged in give error code and stop request
@@ -13,14 +10,25 @@ if (isset($_SESSION["user_id"])) {
 	return;
 }
 
-$body = get_body();
+// Get the body of the request and validate it
+$body = filter_input_array(INPUT_POST, [
+	"username" => [
+		"filter" => FILTER_VALIDATE_REGEXP,
+		"options" => [
+			'regexp' => "/^[\w]{3,16}$/"
+		]
+	],
+	"password" =>
+	[
+		"filter" => FILTER_VALIDATE_REGEXP,
+		'options' => [
+			'regexp' => "/^[\S]{8,24}$/"
+		]
+	],
+]);
 
-// If username or password is invalid
-// No need to send error message as same as client validation 
-if (
-	!validate_string($body, "username", required: true, pattern: "/^[\w]{3,16}$/") ||
-	!validate_string($body, "password", required: true, pattern: "/^[\S]{8,24}$/")
-) {
+// If any of the inputs are invalid or not set send a `bad request` code
+if (in_array(false, $body, true) || in_array(null, $body, true)) {
 	http_response_code(400);
 	return;
 }

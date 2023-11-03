@@ -34,26 +34,27 @@ async function displaySearchResults(searchForm) {
  * @param {HTMLFormElement} loginForm The login form.
  */
 async function loginUser(loginForm) {
+    let body = new URLSearchParams();
+    body.set("username", loginForm.username.value);
+    body.set("password", loginForm.password.value);
+
     // Send a post request to the server to logins
     let result = await fetch('api/login', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/x-www-form-urlencoded'
         },
-        body: JSON.stringify({
-            username: loginForm.username.value,
-            password: loginForm.password.value
-        })
+        body: body
     });
 
     // If login was successful 
     if (result.ok) {
         // Send user to their account
-        // window.location.replace('my-account');
+        window.location.replace('my-account');
     }
     // If it was an internal sever error
     else if (result.status == 500) {
-        loginForm.getElementById('error-text').innerText = 'An internal server error has occurred please try again later';
+        console.error(await result.text())
     }
     // When it is a client error (problem with inputs)
     else {
@@ -61,7 +62,7 @@ async function loginUser(loginForm) {
         let error = await result.json();
 
         // Gets the element related to the error
-        let input = form[error.input];
+        let input = loginForm[error.input];
 
         // Puts the servers custom message on it
         input.setCustomValidity(error.message)
@@ -74,23 +75,23 @@ async function loginUser(loginForm) {
 /**
  * Checks if the repeat password matches the password field.
  *
- * @param {HTMLInputElement} repeatPassword The repeat password input field.
+ * @param {HTMLInputElement} passwordInput The repeat password input field.
  */
-function checkPasswordsMatch(repeatPassword) {
+function checkPasswordsMatch(passwordInput) {
     // The form the repeat password box is in
-    let form = repeatPassword.form;
+    let form = passwordInput.form;
 
     // If the passwords match
-    if (repeatPassword.value == form.password.value) {
+    if (form["confirm-password"].value == form.password.value) {
         // Set field to be valid
-        repeatPassword.setCustomValidity('')
+        form["confirm-password"].setCustomValidity('')
     } else {
         // Invalidate the field with a message
-        repeatPassword.setCustomValidity('passwords must match')
+        form["confirm-password"].setCustomValidity('passwords must match')
     }
 
     // Report the validity to the user when the form is submitted
-    repeatPassword.checkValidity()
+    form["confirm-password"].checkValidity()
 }
 
 /**
@@ -100,7 +101,7 @@ function checkPasswordsMatch(repeatPassword) {
  */
 function randomiseAvatar(avatarInput) {
     // Generate an number between 0 and 4294967295 (00000000 and ffffffff) then puts it into a hex string
-    let seed = Math.floor(Math.random() * 4294967295).toString(16);
+    let seed = Math.floor(Math.random() * 4294967295).toString(16).padEnd(8, "0");
 
     avatarInput.style.backgroundImage = `url(https://api.dicebear.com/7.x/bottts/svg?backgroundColor=ffadad,ffd6a5,fdffb6,caffbf,9bf6ff,a0c4ff,bdb2ff,ffc6ff,fffffc&seed=${seed})`;
     avatarInput.value = seed;
@@ -112,21 +113,17 @@ function randomiseAvatar(avatarInput) {
  * @param {HTMLFormElement} createAccountForm - the create account from
  */
 async function createAccount(createAccountForm) {
-    let data = new URLSearchParams({
-        username: createAccountForm['username'].value,
-        password: createAccountForm['password'].value,
-        avatar: createAccountForm['avatar'].value,
-        likes: Array.from(createAccountForm['likes'])
-            .filter((checkbox) => checkbox.checked) // Get only the checkboxes which are checked
-            .map((checkbox) => checkbox.value) // Get the id of the tag
-    });
+    let data = new URLSearchParams();
+    data.set("username", createAccountForm.username.value)
+    data.set("password", createAccountForm.password.value)
+    data.set("avatar", createAccountForm.avatar.value)
 
-    // data.set("username", createAccountForm.username.value);
-    // data.set("password", createAccountForm.password.value);
-    // data.set("avatar", createAccountForm.avatar.value);
-    // data.set("likes", Array.from(createAccountForm['likes'])
-    //     .filter((checkbox) => checkbox.checked) // Get only the checkboxes which are checked
-    //     .map((checkbox) => checkbox.value)) // Get the id of the tag)
+    Array.from(createAccountForm.likes)
+        .filter((checkbox) => checkbox.checked)
+        .map((checkbox) => checkbox.value)
+        .forEach((like, index) => {
+            data.set(`likes[${index}]`, like)
+        });
 
     let result = await fetch('api/create-account', {
         method: 'POST',
@@ -134,24 +131,14 @@ async function createAccount(createAccountForm) {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
         body: data
-        // body: JSON.stringify({
-        //     username: form['username'].value,
-        //     password: form['password'].value,
-        //     avatar: form['avatar'].value,
-        // likes: Array.from(form['likes'])
-        //     .filter((checkbox) => checkbox.checked) // Get only the checkboxes which are checked
-        //     .map((checkbox) => checkbox.value) // Get the id of the tag
-        // })
     });
 
-    // Think about adding 500 error as unknown server error
     if (result.ok) {
-        console.log(await result.text())
         window.location.replace('my-account')
     } else {
         let body = await result.json()
 
-        let input = form[body['input']]
+        let input = createAccountForm[body['input']]
 
         input.setCustomValidity(body.message)
 
@@ -159,39 +146,39 @@ async function createAccount(createAccountForm) {
     }
 }
 
-async function logout() {
-    let result = await fetch('api/logout');
-
-    if (result.ok) {
-        window.location.replace('/');
-    } else {
-        console.error('Unexpected server error');
-    }
-}
-
 /**
- * @param {HTMLButtonElement} button - the create account from
+ * @param {HTMLButtonElement} toggleButton - the create account from
  */
-async function toggle_save(button) {
-    if (button.dataset.save) {
-        let result = await fetch('api/delete-save?deck_id=' + button.dataset.deckId, {
-            method: 'PATCH',
+async function toggleSave(toggleButton) {
+    let data = new URLSearchParams(window.location.search);
+
+    if (toggleButton.dataset.save) {
+        let result = await fetch('api/delete-save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: data
         });
 
         if (result.ok) {
-            button.children[0].innerHTML = 'bookmark_add';
-            button.dataset.save = true
+            toggleButton.children[0].innerHTML = 'bookmark_add';
+            toggleButton.dataset.save = true
         } else {
             console.error('Unexpected server error');
         }
     } else {
-        let result = await fetch('api/save?deck_id=' + button.dataset.deckId, {
-            method: 'PATCH',
+        let result = await fetch('api/save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: data
         });
 
         if (result.ok) {
-            button.children[0].innerHTML = 'bookmark_added';
-            button.dataset.save = false
+            toggleButton.children[0].innerHTML = 'bookmark_added';
+            toggleButton.dataset.save = false
         } else {
             console.error('Unexpected server error');
         }
@@ -209,28 +196,63 @@ async function logout() {
 }
 
 /**
- * @param {HTMLFormElement} form - the edit deck form
+ * @param {HTMLFormElement} editAccountForm - the edit deck form
  */
-async function submit_edit_account(form) {
-    let changed_likes = Array.from(form['likes']).filter((v) => v.checked != v.defaultChecked);
+async function submitEditAccount(editAccountForm) {
+    let data = new URLSearchParams();
 
-    let URLPARAMS = URLSearchParams({
-        username: form['username'].value == form['username'].defaultValue ? null : form['username'].value,
-        password: form['password'].value == form['password'].defaultValue ? null : form['password'].value,
-        avatar: form['avatar'].value == form['avatar'].defaultValue ? null : form['avatar'].value,
-        added_likes: changed_likes.filter((v) => v.checked).map((v) => v.value),
-        removed_likes: changed_likes.filter((v) => !v.checked).map((v) => v.value)
-    })
+    if (editAccountForm['username'].value != editAccountForm['username'].defaultValue) {
+        data.set("username", editAccountForm.username.value)
+    }
+
+    if (editAccountForm['password'].value != editAccountForm['password'].defaultValue) {
+        data.set("password", editAccountForm.password.value)
+    }
+
+    if (editAccountForm['avatar'].value != editAccountForm['avatar'].defaultValue) {
+        data.set("avatar", editAccountForm.avatar.value)
+    }
+
+    Array.from(editAccountForm.likes)
+        .filter((checkbox) => checkbox.checked != checkbox.defaultChecked && checkbox.checked == true)
+        .map((checkbox) => checkbox.value)
+        .forEach((like, index) => {
+            data.set(`added_likes[${index}]`, like)
+        });
+
+    Array.from(editAccountForm.likes)
+        .filter((checkbox) => checkbox.checked != checkbox.defaultChecked && checkbox.checked == false)
+        .map((checkbox) => checkbox.value)
+        .forEach((like, index) => {
+            data.set(`removed_likes[${index}]`, like)
+        });
 
     let response = await fetch('/api/edit-account', {
-        method: 'PATCH', // Since editing and not setting all fields the PATCH HTTP METHOD IS USED
-        body: URLPARAMS
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: data
     });
 
     if (response.ok) {
         window.location.replace('my-account')
-    } else {
+    } else if (response.status == 500) {
         console.error(await response.text())
+    }
+    // When it is a client error (problem with inputs)
+    else {
+        // Get the error
+        let error = await response.json();
+
+        // Gets the element related to the error
+        let input = editAccountForm[error.input];
+
+        // Puts the servers custom message on it
+        input.setCustomValidity(error.message)
+
+        // Report the invalid input to the user
+        input.reportValidity()
     }
 }
 
@@ -260,9 +282,10 @@ window.addEventListener('load', () => {
     });
 });
 
+
 async function delete_account() {
     let response = await fetch('api/delete-account', {
-        method: 'DELETE'
+        method: 'POST'
     });
 
     if (response.ok) {
@@ -351,6 +374,12 @@ function undoDeletions() {
  *  * @param {HTMLDivElement} button - the edit deck form
  */
 function matchHeights(button) {
+    // On small screens the boxes are vertically stacked so no moving is needed
+    if (window.innerWidth < 600) {
+        return
+    }
+
+
     let [key_input, value_input] = button.children;
 
     key_input.style.height = 'auto';
@@ -364,29 +393,35 @@ function matchHeights(button) {
 }
 
 /**
- *  * @param {HTMLFormElement} form - the edit deck form
+ *  * @param {HTMLFormElement} createDeckForm - the edit deck form
  */
-async function createDeck(form) {
+async function createDeck(createDeckForm) {
+    let data = new URLSearchParams();
+
+    data.set("title", createDeckForm['title'].value);
+    data.set("description", createDeckForm['description'].value);
+
+    Array.from(createDeckForm.topics)
+        .filter((checkbox) => checkbox.checked)
+        .map((checkbox) => checkbox.value)
+        .forEach((like, index) => {
+            data.set(`topics[${index}]`, like)
+        });
+
+    Array.from(createDeckForm.getElementsByClassName('question'))
+        .filter((question) => question.dataset.remove !== 'true')
+        .forEach((question, index) => {
+            data.set(`questions[${index}][key]`, question.getElementsByClassName('question-key')[0].value)
+            data.set(`questions[${index}][value]`, question.getElementsByClassName('question-value')[0].value)
+        })
+
+
     let result = await fetch('api/create-deck', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
-        body: new URLSearchParams({
-            title: form['title'].value,
-            description: form['description'].value,
-            topics: Array.from(form['topics'])
-                .filter((checkbox) => checkbox.checked) // Get only the checkboxes which are checked
-                .map((checkbox) => checkbox.value), // Get the id of the tag
-            questions: Array.from(form.getElementsByClassName('question'))
-                .filter((question) => question.dataset.remove !== 'true')
-                .map((question) => {
-                    return {
-                        key: question.getElementsByClassName('question-key')[0].value,
-                        value: question.getElementsByClassName('question-value')[0].value,
-                    }
-                })
-        })
+        body: data
     });
 
     if (result.ok) {
@@ -400,44 +435,72 @@ async function createDeck(form) {
 /**
  *  * @param {HTMLFormElement} form - the edit deck form
  */
-async function submitEditDeck(form) {
-    let changed_topics = Array.from(form['likes']).filter((v) => v.checked != v.defaultChecked);
-    let questions = Array.from(document.getElementsByClassName('question'));
+async function submitEditDeck(editDeckForm) {
+    let data = new URLSearchParams(window.location.search);
 
-    console.log(questions)
-
-    let data = {
-        deck_id: document.getElementsByTagName('form')[0].dataset.deckId,
-        title: form['title'].value == form['title'].defaultValue ? null : form['title'].value,
-        description: form['description'].value == form['description'].defaultValue ? null : form['description'].value,
-        added_topics: changed_topics.filter((v) => v.checked).map((v) => v.value),
-        removed_topics: changed_topics.filter((v) => !v.checked).map((v) => v.value),
-        new_questions: questions.filter((question) => question.dataset.remove !== 'true').filter((v) => v.id === '').map((question) => {
-            return {
-                key: question.getElementsByClassName('question-key')[0].value,
-                value: question.getElementsByClassName('question-value')[0].value,
-            }
-        }),
-        edited_questions: questions.filter((question) => question.dataset.remove !== 'true').filter((v) => v.id !== '').filter((question) => {
-            let key = question.getElementsByClassName('question-key')[0];
-            let value = question.getElementsByClassName('question-value')[0];
-
-            return key.value !== key.defaultValue || value.value !== value.defaultValue;
-        }).map((question) => {
-            return {
-                id: question.id,
-                key: question.getElementsByClassName('question-key')[0].value == question.getElementsByClassName('question-key')[0].defaultValue ? null : question.getElementsByClassName('question-key')[0].value,
-                value: question.getElementsByClassName('question-value')[0].value == question.getElementsByClassName('question-value')[0].defaultValue ? null : question.getElementsByClassName('question-value')[0].value,
-            }
-        }),
-        // rather than actually delete add data-delete=true 
-        // allow undo edits + give id list of deletions
-        removed_questions: questions.filter((v) => v.id !== '').filter((question) => question.dataset.remove === 'true').map((question) => question.id)
+    if (editDeckForm.title.value !== editDeckForm.title.defaultValue) {
+        data.set("title", editDeckForm['title'].value);
     }
 
-    let response = await fetch('/api/edit_deck', {
-        method: 'PATCH', // Since editing and not setting all fields the PATCH HTTP METHOD IS USED
-        body: JSON.stringify(data)
+    if (editDeckForm.description.value !== editDeckForm.description.defaultValue) {
+        data.set("description", editDeckForm.description.value);
+    }
+
+    let topics = Array.from(editDeckForm.topics)
+
+    topics
+        .filter((checkbox) => checkbox.checked != checkbox.defaultChecked && checkbox.checked == true)
+        .forEach((checkbox, index) => {
+            data.set(`added_topics[${index}]`, checkbox.value)
+        });
+
+    topics
+        .filter((checkbox) => checkbox.checked != checkbox.defaultChecked && checkbox.checked == false)
+        .forEach((checkbox, index) => {
+            data.set(`removed_topics[${index}]`, checkbox.value)
+        });
+
+    let questions = Array.from(document.getElementsByClassName('question'));
+
+    questions
+        .filter((question) => question.dataset.remove !== "true" && question.id === "")
+        .forEach((question, index) => {
+            data.set(`new_questions[${index}][key]`, question.getElementsByClassName('question-key')[0].value)
+            data.set(`new_questions[${index}][value]`, question.getElementsByClassName('question-value')[0].value)
+        });
+
+    questions
+        .filter((question) => question.dataset.remove !== "true" && question.id !== "")
+        .map((question) => {
+            return {
+                id: question.id,
+                key: question.getElementsByClassName('question-key')[0],
+                value: question.getElementsByClassName('question-value')[0]
+            }
+        })
+        .filter((question) => question.key.value !== question.key.defaultValue || question.value.value !== question.value.defaultValue)
+        .forEach((question, index) => {
+            data.set(`edited_questions[${index}][id]`, question.id)
+            if (question.key.value !== question.key.defaultValue) {
+                data.set(`edited_questions[${index}][key]`, question.key.value)
+            }
+            if (question.value.value !== question.value.defaultValue) {
+                data.set(`edited_questions[${index}][value]`, question.value.value)
+            }
+        });
+
+    questions
+        .filter((question) => question.dataset.remove === "true" && question.id !== "")
+        .forEach((question, index) => {
+            data.set(`removed_questions[${index}][id]`, question.id)
+        });
+
+    let response = await fetch('/api/edit-deck', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: data
     });
 
     if (response.ok) {
@@ -448,13 +511,14 @@ async function submitEditDeck(form) {
 }
 
 async function deleteDeck() {
-    let deckId = document.getElementsByTagName('form')[0].dataset.deckId;
+    let data = new URLSearchParams(window.location.search);
 
     let response = await fetch('/api/delete-deck', {
-        method: 'DELETE',
-        body: JSON.stringify({
-            deck_id: deckId
-        })
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: data
     });
 
     if (response.ok) {
@@ -472,7 +536,7 @@ function selectAnswer(button) {
     let questionElement = button.closest('.play-question');
 
     // If question has already been answered stop function early
-    if (questionElement.dataset.dataResult) {
+    if (questionElement.dataset.result) {
         return
     }
 
@@ -483,13 +547,17 @@ function selectAnswer(button) {
  *  * @param {HTMLButtonElement} button - the edit deck form
  */
 function matchAnswer(button) {
+    // Get the first play-question witch is a ancestor of the button
+    let questionElement = button.closest('.play-question');
+
+    if (questionElement.dataset.result) {
+        return;
+    }
+
     if (button.dataset.selected == true) {
         button.dataset.selected = false;
         return;
     }
-
-    // Get the first play-question witch is a ancestor of the button
-    let questionElement = button.closest('.play-question');
 
     let selected = questionElement.querySelector('[data-selected="true"]')
 
@@ -520,13 +588,20 @@ function matchAnswer(button) {
  *  * @param {HTMLButtonElement} button - the edit deck form
  */
 function nextQuestion(button) {
-    document.body.onbeforeunload = () => {
-        return 'Your changes may not be saved, are you sure you want to leave?'
-    };
+    // document.body.onbeforeunload = () => {
+    //     return 'Your changes may not be saved, are you sure you want to leave?'
+    // };
 
 
     // Get the first play-question witch is a ancestor of the button
     let questionElement = button.closest('.play-question');
+
+    // This means it is the rety poage so just return
+    if (questionElement === null) {
+        let retryPage = button.closest('.retry-page');
+        retryPage.dataset.complete = true;
+        return;
+    }
 
     questionElement.dataset.complete = true;
 
@@ -535,9 +610,7 @@ function nextQuestion(button) {
 
     // If the retry page
 
-    if (questionElement.classList.contains('retry-page')) {
-        return;
-    }
+
 
     if (questionElement.dataset.result == 'correct') {
         document.getElementById('play-progress').value += 1;
@@ -546,6 +619,7 @@ function nextQuestion(button) {
 
         duplicatedQuestion.removeAttribute('data-result');
         duplicatedQuestion.removeAttribute('data-complete');
+        duplicatedQuestion.removeAttribute('data-original');
         duplicatedQuestion.classList.remove('revealed');
 
         let questionList = questionElement.parentElement;
@@ -567,7 +641,7 @@ function displaySelfAnswer(button) {
     questionElement.classList.add('revealed');
 }
 
-/**
+/**f
  *  * @param {HTMLButtonElement} button - the edit deck form
  *  *  @param {string} button - the edit deck form
 
@@ -579,18 +653,6 @@ function selfAnswer(button, result) {
 }
 
 let addedUnLoadCheck = false;
-
-// When submitting doesn't allow either
-function contentChanged() {
-    if (addedUnLoadCheck == false) {
-        addedUnLoadCheck = true
-        document.body.onbeforeunload = () => {
-            return 'Your changes may not be saved, are you sure you want to leave?'
-        };
-
-    }
-}
-
 
 function results() {
     // API STUFF
@@ -604,13 +666,16 @@ function results() {
 
     let questions = Array.from(questionList.children)
 
-    let correct_number = questions.slice(0, 12).filter((question) => question.dataset.result == 'correct').length;
-    let wrong_number = questions.slice(0, 12).filter((question) => question.dataset.result == 'wrong').length;
+    let markable_questions = questions.filter((question) => question.dataset.original === "true");
 
-    let url_params = new URLSearchParams(window.location.search);
+    questions.forEach((q) => {
+        console.log(q.dataset.original);
+    })
 
-    saveResults(correct_number, url_params.get('deck_id'));
+    let correct_number = markable_questions.filter((question) => question.dataset.result == 'correct').length;
+    let wrong_number = markable_questions.filter((question) => question.dataset.result == 'wrong').length;
 
+    saveResults(correct_number);
 
     const ctx = document.getElementById('results-chart');
 
@@ -684,16 +749,20 @@ function results() {
 
 /**
  *  * @param {integer} score - the edit deck form
- *  * @param {string} deckId - the edit deck form
  * 
  */
-async function saveResults(score, deckId) {
-    let result = await fetch('/api/save-results', {
+async function saveResults(score) {
+    let data = new URLSearchParams(window.location.search);
+
+    data.set("score", score)
+
+
+    let result = await fetch('/api/play', {
         method: 'POST',
-        body: JSON.stringify({
-            score: score,
-            deck_id: deckId
-        })
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: data
     });
 
     if (!result.ok) {
@@ -703,3 +772,34 @@ async function saveResults(score, deckId) {
         console.log('error')
     }
 }
+
+/*
+    Since all shortcuts are simply an interface on top of the 
+
+*/
+window.addEventListener("load", () => {
+    let shortcutItems = {}
+    // Iterates through all the elements on the page with the ks-bind attribute
+    Array.from(document.querySelectorAll("[keyboard-shortcut]")).forEach((element) => {
+        // Adds a key bind to the element with the name specified to do it's click action
+        // e.g. a button will do it's onclick event a tag will redirect etc
+        if (shortcutItems[element.getAttribute("keyboard-shortcut")]) {
+            shortcutItems[element.getAttribute("keyboard-shortcut")].push(element)
+        } else {
+            shortcutItems[element.getAttribute("keyboard-shortcut")] = [element]
+        }
+
+
+    })
+
+    Object.entries(shortcutItems).forEach(([key, elements]) => {
+        Mousetrap.bind(key, () => {
+            elements.forEach((element) => {
+                // If element is visible
+                if (element.offsetParent !== null) {
+                    element.click()
+                }
+            })
+        });
+    })
+})

@@ -29,7 +29,7 @@ if (isset($_SESSION["user_id"])) {
             <section>
                 <h3>Have an account?</h3>
 
-                <a href="login" class="primary-button">
+                <a href="login" class="primary-button" keyboard-shortcut="l">
                     <span class="material-symbols-outlined">login</span> Login
                 </a>
             </section>
@@ -37,7 +37,7 @@ if (isset($_SESSION["user_id"])) {
             <section>
                 <h3>Otherwise</h3>
 
-                <a href="create-account" class="primary-button">
+                <a href="create-account" class="primary-button" keyboard-shortcut="c">
                     <span class="material-symbols-outlined">person_add</span> Create Account
                 </a>
             </section>
