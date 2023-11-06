@@ -504,7 +504,7 @@ async function submitEditDeck(editDeckForm) {
     });
 
     if (response.ok) {
-        window.location.replace(`deck?deck_id=${data.deck_id}`)
+        window.location.replace(`deck?deck_id=${data.get("deck_id")}`)
     } else {
         console.error(await response.text())
     }

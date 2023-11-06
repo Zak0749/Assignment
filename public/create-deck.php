@@ -49,7 +49,7 @@ $db = new Db();
 
                         <div class="form-field">
                             <label for="description">Description</label>
-                            <textarea name="description" type="text" maxlength="256" required oninput="autoHeight(this)"></textarea>
+                            <textarea name="description" type="text" minlength="3" maxlength="256" required oninput="autoHeight(this)"></textarea>
                         </div>
 
                         <div class="form-field hide-large">

@@ -36,6 +36,8 @@ $body = filter_input_array(INPUT_POST, [
     ]
 ]);
 
+var_dump($body);
+
 if (
     in_array(false, $body, true) ||
     $body["title"] === null ||
@@ -71,10 +73,7 @@ $body["questions"] = array_map(function ($question) {
 }, $body["questions"]);
 
 if (
-    $title === null || $title === false ||
-    $description === null || $description === false ||
-    ($topics != null && in_array(false, $topics, true)) ||
-    in_array(false, $questions, true)
+    in_array(false, $body["questions"], true)
 ) {
     http_response_code(400);
     return;
@@ -82,10 +81,10 @@ if (
 
 
 $result = $db->createDeck(
-    $title,
-    $description,
-    $topics,
-    $questions
+    $body["title"],
+    $body["description"],
+    $body["topics"],
+    $body["questions"]
 );
 
 if ($result->isOk()) {

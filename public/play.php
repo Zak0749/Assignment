@@ -81,8 +81,7 @@ $question_types = ["select", "match", "self"];
         </header>
         <main class="full-screen">
             <ul id="play-question-list" data-deck-id="<?= htmlspecialchars($deck_id) ?>">
-
-                <?php foreach (range(0, 2) as $i) :
+                <?php foreach (range(0, 11) as $i) :
                     // Chooses a random question type out of the array
                     $type = random_from_array($question_types);
 
