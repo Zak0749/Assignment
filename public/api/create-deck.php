@@ -6,7 +6,7 @@ use database\Db;
 header("Content-type:application/json");
 
 // If not logged in give error code and stop request
-if (!isset($_SESSION["user_id"])) {
+if (!isset($_SESSION["account_id"])) {
     http_response_code(401);
     return;
 }
@@ -36,8 +36,6 @@ $body = filter_input_array(INPUT_POST, [
     ]
 ]);
 
-var_dump($body);
-
 if (
     in_array(false, $body, true) ||
     $body["title"] === null ||
@@ -51,13 +49,13 @@ if (
 
 $body["questions"] = array_map(function ($question) {
     $question = filter_var_array($question, [
-        "key" => [
+        "question" => [
             "filter" => FILTER_VALIDATE_REGEXP,
             "options" => [
                 'regexp' => "/^.{0,32}$/"
             ]
         ],
-        "value" => [
+        "answer" => [
             "filter" => FILTER_VALIDATE_REGEXP,
             "options" => [
                 'regexp' => "/^.{0,256}$/"
@@ -81,6 +79,7 @@ if (
 
 
 $result = $db->createDeck(
+    $_SESSION["account_id"],
     $body["title"],
     $body["description"],
     $body["topics"],

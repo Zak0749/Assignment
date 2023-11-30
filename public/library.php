@@ -4,7 +4,7 @@ use database\DB;
 use function cards\deck_card;
 
 // If the user is not logged in send them to an error page
-if (!isset($_SESSION["user_id"])) {
+if (!isset($_SESSION["account_id"])) {
     http_response_code(401);
     require("errors/401.php");
     exit;
@@ -37,7 +37,7 @@ $db = new DB();
                 <h2>Saved</h2>
 
                 <?php
-                $saved = $db->getSaved();
+                $saved = $db->getSaved($_SESSION["account_id"]);
                 if (!$saved->isOk()) :
                 ?>
                     <p>An error occurred, please try again</p>
@@ -45,8 +45,8 @@ $db = new DB();
                     <p>You have no saved decks when you save some they will appear here</p>
                 <?php else : ?>
                     <ul class="deck-grid">
-                        <?php foreach ($saved->iterate() as $deck) {
-                            echo deck_card($deck, $db->getTopics($deck["deck_id"]));
+                        <?php foreach ($saved->array() as $deck) {
+                            echo deck_card($deck, $db->getDeckTopics($deck["deck_id"]));
                         } ?>
                     </ul>
                 <?php endif; ?>
@@ -56,7 +56,7 @@ $db = new DB();
                 <h2>Creations</h2>
 
                 <?php
-                $creations = $db->getCreations($_SESSION["user_id"]);
+                $creations = $db->getCreations($_SESSION["account_id"], $_SESSION["account_id"]);
                 if (!$creations->isOk()) :
                 ?>
                     <p>An error occurred, please try again</p>
@@ -64,8 +64,8 @@ $db = new DB();
                     <p>You have not created any decks yet, when you do they will appear here</p>
                 <?php else : ?>
                     <ul class="deck-grid">
-                        <?php foreach ($creations->iterate() as $deck) {
-                            echo deck_card($deck, $db->getTopics($deck["deck_id"]));
+                        <?php foreach ($creations->array() as $deck) {
+                            echo deck_card($deck, $db->getDeckTopics($deck["deck_id"]));
                         } ?>
                     </ul>
                 <?php endif; ?>
@@ -75,7 +75,7 @@ $db = new DB();
                 <h2>Recent</h2>
 
                 <?php
-                $recent = $db->getRecent($_SESSION["user_id"]);
+                $recent = $db->getRecent($_SESSION["account_id"]);
                 if (!$recent->isOk()) :
                 ?>
                     <p>An error occurred, please try again</p>
@@ -83,8 +83,8 @@ $db = new DB();
                     <p>You have not played any decks yet, when you do they will appear here</p>
                 <?php else : ?>
                     <ul class="deck-grid">
-                        <?php foreach ($recent->iterate() as $deck) {
-                            echo deck_card($deck, $db->getTopics($deck["deck_id"]));
+                        <?php foreach ($recent->array() as $deck) {
+                            echo deck_card($deck, $db->getDeckTopics($deck["deck_id"]));
                         } ?>
                     </ul>
                 <?php endif; ?>

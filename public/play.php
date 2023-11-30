@@ -5,7 +5,16 @@ use database\Db;
 
 use function helpers\random_from_array;
 
-$deck_id = filter_input(INPUT_GET, "deck_id", FILTER_VALIDATE_INT);
+$deck_id = filter_input(
+    INPUT_GET,
+    "deck_id",
+    FILTER_VALIDATE_REGEXP,
+    [
+        "options" => [
+            'regexp' =>  '/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i'
+        ]
+    ]
+);
 
 // If deck_id is invalid or not set send user to error page
 if ($deck_id === null || $deck_id === false) {
@@ -18,7 +27,7 @@ if ($deck_id === null || $deck_id === false) {
 $db = new Db();
 
 // Get the deck
-$deck_query = $db->getDeck($deck_id);
+$deck_query = $db->getDeck($deck_id, $_SESSION["user_account_id"] ?? null);
 
 // If error occurred when getting deck send user to error page
 if (!$deck_query->isOk()) {

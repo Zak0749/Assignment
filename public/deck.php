@@ -4,7 +4,11 @@
 use database\DB;
 use function cards\tag_card;
 
-$deck_id = filter_input(INPUT_GET, "deck_id", FILTER_VALIDATE_INT);
+$deck_id = filter_input(INPUT_GET, "deck_id", FILTER_VALIDATE_REGEXP, [
+    "options" => [
+        'regexp' =>  '/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i'
+    ]
+]);
 
 // If deck_id is invalid or not set send user to error page
 if ($deck_id === null || $deck_id === false) {
@@ -16,7 +20,7 @@ if ($deck_id === null || $deck_id === false) {
 // Establish Db connection
 $db = new DB();
 
-$deck_query = $db->getDeck($deck_id);
+$deck_query = $db->getDeck($deck_id, $_SESSION["account_id"] ?? null);
 
 // If error occurred send the user to an error page
 if (!$deck_query->isOk()) {
@@ -54,7 +58,7 @@ $deck = $deck_query->single();
                 </h1>
 
                 <div class="icon-bar">
-                    <?php if (isset($_SESSION["user_id"]) && $_SESSION["user_id"] == $deck["user_id"]) : ?>
+                    <?php if (isset($_SESSION["account_id"]) && $_SESSION["account_id"] == $deck["account_id"]) : ?>
                         <a href="edit-deck?deck_id=<?= htmlspecialchars($deck_id) ?>" class="header-icon" keyboard-shortcut="e">
                             <span class=" material-symbols-outlined">
                                 edit
@@ -62,7 +66,7 @@ $deck = $deck_query->single();
                         </a>
                     <?php endif ?>
 
-                    <?php if (isset($_SESSION["user_id"])) : ?>
+                    <?php if (isset($_SESSION["account_id"])) : ?>
                         <button data-deck-id="<?= htmlspecialchars($deck_id) ?>" data-save="<?= boolval($deck["saved"]) ?>" id="save_toggle" class="header-icon" onclick="toggleSave(this)" keyboard-shortcut="s">
                             <?php if ($deck["saved"]) : ?>
                                 <span class="material-symbols-outlined">
@@ -80,7 +84,7 @@ $deck = $deck_query->single();
 
             <div class="spaced-apart">
                 <h2>
-                    <a href="user?user_id=<?= htmlspecialchars($deck["user_id"]) ?>">
+                    <a href="account?account_id=<?= htmlspecialchars($deck["account_id"]) ?>">
                         <?= htmlspecialchars($deck["username"]) ?>
                     </a>
                 </h2>
@@ -91,13 +95,13 @@ $deck = $deck_query->single();
             </div>
 
             <?php
-            $topics = $db->getTopics($deck_id);
+            $topics = $db->getDeckTopics($deck_id);
             if (!$topics->isOk()) :
             ?>
                 <p>An error occurred when loading the tags please try again</p>
             <?php elseif (!$topics->isEmpty()) : ?>
                 <ul class="tag-list">
-                    <?php foreach ($topics->iterate() as $tag) {
+                    <?php foreach ($topics->array() as $tag) {
                         echo tag_card($tag);
                     } ?>
                 </ul>
@@ -114,7 +118,7 @@ $deck = $deck_query->single();
                             playing_cards
                         </span>
                         <span>
-                            <h3><?= htmlspecialchars($deck["plays"]) ?></h3>
+                            <h3><?= htmlspecialchars($deck["deck_play_no"]) ?></h3>
                             <figcaption>Plays</figcaption>
                         </span>
                     </figure>
@@ -123,17 +127,17 @@ $deck = $deck_query->single();
                             bookmark
                         </span>
                         <span>
-                            <h3><?= htmlspecialchars($deck["saves"]) ?></h3>
+                            <h3><?= htmlspecialchars($deck["save_no"]) ?></h3>
                             <figcaption>Saves</figcaption>
                         </span>
                     </figure>
-                    <?php if ($deck["user_plays"] != 0) : ?>
+                    <?php if ($deck["user_play_no"] != 0) : ?>
                         <figure class="statistic">
                             <span class="material-symbols-outlined">
                                 history
                             </span>
                             <span>
-                                <h3><?= $deck["user_plays"] ?></h3>
+                                <h3><?= $deck["user_play_no"] ?></h3>
                                 <figcaption>Previous Plays</figcaption>
                             </span>
                         </figure>
@@ -153,17 +157,17 @@ $deck = $deck_query->single();
             </section>
 
             <section>
-                <h2>Questions: <?= htmlspecialchars($deck["questions"]) ?></h2>
                 <?php
                 $questions = $db->getDeckQuestions($deck_id);
                 if (!$questions->isOk() || $questions->isEmpty()) : ?>
                     <p>There was an error loading the questions please try again </p>
                 <?php else : ?>
+                    <h2>Questions: <?= htmlspecialchars($questions->rowCount()) ?></h2>
                     <ul class="question-list">
-                        <?php foreach ($questions->iterate() as $question) : ?>
+                        <?php foreach ($questions->array() as $question) : ?>
                             <li class="question-card">
-                                <h3><?= htmlspecialchars($question["key"]) ?></h3>
-                                <p><?= htmlspecialchars($question["value"]) ?></p>
+                                <h3><?= htmlspecialchars($question["question"]) ?></h3>
+                                <p><?= htmlspecialchars($question["answer"]) ?></p>
                             </li>
                         <?php endforeach ?>
                     </ul>

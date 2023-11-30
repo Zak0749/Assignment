@@ -5,7 +5,7 @@ use database\DB;
 use function helpers\randomise_avatar;
 
 // If the user is already logged in send them to an error page
-if (isset($_SESSION["user_id"])) {
+if (isset($_SESSION["account_id"])) {
     http_response_code(403);
     require("errors/401.php");
     exit;
@@ -96,12 +96,13 @@ $db = new DB();
                         </div>
 
                         <?php
-                        $tag_query = $db->getAllTags();
+                        // Gets all the tags with 
+                        $tag_query = $db->getAllTags(null);
                         if ($tag_query->isOk() && !$tag_query->isEmpty()) :
                         ?>
                             <fieldset>
                                 <ul class="tag-select-list">
-                                    <?php foreach ($tag_query->iterate() as $tag) : ?>
+                                    <?php foreach ($tag_query->array() as $tag) : ?>
                                         <label class="tag-select">
                                             <input type="checkbox" name="likes" value="<?= htmlspecialchars($tag["tag_id"]) ?>">
                                             <span class="tag-pill-label">

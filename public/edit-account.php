@@ -7,7 +7,7 @@ use database\DB;
 use function helpers\randomise_avatar;
 
 // If user is not logged in send them to an error page
-if (!isset($_SESSION["user_id"])) {
+if (!isset($_SESSION["account_id"])) {
 	http_response_code(401);
 	require("errors/401.php");
 	exit;
@@ -16,7 +16,7 @@ if (!isset($_SESSION["user_id"])) {
 // Establish Db connection
 $db = new DB();
 
-$user_query = $db->getUser($_SESSION["user_id"]);
+$user_query = $db->getUser($_SESSION["account_id"], $_SESSION["account_id"]);
 
 // If error occurred while finding the user send user to error page
 if (!$user_query->isOk()) {
@@ -59,7 +59,7 @@ $user = $user_query->single();
 						delete
 					</span>
 				</button>
-				<a class="header-icon" type="button" href="my-account" keyboard-shortcut="esc">
+				<a class="header-icon" type="button" href="account/?account_id=<? htmlspecialchars($_SESSION["account_id"]) ?>" keyboard-shortcut="esc">
 					<span class="material-symbols-outlined">
 						close
 					</span>
@@ -125,18 +125,17 @@ $user = $user_query->single();
 
 						<fieldset>
 							<?php
-							$tags = $db->getTagsWithLikes();
+							$tags = $db->getAllTags($_SESSION["account_id"]);
 
 							if (!$tags->isOk() || $tags->isEmpty()) : ?>
 								<p>There was an error loading the tags please try again</p>
 							<?php else : ?>
 								<ul class="tag-select-list">
-									<?php foreach ($tags->iterate() as $tag) : ?>
+									<?php foreach ($tags->array() as $tag) : ?>
 										<label class="tag-select">
-											<input type="checkbox" name="likes" value="<?= htmlspecialchars($tag["tag_id"]) ?>" <?= $tag["checked"] ? "checked" : "" ?>>
+											<input type="checkbox" name="likes" value="<?= htmlspecialchars($tag["tag_id"]) ?>" <?= $tag["is_followed"] ? "checked" : "" ?>>
 											<span class="tag-pill-label"><?= htmlspecialchars($tag["title"]) ?></span>
 										</label>
-
 									<?php endforeach ?>
 								</ul>
 							<?php endif; ?>
@@ -150,7 +149,7 @@ $user = $user_query->single();
 				<p>We are sorry to see you go, hope you come back soon!</p>
 				<div class="beside">
 					<button class="light-danger-button" onclick="close_dialog('delete-dialog')" keyboard-shortcut="e">Cancel</button>
-					<!-- No keyboard shortcut as want users to be sure -->
+					<!-- No questionboard shortcut as want users to be sure -->
 					<button class="danger-button" onclick="delete_account()">Delete</button>
 				</div>
 			</dialog>

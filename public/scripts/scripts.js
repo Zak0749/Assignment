@@ -14,7 +14,7 @@ async function displaySearchResults(searchForm) {
     if (searchForm.search.value.length < 3) {
         results.innerHTML = '';
     }
-    // If the search bar has a value
+    // If the search bar has a answer
     else {
         // Set the url and search params
         let url = new URL('api/search', document.location);
@@ -201,15 +201,15 @@ async function logout() {
 async function submitEditAccount(editAccountForm) {
     let data = new URLSearchParams();
 
-    if (editAccountForm['username'].value != editAccountForm['username'].defaultValue) {
+    if (editAccountForm['username'].value != editAccountForm['username'].defaultanswer) {
         data.set("username", editAccountForm.username.value)
     }
 
-    if (editAccountForm['password'].value != editAccountForm['password'].defaultValue) {
+    if (editAccountForm['password'].value != editAccountForm['password'].defaultanswer) {
         data.set("password", editAccountForm.password.value)
     }
 
-    if (editAccountForm['avatar'].value != editAccountForm['avatar'].defaultValue) {
+    if (editAccountForm['avatar'].value != editAccountForm['avatar'].defaultanswer) {
         data.set("avatar", editAccountForm.avatar.value)
     }
 
@@ -380,15 +380,15 @@ function matchHeights(button) {
     }
 
 
-    let [key_input, value_input] = button.children;
+    let [question_input, answer_input] = button.children;
 
-    key_input.style.height = 'auto';
-    value_input.style.height = 'auto';
+    question_input.style.height = 'auto';
+    answer_input.style.height = 'auto';
 
-    let max = Math.max(key_input.scrollHeight, value_input.scrollHeight);
+    let max = Math.max(question_input.scrollHeight, answer_input.scrollHeight);
 
-    key_input.style.height = max + 'px';
-    value_input.style.height = max + 'px';
+    question_input.style.height = max + 'px';
+    answer_input.style.height = max + 'px';
 
 }
 
@@ -411,8 +411,8 @@ async function createDeck(createDeckForm) {
     Array.from(createDeckForm.getElementsByClassName('question'))
         .filter((question) => question.dataset.remove !== 'true')
         .forEach((question, index) => {
-            data.set(`questions[${index}][key]`, question.getElementsByClassName('question-key')[0].value)
-            data.set(`questions[${index}][value]`, question.getElementsByClassName('question-value')[0].value)
+            data.set(`questions[${index}][question]`, question.getElementsByClassName('question-question')[0].value)
+            data.set(`questions[${index}][answer]`, question.getElementsByClassName('question-answer')[0].value)
         })
 
 
@@ -438,11 +438,11 @@ async function createDeck(createDeckForm) {
 async function submitEditDeck(editDeckForm) {
     let data = new URLSearchParams(window.location.search);
 
-    if (editDeckForm.title.value !== editDeckForm.title.defaultValue) {
+    if (editDeckForm.title.value !== editDeckForm.title.defaultanswer) {
         data.set("title", editDeckForm['title'].value);
     }
 
-    if (editDeckForm.description.value !== editDeckForm.description.defaultValue) {
+    if (editDeckForm.description.value !== editDeckForm.description.defaultanswer) {
         data.set("description", editDeckForm.description.value);
     }
 
@@ -465,8 +465,8 @@ async function submitEditDeck(editDeckForm) {
     questions
         .filter((question) => question.dataset.remove !== "true" && question.id === "")
         .forEach((question, index) => {
-            data.set(`new_questions[${index}][key]`, question.getElementsByClassName('question-key')[0].value)
-            data.set(`new_questions[${index}][value]`, question.getElementsByClassName('question-value')[0].value)
+            data.set(`new_questions[${index}][question]`, question.getElementsByClassName('question-question')[0].value)
+            data.set(`new_questions[${index}][answer]`, question.getElementsByClassName('question-answer')[0].value)
         });
 
     questions
@@ -474,18 +474,18 @@ async function submitEditDeck(editDeckForm) {
         .map((question) => {
             return {
                 id: question.id,
-                key: question.getElementsByClassName('question-key')[0],
-                value: question.getElementsByClassName('question-value')[0]
+                question: question.getElementsByClassName('question-question')[0],
+                answer: question.getElementsByClassName('question-answer')[0]
             }
         })
-        .filter((question) => question.key.value !== question.key.defaultValue || question.value.value !== question.value.defaultValue)
+        .filter((question) => question.question.value !== question.question.defaultanswer || question.answer.value !== question.answer.defaultanswer)
         .forEach((question, index) => {
             data.set(`edited_questions[${index}][id]`, question.id)
-            if (question.key.value !== question.key.defaultValue) {
-                data.set(`edited_questions[${index}][key]`, question.key.value)
+            if (question.question.value !== question.question.defaultanswer) {
+                data.set(`edited_questions[${index}][question]`, question.question.value)
             }
-            if (question.value.value !== question.value.defaultValue) {
-                data.set(`edited_questions[${index}][value]`, question.value.value)
+            if (question.answer.value !== question.answer.defaultanswer) {
+                data.set(`edited_questions[${index}][answer]`, question.answer.value)
             }
         });
 
@@ -540,7 +540,7 @@ function selectAnswer(button) {
         return
     }
 
-    questionElement.dataset.result = questionElement.dataset.correctId == button.dataset.answerId ? 'correct' : 'wrong';
+    questionElement.dataset.result = questionElement.dataset.correctId == button.dataset.valueId ? 'correct' : 'wrong';
 }
 
 /**
@@ -693,12 +693,12 @@ function results() {
             datasets: [{
                 data: [correct_number, wrong_number],
                 backgroundColor: [
-                    getComputedStyle(document.body).getPropertyValue('--accent'),
-                    getComputedStyle(document.body).getPropertyValue('--secondary-background')
+                    getComputedStyle(document.body).getPropertyanswer('--accent'),
+                    getComputedStyle(document.body).getPropertyanswer('--secondary-background')
                 ],
                 hoverBackgroundColor: [
-                    getComputedStyle(document.body).getPropertyValue('--accent-hover'),
-                    getComputedStyle(document.body).getPropertyValue('--secondary-background-hover')
+                    getComputedStyle(document.body).getPropertyanswer('--accent-hover'),
+                    getComputedStyle(document.body).getPropertyanswer('--secondary-background-hover')
                 ],
                 hoverOffset: 4,
                 borderWidth: 0,
@@ -781,7 +781,7 @@ window.addEventListener("load", () => {
     let shortcutItems = {}
     // Iterates through all the elements on the page with the ks-bind attribute
     Array.from(document.querySelectorAll("[keyboard-shortcut]")).forEach((element) => {
-        // Adds a key bind to the element with the name specified to do it's click action
+        // Adds a question bind to the element with the name specified to do it's click action
         // e.g. a button will do it's onclick event a tag will redirect etc
         if (shortcutItems[element.getAttribute("keyboard-shortcut")]) {
             shortcutItems[element.getAttribute("keyboard-shortcut")].push(element)
@@ -792,8 +792,8 @@ window.addEventListener("load", () => {
 
     })
 
-    Object.entries(shortcutItems).forEach(([key, elements]) => {
-        Mousetrap.bind(key, () => {
+    Object.entries(shortcutItems).forEach(([question, elements]) => {
+        Mousetrap.bind(question, () => {
             elements.forEach((element) => {
                 // If element is visible
                 if (element.offsetParent !== null) {

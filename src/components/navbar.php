@@ -10,7 +10,7 @@
 			</a>
 		</li>
 		<!-- If signed in add library and create pages to navbar -->
-		<?php if (isset($_SESSION["user_id"])) : ?>
+		<?php if (isset($_SESSION["account_id"])) : ?>
 			<li>
 				<a href="library" keyboard-shortcut="alt+l">
 					<span class="material-symbols-outlined">
@@ -31,7 +31,7 @@
 			</li>
 		<?php endif ?>
 		<li>
-			<a href="<?= isset($_SESSION["user_id"]) ? 'my-account' : 'not-logged-in' ?>">
+			<a href="<?= isset($_SESSION["account_id"]) ? 'account?account_id=' . $_SESSION["account_id"] : 'not-logged-in' ?>">
 				<span class="material-symbols-outlined" keyboard-shortcut="alt+a">
 					person
 				</span>

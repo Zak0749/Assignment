@@ -15,7 +15,7 @@
         <main class="center-main">
             <section>
                 <h2>403</h2>
-                <p>Your account is not able to preform this action, sign out <a keyboard-shortcut="enter" href="my-account">here</a> ad sign in to the correct account and try again</p>
+                <p>Your account is not able to preform this action, sign out <a keyboard-shortcut="enter" href="account?account-id=<?= htmlspecialchars($_SESSION["account_id"]) ?>">here</a> ad sign in to the correct account and try again</p>
             </section>
         </main>
     </div>

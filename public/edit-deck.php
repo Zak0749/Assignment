@@ -5,7 +5,11 @@
 // Imports
 use database\Db;
 
-$deck_id = filter_input(INPUT_GET, "deck_id", FILTER_VALIDATE_INT);
+$deck_id = filter_input(INPUT_GET, "deck_id", FILTER_VALIDATE_REGEXP, [
+    "options" => [
+        'regexp' =>  '/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i'
+    ]
+]);
 
 // If deck_id is invalid or not set send user to error page
 if ($deck_id === null || $deck_id === false) {
@@ -15,7 +19,7 @@ if ($deck_id === null || $deck_id === false) {
 }
 
 // If the user is not logged in send them to an error page
-if (!isset($_SESSION["user_id"])) {
+if (!isset($_SESSION["account_id"])) {
     http_response_code(401);
     require("errors/401.php");
     exit;
@@ -23,7 +27,7 @@ if (!isset($_SESSION["user_id"])) {
 
 $db = new Db();
 
-$deck_query = $db->getDeck($deck_id);
+$deck_query = $db->getDeck($deck_id, $_SESSION["account_id"]);
 
 if (!$deck_query->isOk()) {
     http_response_code(500);
@@ -40,7 +44,7 @@ if ($deck_query->isEmpty()) {
 $deck = $deck_query->single();
 
 // If the user is not the owner send them to an error page
-if ($_SESSION["user_id"] != $deck["user_id"]) {
+if (!$deck["is_owned"]) {
     http_response_code(403);
     require("errors/403.php");
     exit;
@@ -144,9 +148,9 @@ if ($_SESSION["user_id"] != $deck["user_id"]) {
                                     <p>There was an error loading the tags please try again</p>
                                 <?php else : ?>
                                     <ul class="tag-select-list">
-                                        <?php foreach ($tags->iterate() as $tag) : ?>
+                                        <?php foreach ($tags->array() as $tag) : ?>
                                             <label class="tag-select">
-                                                <input type="checkbox" name="topics" value="<?= htmlspecialchars($tag["tag_id"]) ?>" <?= $tag["checked"] ? "checked" : "" ?>>
+                                                <input type="checkbox" name="topics" value="<?= htmlspecialchars($tag["tag_id"]) ?>" <?= $tag["is_topic"] ? "checked" : "" ?>>
                                                 <span class="tag-pill-label"><?= htmlspecialchars($tag["title"]) ?></span>
                                             </label>
 
@@ -170,12 +174,12 @@ if ($_SESSION["user_id"] != $deck["user_id"]) {
                         <p>There was an error loading the questions please try again </p>
                     <?php else : ?>
                         <ul id="question-list">
-                            <?php foreach ($questions->iterate() as $question) : ?>
+                            <?php foreach ($questions->array() as $question) : ?>
                                 <li>
                                     <fieldset name="questions" class="question" id="<?= htmlspecialchars($question["question_id"]) ?>">
                                         <div class="question-pair form-field" oninput="matchHeights(this)">
-                                            <textarea placeholder="Key" name="key" class="question-key" required maxlength="128" oninvalid="changeTab(document.getElementById('question-tab-button'),'question-tab')"><?= htmlspecialchars($question["key"]) ?></textarea>
-                                            <textarea placeholder="Value" name="value" class="question-value" required maxlength="256" oninvalid="changeTab(document.getElementById('question-tab-button'),'question-tab')"><?= htmlspecialchars($question["value"]) ?></textarea>
+                                            <textarea placeholder="question" name="question" class="question-question" required maxlength="128" oninvalid="changeTab(document.getElementById('question-tab-button'),'question-tab')"><?= htmlspecialchars($question["question"]) ?></textarea>
+                                            <textarea placeholder="answer" name="answer" class="question-answer" required maxlength="256" oninvalid="changeTab(document.getElementById('question-tab-button'),'question-tab')"><?= htmlspecialchars($question["answer"]) ?></textarea>
                                         </div>
                                         <button class="question-delete-button" type="button" onclick="removeQuestion(this)">
                                             <span class="material-symbols-outlined">
@@ -229,7 +233,7 @@ if ($_SESSION["user_id"] != $deck["user_id"]) {
                 <h2>Delete Deck</h2>
                 <div class="beside">
                     <button class="light-danger-button" onclick="close_dialog('delete-dialog')" keyboard-shortcut="e">Cancel</button>
-                    <!-- No keyboard shortcut as want users to be sure -->
+                    <!-- No questionboard shortcut as want users to be sure -->
                     <button class="danger-button" onclick="deleteDeck()">Delete</button>
                 </div>
             </dialog>

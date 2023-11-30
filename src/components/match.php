@@ -13,15 +13,15 @@ $questions = random_from_array($all_questions, 4);
     <main class="match-grid">
         <section>
             <?php foreach ($r->shuffleArray($questions) as $index => $question) : ?>
-                <button class="play-key" onclick="matchAnswer(this)" data-question-id=<?= htmlspecialchars($question["question_id"]) ?> keyboard-shortcut="<?= $index + 1 ?>">
-                    <?= htmlspecialchars($question["key"]) ?>
+                <button class="play-question" onclick="matchAnswer(this)" data-question-id=<?= htmlspecialchars($question["question_id"]) ?> keyboard-shortcut="<?= $index + 1 ?>">
+                    <?= htmlspecialchars($question["question"]) ?>
                 </button>
             <?php endforeach; ?>
         </section>
         <section>
             <?php foreach ($r->shuffleArray($questions) as $index => $question) : ?>
-                <button class="play-value" onclick="matchAnswer(this)" data-question-id=<?= htmlspecialchars($question["question_id"]) ?> keyboard-shortcut="<?= $index + 5 ?>">
-                    <?= htmlspecialchars($question["value"]) ?>
+                <button class="play-answer" onclick="matchAnswer(this)" data-question-id=<?= htmlspecialchars($question["question_id"]) ?> keyboard-shortcut="<?= $index + 5 ?>">
+                    <?= htmlspecialchars($question["answer"]) ?>
                 </button>
             <?php endforeach; ?>
         </section>

@@ -26,16 +26,16 @@ $db = new DB();
                 </h1>
 
                 <?php
-                if (isset($_SESSION["user_id"])) :
-                    $user_query = $db->getUser($_SESSION["user_id"]);
-                    if ($user_query->isOk() && !$user_query->isEmpty()) : ?>
+                if (isset($_SESSION["account_id"])) :
+                    $streak = $db->getStreak($_SESSION["account_id"], $_SESSION["account_id"]);
+                    if ($user_query->isOk()) : ?>
                         <span class="streak-display">
                             <span class="material-symbols-outlined">
                                 local_fire_department
                             </span>
 
                             <h1>
-                                <?= htmlspecialchars($user_query->single()["streak"]) ?>
+                                <?= htmlspecialchars($streak->value) ?>
                             </h1>
                         </span>
                 <?php
@@ -47,55 +47,10 @@ $db = new DB();
 
         <main>
             <section>
-                <h2>Featured</h2>
-
-                <?php
-                $featured_query = $db->getFeatured();
-                if (!$featured_query->isOk()) :
-                ?>
-                    <p>An error occurred, please try again</p>
-                <?php elseif ($featured_query->isEmpty()) : ?>
-                    <p>There is currently no popular decks check back later and there might be</p>
-                <?php else : ?>
-                    <ul class="deck-grid">
-                        <?php // Display the card for each featured deck
-                        foreach ($featured_query->iterate() as $deck) {
-                            echo deck_card($deck, $db->getTopics($deck["deck_id"]));
-                        } ?>
-                    </ul>
-                <?php endif; ?>
-            </section>
-
-            <?php
-            // Show the user if logged in
-            if (isset($_SESSION["user_id"])) :
-            ?>
-                <section>
-                    <h2>For You</h2>
-
-                    <?php
-                    $for_you_query = $db->getForYou();
-                    if (!$for_you_query->isOk()) :
-                    ?>
-                        <p>An error occurred, please try again</p>
-                    <?php elseif ($for_you_query->isEmpty()) : ?>
-                        <p>There is currently no recommended decks, check back later and there might be</p>
-                    <?php else : ?>
-                        <ul class="deck-grid">
-                            <?php // Display the card for each featured deck
-                            foreach ($for_you_query->iterate() as $deck) {
-                                echo deck_card($deck, $db->getTopics($deck["deck_id"]));
-                            } ?>
-                        </ul>
-                    <?php endif; ?>
-                </section>
-            <?php endif ?>
-
-            <section>
                 <h2>Popular</h2>
 
                 <?php
-                $popular_query = $db->getPopular();
+                $popular_query = $db->getPopular($_SESSION["account_id"] ?? null);
                 if (!$popular_query->isOk()) :
                 ?>
                     <p>An error occurred, please try again</p>
@@ -103,8 +58,53 @@ $db = new DB();
                     <p>There is currently no popular decks check back later and there might be</p>
                 <?php else : ?>
                     <ul class="deck-grid">
-                        <?php foreach ($popular_query->iterate() as $deck) { // Display the card for each featured deck
-                            echo deck_card($deck, $db->getTopics($deck["deck_id"]));
+                        <?php foreach ($popular_query->array() as $deck) { // Display the card for each popular deck
+                            echo deck_card($deck, $db->getDeckTopics($deck["deck_id"]));
+                        } ?>
+                    </ul>
+                <?php endif; ?>
+            </section>
+
+            <?php
+            // Show the user if logged in
+            if (isset($_SESSION["account_id"])) :
+            ?>
+                <section>
+                    <h2>For You</h2>
+
+                    <?php
+                    $for_you_query = $db->getForYou($_SESSION["account_id"]);
+                    if (!$for_you_query->isOk()) :
+                    ?>
+                        <p>An error occurred, please try again</p>
+                    <?php elseif ($for_you_query->isEmpty()) : ?>
+                        <p>There is currently no recommended decks, check back later and there might be</p>
+                    <?php else : ?>
+                        <ul class="deck-grid">
+                            <?php // Display the card for each recommended deck
+                            foreach ($for_you_query->array() as $deck) {
+                                echo deck_card($deck, $db->getDeckTopics($deck["deck_id"]));
+                            } ?>
+                        </ul>
+                    <?php endif; ?>
+                </section>
+            <?php endif ?>
+
+            <section>
+                <h2>New</h2>
+
+                <?php
+                $new_query = $db->getNew($_SESSION["account_id"] ?? null);
+                if (!$new_query->isOk()) :
+                ?>
+                    <p>An error occurred, please try again</p>
+                <?php elseif ($new_query->isEmpty()) : ?>
+                    <p>There is currently no nwe decks check back later and there might be</p>
+                <?php else : ?>
+                    <ul class="deck-grid">
+                        <?php // Display the card for each new deck
+                        foreach ($new_query->array() as $deck) {
+                            echo deck_card($deck, $db->getDeckTopics($deck["deck_id"]));
                         } ?>
                     </ul>
                 <?php endif; ?>

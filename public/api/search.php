@@ -27,7 +27,10 @@ $db = new DB();
 ?>
 
 <?php
-$tag_query = $db->searchTags($search_string);
+$tag_query = $db->searchTags(
+	$search_string,
+	$_SESSION["account_id"] ?? null
+);
 if (!$tag_query->isOk()) :
 ?>
 	<p>An error occurred trying to find tags please try again</p>
@@ -36,7 +39,7 @@ if (!$tag_query->isOk()) :
 		<h2>Tags</h2>
 
 		<ul class="tag-list">
-			<?php foreach ($tag_query->iterate() as $tag) {
+			<?php foreach ($tag_query->array() as $tag) {
 				echo tag_card($tag);
 			} ?>
 		</ul>
@@ -44,7 +47,10 @@ if (!$tag_query->isOk()) :
 <?php endif; ?>
 
 <?php
-$user_query = $db->searchUsers($search_string);
+$user_query = $db->searchUsers(
+	$search_string,
+	$_SESSION["account_id"] ?? null
+);
 if (!$user_query->isOk()) :
 ?>
 	<p>An error occurred trying to find users please try again</p>
@@ -54,7 +60,7 @@ elseif (!$user_query->isEmpty()) : ?>
 		<h2>Users</h2>
 
 		<ul class="user-grid">
-			<?php foreach ($user_query->iterate() as $user) {
+			<?php foreach ($user_query->array() as $user) {
 				echo user_card($user);
 			} ?>
 		</ul>
@@ -62,7 +68,10 @@ elseif (!$user_query->isEmpty()) : ?>
 <?php endif; ?>
 
 <?php
-$deck_query = $db->searchDecks($search_string);
+$deck_query = $db->searchDecks(
+	$search_string,
+	$_SESSION["account_id"] ?? null
+);
 if (!$deck_query->isOk()) :
 ?>
 	<p>An error occurred trying to find users please try again</p>
@@ -71,8 +80,8 @@ if (!$deck_query->isOk()) :
 		<h2>Decks</h2>
 
 		<ul class="deck-grid">
-			<?php foreach ($deck_query->iterate() as $deck) {
-				echo deck_card($deck, $db->getTopics($deck["deck_id"]));
+			<?php foreach ($deck_query->array() as $deck) {
+				echo deck_card($deck, $db->getDeckTopics($deck["deck_id"]));
 			} ?>
 		</ul>
 	</section>

@@ -92,7 +92,7 @@
 
     border-radius: 10px;
 
-    background-image: 'url(' attr(value) ')';
+    background-image: 'url(' attr(answer) ')';
 }
 
 .avatar-input span {
@@ -155,12 +155,12 @@ textarea {
     flex-direction: column;
 }
 
-.question-pair .question-key {
+.question-pair .question-question {
     border-bottom: 1px solid grey;
     border-radius: 5px 5px 0 0;
 }
 
-.question-pair .question-value {
+.question-pair .question-answer {
     border-radius: 0 0 5px 5px;
 }
 
@@ -169,26 +169,26 @@ textarea {
         flex-direction: row;
     }
 
-    .question-pair .question-key {
+    .question-pair .question-question {
         border-radius: 5px 0 0 5px;
         border-bottom: none;
         border-right: 1px solid grey;
     }
 
-    .question-pair .question-value {
+    .question-pair .question-answer {
         border-radius: 0 5px 5px 0;
     }
 
-    #question-tab[data-mode="delete"] .question-pair .question-value {
+    #question-tab[data-mode="delete"] .question-pair .question-answer {
         border-radius: 0;
     }
 }
 
-#question-tab[data-mode="delete"] .question-pair .question-key {
+#question-tab[data-mode="delete"] .question-pair .question-question {
     border-top-right-radius: 0;
 }
 
-#question-tab[data-mode="delete"] .question-pair .question-value {
+#question-tab[data-mode="delete"] .question-pair .question-answer {
     border-bottom-right-radius: 0;
 }
 

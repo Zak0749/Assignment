@@ -3,7 +3,7 @@
 use database\Db;
 
 // If the user is not logged in send them to an error page
-if (!isset($_SESSION["user_id"])) {
+if (!isset($_SESSION["account_id"])) {
     http_response_code(401);
     require("errors/401.php");
     exit;
@@ -83,12 +83,12 @@ $db = new Db();
                             </div>
 
                             <?php
-                            $tag_query = $db->getAllTags();
+                            $tag_query = $db->getAllTags($_SESSION["account_id"]);
                             if ($tag_query->isOk() && !$tag_query->isEmpty()) :
                             ?>
                                 <fieldset>
                                     <ul class="tag-select-list">
-                                        <?php foreach ($tag_query->iterate() as $tag) : ?>
+                                        <?php foreach ($tag_query->array() as $tag) : ?>
                                             <label class="tag-select">
                                                 <input type="checkbox" name="topics" value="<?= htmlspecialchars($tag["tag_id"]) ?>">
                                                 <span class="tag-pill-label">
@@ -114,8 +114,8 @@ $db = new Db();
                         <li>
                             <fieldset name="questions" class="question">
                                 <div class="question-pair form-field" oninput="matchHeights(this)">
-                                    <textarea placeholder="Key" name="key" class="question-key" required maxlength="128" oninvalid="changeTab(document.getElementById('question-tab-button'),'question-tab')"></textarea>
-                                    <textarea placeholder="Value" name="value" class="question-value" required maxlength="256" oninvalid="changeTab(document.getElementById('question-tab-button'),'question-tab')"></textarea>
+                                    <textarea placeholder="question" name="question" class="question-question" required maxlength="128" oninvalid="changeTab(document.getElementById('question-tab-button'),'question-tab')"></textarea>
+                                    <textarea placeholder="answer" name="answer" class="question-answer" required maxlength="256" oninvalid="changeTab(document.getElementById('question-tab-button'),'question-tab')"></textarea>
                                 </div>
                                 <button class="question-delete-button" type="button" onclick="removeQuestion(this)">
                                     <span class="material-symbols-outlined">

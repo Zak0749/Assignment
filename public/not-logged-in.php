@@ -3,7 +3,7 @@
 
 
 // If user is already logged in send them to an error page
-if (isset($_SESSION["user_id"])) {
+if (isset($_SESSION["account_id"])) {
     http_response_code(403);
     require("errors/403.php");
     exit;

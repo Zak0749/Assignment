@@ -4,11 +4,11 @@ use function helpers\random_from_array;
 
 $question = random_from_array($all_questions, 1);
 
-$question_part = random_from_array(["key", "value"]);
-$answer_part = $question_part == "key" ? "value" : "key";
+$question_part = random_from_array(["question", "answer"]);
+$answer_part = $question_part == "question" ? "answer" : "question";
 ?>
 
-<section class="play-question self-question" data-question-text="<?= htmlspecialchars($question["key"]) ?>" data-index="<?= $i + 1 ?>" data-original="true">
+<section class="play-question self-question" data-question-text="<?= htmlspecialchars($question["question"]) ?>" data-index="<?= $i + 1 ?>" data-original="true">
     <header class="question-display">
         <p class="play-<?= $question_part ?>">
             <?= htmlspecialchars($question[$question_part]) ?>

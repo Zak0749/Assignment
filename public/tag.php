@@ -6,7 +6,16 @@
 use database\DB;
 use function cards\deck_card;
 
-$tag_id = filter_input(INPUT_GET, "tag_id", FILTER_VALIDATE_INT);
+$tag_id = filter_input(
+	INPUT_GET,
+	"tag_id",
+	FILTER_VALIDATE_REGEXP,
+	[
+		"options" => [
+			'regexp' =>  '/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i'
+		]
+	]
+);
 
 // If deck_id is invalid or not set send user to error page
 if ($tag_id === null || $tag_id === false) {
@@ -18,7 +27,7 @@ if ($tag_id === null || $tag_id === false) {
 // Establish Db connection
 $db = new DB();
 
-$tag_query = $db->getTag($tag_id);
+$tag_query = $db->getTag($tag_id, $_SESSION["account_id"] ?? null);
 
 // If error occurred while getting the tag send the user to an error page
 if (!$tag_query->isOk()) {
@@ -48,8 +57,15 @@ $tag = $tag_query->single()
 	<?php require "components/navbar.php" ?>
 
 	<div class="page">
-		<header>
-			<h1><?= htmlspecialchars($tag["title"]) ?></h1>
+		<header class="spaced-apart">
+			<h1>
+				<?php if (isset($_SESSION["account_id"]) && $tag["is_followed"]) : ?>
+					<span class="material-symbols-outlined">
+						star
+					</span>
+				<?php endif ?>
+				<?= htmlspecialchars($tag["title"]) ?>
+			</h1>
 		</header>
 
 		<main>
@@ -57,7 +73,7 @@ $tag = $tag_query->single()
 				<h2>Popular</h2>
 
 				<?php
-				$popular = $db->popularByTag($tag_id);
+				$popular = $db->popularByTag($tag_id, $_SESSION["account_id"] ?? null);
 
 				if (!$popular->isOk()) : ?>
 					<p>
@@ -70,8 +86,8 @@ $tag = $tag_query->single()
 					</p>
 				<?php else : ?>
 					<ul class="deck-grid">
-						<?php foreach ($popular->iterate() as $deck) {
-							echo deck_card($deck, $db->getTopics($deck["deck_id"]));
+						<?php foreach ($popular->array() as $deck) {
+							echo deck_card($deck, $db->getDeckTopics($deck["deck_id"]));
 						} ?>
 					</ul>
 				<?php endif; ?>
@@ -81,7 +97,7 @@ $tag = $tag_query->single()
 				<h2>New</h2>
 
 				<?php
-				$new = $db->newByTag($tag_id);
+				$new = $db->newByTag($tag_id, $_SESSION["account_id"] ?? null);
 
 				if (!$new->isOk()) : ?>
 					<p>
@@ -94,8 +110,8 @@ $tag = $tag_query->single()
 					</p>
 				<?php else : ?>
 					<ul class="deck-grid">
-						<?php foreach ($new->iterate() as $deck) {
-							echo deck_card($deck, $db->getTopics($deck["deck_id"]));
+						<?php foreach ($new->array() as $deck) {
+							echo deck_card($deck, $db->getDeckTopics($deck["deck_id"]));
 						} ?>
 					</ul>
 				<?php endif; ?>
