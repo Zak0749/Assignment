@@ -2,7 +2,6 @@
 body {
   display: grid;
   grid-template-rows: 1fr auto;
-  grid-template-areas: "page" "navbar";
 }
 
 .navbar {
