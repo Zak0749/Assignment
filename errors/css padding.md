@@ -1,0 +1,1 @@
+Horizontal lists cut off gonna use grid with 3 columns then add a property to the lists to make them work properly (span across all)
