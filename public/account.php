@@ -4,8 +4,8 @@
 
 // Imports
 use database\DB;
-use function cards\deck_card;
-use function cards\tag_card;
+use function panels\deck_panel;
+use function panels\tag_panel;
 
 $account_id = filter_input(
     INPUT_GET,
@@ -18,6 +18,11 @@ $account_id = filter_input(
     ]
 );
 
+// If account_id is not set and logged in set the account_id to the session account_id
+if ($account_id === null && isset($_SESSION["account_id"])) {
+    $account_id = $_SESSION["account_id"];
+}
+
 // If deck_id is invalid or not set send user to error page
 if ($account_id === null || $account_id === false) {
     http_response_code(400);
@@ -28,7 +33,7 @@ if ($account_id === null || $account_id === false) {
 // Establish Db connection
 $db = new DB();
 
-$user_query = $db->getUser($account_id, $_SESSION["user_id"] ?? null);
+$user_query = $db->getUser($account_id, $_SESSION["account_id"] ?? null);
 
 // If error occurred while getting the user send the user to an error page
 if (!$user_query->isOk()) {
@@ -46,6 +51,7 @@ if ($user_query->isEmpty()) {
 
 $user = $user_query->single();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -56,7 +62,7 @@ $user = $user_query->single();
 <body>
     <?php require "components/navbar.php" ?>
 
-    <div class="page">
+    <main>
         <header class="spaced-apart">
             <div class="beside">
                 <img class="large-avatar" src="https://api.dicebear.com/7.x/bottts/svg?backgroundColor=ffadad,ffd6a5,fdffb6,caffbf,9bf6ff,a0c4ff,bdb2ff,ffc6ff,fffffc&seed=<?= htmlspecialchars($user["avatar"]) ?>">
@@ -66,7 +72,7 @@ $user = $user_query->single();
                         <?= htmlspecialchars($user["username"]) ?>
                     </h1>
 
-                    <h2 class="subtitle">Joined <?= date("s/m/y", strtotime($user["timestamp"])) ?></h2>
+                    <h2 class="subtitle">Joined <?= date("d/m/y", strtotime($user["timestamp"])) ?></h2>
                 </div>
             </div>
 
@@ -90,81 +96,77 @@ $user = $user_query->single();
             <?php endif ?>
         </header>
 
-        <main>
-            <section>
-                <ul class="statistic-grid-large">
-                    <figure class="statistic">
-                        <span class="material-symbols-outlined">
-                            add
-                        </span>
-                        <span>
-                            <h3><?= htmlspecialchars($user["deck_no"]) ?></h3>
-                            <figcaption>Deck's Made</figcaption>
-                        </span>
-                    </figure>
-                    <figure class="statistic">
-                        <span class="material-symbols-outlined">
-                            local_fire_department
-                        </span>
-                        <span>
-                            <h3><?= htmlspecialchars($user["streak"]) ?></h3>
-                            <figcaption>Day Streak</figcaption>
-                        </span>
-                    </figure>
-                    <figure class="statistic">
-                        <span class="material-symbols-outlined">
-                            playing_cards
-                        </span>
-                        <span>
-                            <h3><?= htmlspecialchars($user["play_no"]) ?></h3>
-                            <figcaption>Decks Played</figcaption>
-                        </span>
-                    </figure>
-                    <figure class="statistic">
-                        <span class="material-symbols-outlined">
-                            target
-                        </span>
-                        <span>
-                            <h3><?= round($user["average_score"], 2) ?></h3>
-                            <figcaption>Avg Score</figcaption>
-                        </span>
-                    </figure>
-                </ul>
-            </section>
+        <ul class="statistic-grid-large">
+            <figure class="statistic">
+                <span class="material-symbols-outlined">
+                    add
+                </span>
+                <span>
+                    <h3><?= htmlspecialchars($user["deck_no"]) ?></h3>
+                    <figcaption>Deck's Made</figcaption>
+                </span>
+            </figure>
+            <figure class="statistic">
+                <span class="material-symbols-outlined">
+                    local_fire_department
+                </span>
+                <span>
+                    <h3><?= htmlspecialchars($user["streak"]) ?></h3>
+                    <figcaption>Day Streak</figcaption>
+                </span>
+            </figure>
+            <figure class="statistic">
+                <span class="material-symbols-outlined">
+                    playing_panels
+                </span>
+                <span>
+                    <h3><?= htmlspecialchars($user["play_no"]) ?></h3>
+                    <figcaption>Rounds Played</figcaption>
+                </span>
+            </figure>
+            <figure class="statistic">
+                <span class="material-symbols-outlined">
+                    target
+                </span>
+                <span>
+                    <h3><?= round($user["average_score"], 2) ?></h3>
+                    <figcaption>Avg Score</figcaption>
+                </span>
+            </figure>
+        </ul>
 
-            <section>
-                <h2>Following</h2>
+        <section>
+            <h2>Following</h2>
+            <?php
+            $likes = $db->getFollows($account_id, $_SESSION["account_id"] ?? null);
+            if (!$likes->isOk()) : ?>
+                <p>There was an error loading the users follows please try again</p>
+            <?php elseif ($likes->isEmpty()) : ?>
+                <p>This user currently has no follows</p>
+            <?php else : ?>
                 <ul class="tag-list">
-                    <?php
-                    $likes = $db->getFollows($account_id, $_SESSION["account_id"] ?? null);
-                    if (!$likes->isOk()) : ?>
-                        <p>There was an error loading the users follows please try again</p>
-                    <?php elseif ($likes->isEmpty()) : ?>
-                        <p>This user currently has no follows, check back later</p>
-                    <?php else : ?>
-                        <?php foreach ($likes->array() as $tag) {
-                            echo tag_card($tag);
-                        } ?>
-                    <?php endif; ?>
+                    <?php foreach ($likes->array() as $tag) {
+                        echo tag_panel($tag);
+                    } ?>
                 </ul>
-            </section>
+            <?php endif; ?>
+        </section>
 
-            <section>
-                <h2>Creations</h2>
+        <section>
+            <h2>Creations</h2>
+            <?php
+            $creations = $db->getCreations($account_id, $_SESSION["account_id"] ?? null);
+            if (!$creations->isOk()) : ?>
+                <p>There was an error loading the users creations please try again</p>
+            <?php elseif ($creations->isEmpty()) : ?>
+                <p>This user currently has no creations, check back later </p>
+            <?php else : ?>
                 <ul class="deck-grid">
-                    <?php
-                    $creations = $db->getCreations($account_id, $_SESSION["account_id"] ?? null);
-                    if (!$creations->isOk()) : ?>
-                        <p>There was an error loading the users creations please try again</p>
-                    <?php elseif ($creations->isEmpty()) : ?>
-                        <p>This user currently has no creations, check back later </p>
-                    <?php else : ?>
-                        <?php foreach ($creations->array() as $deck) {
-                            echo deck_card($deck, $db->getDeckTopics($deck["deck_id"]));
-                        } ?>
-                    <?php endif; ?>
+                    <?php foreach ($creations->array() as $deck) {
+                        echo deck_panel($deck, $db->getDeckTopics($deck["deck_id"], $_SESSION["account_id"] ?? null));
+                    } ?>
                 </ul>
-            </section>
-        </main>
-    </div>
+            <?php endif; ?>
+        </section>
+    </main>
 </body>

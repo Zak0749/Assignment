@@ -2,7 +2,7 @@
 
 // Imports
 use database\DB;
-use function cards\tag_card;
+use function panels\tag_panel;
 
 $deck_id = filter_input(INPUT_GET, "deck_id", FILTER_VALIDATE_REGEXP, [
     "options" => [
@@ -49,7 +49,7 @@ $deck = $deck_query->single();
 <body>
     <?php require "components/navbar.php" ?>
 
-    <div class="page">
+    <main>
 
         <header>
             <div class="spaced-apart">
@@ -67,8 +67,8 @@ $deck = $deck_query->single();
                     <?php endif ?>
 
                     <?php if (isset($_SESSION["account_id"])) : ?>
-                        <button data-deck-id="<?= htmlspecialchars($deck_id) ?>" data-save="<?= boolval($deck["saved"]) ?>" id="save_toggle" class="header-icon" onclick="toggleSave(this)" keyboard-shortcut="s">
-                            <?php if ($deck["saved"]) : ?>
+                        <button data-deck-id="<?= htmlspecialchars($deck_id) ?>" data-save="<?= boolval($deck["is_saved"]) ?>" id="save_toggle" class="header-icon" onclick="toggleSave(this)" keyboard-shortcut="s">
+                            <?php if ($deck["is_saved"]) : ?>
                                 <span class="material-symbols-outlined">
                                     bookmark_added
                                 </span>
@@ -90,32 +90,32 @@ $deck = $deck_query->single();
                 </h2>
 
                 <h2 class="subtitle">
-                    <?= date("s/m/y", strtotime($deck["timestamp"])) ?>
+                    <?= date("d/m/y", strtotime($deck["timestamp"])) ?>
                 </h2>
             </div>
 
             <?php
-            $topics = $db->getDeckTopics($deck_id);
+            $topics = $db->getDeckTopics($deck_id, $_SESSION["account_id"] ?? null);
             if (!$topics->isOk()) :
             ?>
                 <p>An error occurred when loading the tags please try again</p>
             <?php elseif (!$topics->isEmpty()) : ?>
                 <ul class="tag-list">
                     <?php foreach ($topics->array() as $tag) {
-                        echo tag_card($tag);
+                        echo tag_panel($tag);
                     } ?>
                 </ul>
             <?php endif; ?>
         </header>
 
-        <main class="split-main">
+        <div class="split-main">
             <section>
                 <p><?= htmlspecialchars($deck["description"]) ?></p>
 
                 <ul class="statistic-grid">
                     <figure class="statistic">
                         <span class="material-symbols-outlined">
-                            playing_cards
+                            playing_panels
                         </span>
                         <span>
                             <h3><?= htmlspecialchars($deck["deck_play_no"]) ?></h3>
@@ -153,19 +153,19 @@ $deck = $deck_query->single();
                     <?php endif ?>
                 </ul>
 
-                <a class="primary-button" href="play?deck_id=<?= htmlspecialchars($deck_id) ?>" keyboard-shortcut="enter">Play Round!</a>
+                <a class="primary-button button" href="play?deck_id=<?= htmlspecialchars($deck_id) ?>" keyboard-shortcut="enter">Play Round!</a>
             </section>
 
             <section>
                 <?php
-                $questions = $db->getDeckQuestions($deck_id);
+                $questions = $db->getDeckCards($deck_id);
                 if (!$questions->isOk() || $questions->isEmpty()) : ?>
-                    <p>There was an error loading the questions please try again </p>
+                    <p>There was an error loading the cards please try again </p>
                 <?php else : ?>
-                    <h2>Questions: <?= htmlspecialchars($questions->rowCount()) ?></h2>
-                    <ul class="question-list">
+                    <h2>Cards: <?= htmlspecialchars($questions->rowCount()) ?></h2>
+                    <ul class="card-list">
                         <?php foreach ($questions->array() as $question) : ?>
-                            <li class="question-card">
+                            <li class="card-panel">
                                 <h3><?= htmlspecialchars($question["question"]) ?></h3>
                                 <p><?= htmlspecialchars($question["answer"]) ?></p>
                             </li>
@@ -173,6 +173,6 @@ $deck = $deck_query->single();
                     </ul>
                 <?php endif; ?>
             </section>
-        </main>
-    </div>
+        </div>
+    </main>
 </body>
