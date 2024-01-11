@@ -20,38 +20,34 @@ if (isset($_SESSION["account_id"])) {
 <body>
     <?php require "components/navbar.php" ?>
 
-    <div class="page">
-
-        <header>
+    <main class="center-main">
+        <header >
             <h1>Login</h1>
         </header>
+        <form class="form" onsubmit="loginUser(this); return false;">
+            <div class="form-field" id="username">
+                <label for="username">Username</label>
+                <input name="username" type="username" required minlength="3" maxlength="16" pattern="[\w]+" oninput="this.setCustomValidity('')" />
+            </div>
 
-        <main class="center-main">
-            <form class="form" onsubmit="loginUser(this); return false;">
-                <div class="form-field" id="username">
-                    <label for="username">Username</label>
-                    <input name="username" type="username" required minlength="3" maxlength="16" pattern="[\w]+" oninput="this.setCustomValidity('')" />
-                </div>
+            <div class="form-field" id="password">
+                <label for="password">Password</label>
+                <input name="password" type="password" required minlength="8" maxlength="24" pattern="[\S]+" oninput="this.setCustomValidity('')" />
+            </div>
 
-                <div class="form-field" id="password">
-                    <label for="password">Password</label>
-                    <input name="password" type="password" required minlength="8" maxlength="24" pattern="[\S]+" oninput="this.setCustomValidity('')" />
-                </div>
+            <button type="submit" class="primary-button button" id="submit">
+                <span class="material-symbols-outlined">
+                    check
+                </span>
+                Login
+            </button>
 
-                <button type="submit" class="primary-button" id="submit">
-                    <span class="material-symbols-outlined">
-                        check
-                    </span>
-                    Login
-                </button>
-
-                <p>
-                    Don't have an account?
-                    <a href="create-account" keyboard-shortcut="c">
-                        Create an account
-                    </a>
-                </p>
-            </form>
-        </main>
-    </div>
+            <p>
+                Don't have an account?
+                <a href="create-account" keyboard-shortcut="c">
+                    Create an account
+                </a>
+            </p>
+        </form>
+    </main>
 </body>

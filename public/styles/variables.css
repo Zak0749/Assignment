@@ -1,6 +1,6 @@
 :root {
   /* Padding style to reduce having a media query for each element */
-  --page-horizontal-padding: 10px;
+  --page-horizontal-spacing: 10px;
 
   /* Light mode styles */
   --primary-text: #2f3639ff;
@@ -35,7 +35,7 @@
 
   /* Increase padding as navbar is beside screen */
   :root {
-    --page-horizontal-padding: 20px;
+    --page-horizontal-spacing: 20px;
   }
 }
 

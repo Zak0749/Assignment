@@ -5,10 +5,10 @@ body {
 }
 
 /* When setting width and height padding is included */
-*,
-*::before,
-*::after {
+* {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
@@ -24,28 +24,16 @@ body {
     line-height: 1;
 }
 
-.page {
+body>main {
     /* Scroll this rather than the whole page to not include navbar */
     overflow-y: scroll;
 
-    /* Identify for the page grid */
-    grid-area: page;
+    /* Adds a spacer to the top and bottom of the page */
+    padding: 20px 0;
 
-    display: flex;
-    flex-direction: column;
+    grid-area: main;
 }
 
-/* Apply horizontal spacing to all non horizontal scrolling elements at the first level  */
-.page>main:not(.center-main, .split-main)>section>*:not(.tag-list, .user-grid, .deck-grid),
-.page>header>*:not(.tag-list, .user-grid, .deck-grid) {
-    margin-left: var(--page-horizontal-padding);
-    margin-right: var(--page-horizontal-padding);
-}
-
-/* Add margin to the main header of the page */
-.page>header {
-    margin-top: 20px;
-}
 
 /* Make header elements less overpowering */
 h1,
@@ -56,16 +44,19 @@ h3 {
 
 h1,
 h2,
-h3,
-p {
+h3 {
     /* Remove default margin and padding */
-    margin: 0;
     padding: 0;
 
     /* Set default color */
     color: var(--primary-text);
 
     word-break: break-word;
+}
+
+:where(h1, h2, h3, p, .button, .form-field, .statistic-grid-large):not(.split-main *, .center-main *, .spaced-apart *, .play-main *, .tabbed-main *) {
+    margin-left: var(--page-horizontal-spacing);
+    margin-right: var(--page-horizontal-spacing);
 }
 
 /* Change font-size for headers */
@@ -76,7 +67,6 @@ h1 {
 /* Change font-size for headers */
 h2 {
     font-size: 1.5rem;
-
 }
 
 /* Change font-size for headers */
@@ -107,6 +97,8 @@ h3 {
 .spaced-apart {
     display: flex;
     justify-content: space-between;
+
+    margin: 0 var(--page-horizontal-spacing);
 }
 
 .streak-display {
@@ -121,29 +113,13 @@ h3 {
 }
 
 /* Make symbol in streak display large */
-.streak-display .material-symbols-outlined {
+.large.material-symbols-outlined {
     font-size: 48px;
 }
 
 .center-main {
     /* Centre content */
-    display: grid;
-    justify-content: center;
-    align-items: center;
-    grid-template-columns: minmax(auto, 500px);
-    padding: 0 var(--page-horizontal-padding);
-
-    /* Centre Container */
-
-
-    /* Make sure on large screens it doesn't become massive */
-}
-
-.center-main section {
-    /* max-width: 500px; */
-    text-align: center;
-    padding: 0;
-    margin: 0 var(--page-horizontal-padding);
+    margin: 0 var(--page-horizontal-spacing);
 }
 
 .center-main p {
@@ -211,24 +187,20 @@ a:hover {
     background-color: var(--success);
 }
 
-.primary-button,
-.secondary-button,
-.danger-button,
-.light-danger-button,
-.success-button,
-.light-success-button {
-    width: 100%;
-
+.button {
     border-radius: 10px;
     border: none;
 
+    width: 100%;
+
     text-decoration: none;
     height: 60px;
-
+    
     font-size: 16px;
     font-weight: 500;
 
-    margin: 10px 0;
+    margin-top: 10px;
+    margin-bottom: 10px;
 
     display: flex;
     justify-content: center;
@@ -237,22 +209,22 @@ a:hover {
     gap: 10px;
 }
 
-section {
-    padding-bottom: 5px;
+.icon-text {
+    width: 100%;
 }
 
 .split-main {
     display: grid;
     grid-template-columns: 1fr;
-    margin-right: var(--page-horizontal-padding);
-    margin-left: var(--page-horizontal-padding);
+    margin-right: var(--page-horizontal-spacing);
+    margin-left: var(--page-horizontal-spacing);
 }
 
 /* When on large screens */
 @media screen and (min-width: 600px) {
     .split-main {
         grid-template-columns: 1fr 1fr;
-        gap: var(--page-horizontal-padding);
+        gap: var(--page-horizontal-spacing);
     }
 }
 
@@ -272,10 +244,6 @@ section {
     }
 }
 
-main {
-    margin-top: 5px;
-}
-
 dialog {
     background-color: var(--primary-background);
     border: none;
@@ -292,7 +260,7 @@ dialog {
 }
 
 section {
-    margin: 5px 0;
+    margin-bottom: 10px;
 }
 
 .statistic {
@@ -301,6 +269,10 @@ section {
     padding: 5px;
     border-radius: 10px;
     display: flex;
+}
+
+.statistic h3 {
+    margin: 0;
 }
 
 .statistic .material-symbols-outlined {
@@ -317,7 +289,8 @@ section {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
-    margin: 5px 0;
+    margin-top: 10px;
+    margin-bottom: 10px;
     padding: 0;
 }
 
@@ -327,20 +300,7 @@ section {
     }
 }
 
-.question-list {
-    padding: 0;
-    margin: 0;
-    display: grid;
 
-    list-style-type: none;
-    gap: 10px;
-}
-
-.question-card {
-    background-color: var(--secondary-background);
-    border-radius: 10px;
-    padding: 10px;
-}
 
 .beside {
     display: flex;
@@ -424,8 +384,13 @@ section {
 }
 
 .tabbed-main>section {
-    margin-right: var(--page-horizontal-padding);
-    margin-left: var(--page-horizontal-padding);
+    margin-right: var(--page-horizontal-spacing);
+    margin-left: var(--page-horizontal-spacing);
+}
+
+.tab-bar {
+    margin-left: var(--page-horizontal-spacing);
+    margin-right: var(--page-horizontal-spacing);
 }
 
 .tab-bar button {
@@ -453,10 +418,6 @@ section {
     color: var(--light-text-hover);
 }
 
-.row {
-    display: flex;
-}
-
-.full-screen {
-    height: 100%;
+header {
+    margin-bottom: 5px;
 }
