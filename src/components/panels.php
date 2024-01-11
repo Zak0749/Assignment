@@ -78,4 +78,4 @@ function user_panel($user)
 			</div>
 		</a>
 	</li>
-<?php } ?>
+<?php } ?
