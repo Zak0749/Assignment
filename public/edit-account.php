@@ -46,7 +46,7 @@ $user = $user_query->single();
 <body>
 	<?php require "components/navbar.php" ?>
 
-	<div class="page">
+	<main>
 
 		<header class="spaced-apart">
 			<h1>
@@ -59,7 +59,7 @@ $user = $user_query->single();
 						delete
 					</span>
 				</button>
-				<a class="header-icon" type="button" href="account/?account_id=<? htmlspecialchars($_SESSION["account_id"]) ?>" keyboard-shortcut="esc">
+				<a class="header-icon" type="button" href="account" keyboard-shortcut="esc">
 					<span class="material-symbols-outlined">
 						close
 					</span>
@@ -67,92 +67,92 @@ $user = $user_query->single();
 			</div>
 		</header>
 
-		<main>
-			<form class="split-main" onsubmit="submitEditAccount(this); return false;" oninput="contentChanged()">
-				<section>
-					<?php $seed = randomise_avatar() ?>
-					<button name="avatar" class="avatar-input" type="button" value="<?= htmlspecialchars($user["avatar"]) ?>" style="background-image: url(https://api.dicebear.com/7.x/bottts/svg?backgroundColor=ffadad,ffd6a5,fdffb6,caffbf,9bf6ff,a0c4ff,bdb2ff,ffc6ff,fffffc&seed=<?= htmlspecialchars($user["avatar"]) ?>" onclick="randomiseAvatar(this);" keyboard-shortcut="r">
-						<span class=" material-symbols-outlined">
-							change_circle
-						</span>
-					</button>
 
-					<div class="form-field">
-						<label for="username">Username</label>
-						<input name="username" type="username" value="<?= htmlspecialchars($user["username"]) ?>" required minlength="3" maxlength="16" pattern="[\w]+" oninput="this.setCustomValidity('');" />
-					</div>
+		<form class="split-main" onsubmit="submitEditAccount(this); return false;" oninput="contentChanged()">
+			<section>
+				<?php $seed = randomise_avatar() ?>
+				<button name="avatar" class="avatar-input" type="button" value="<?= htmlspecialchars($user["avatar"]) ?>" style="background-image: url(https://api.dicebear.com/7.x/bottts/svg?backgroundColor=ffadad,ffd6a5,fdffb6,caffbf,9bf6ff,a0c4ff,bdb2ff,ffc6ff,fffffc&seed=<?= htmlspecialchars($user["avatar"]) ?>" onclick="randomiseAvatar(this);" keyboard-shortcut="r">
+					<span class=" material-symbols-outlined">
+						change_circle
+					</span>
+				</button>
 
-					<div class="form-field">
-						<label for="password">Password</label>
-						<input minlength="8" maxlength="24" pattern="[\S]+" name="password" type="password" oninput="checkPasswordsMatch(this)" />
-					</div>
-
-					<div class="form-field">
-						<label for="confirm-password">Confirm Password</label>
-						<input name="confirm-password" type="password" minlength="8" maxlength="24" pattern="[\S]+" name="password" type="password" oninput="checkPasswordsMatch(this)" />
-					</div>
-
-					<div class="form-field hide-large">
-						<label>Likes</label>
-						<button class="secondary-button" type="button" onclick="open_dialog('tag-select-dialog')" keyboard-shortcut="l">
-							Show
-						</button>
-					</div>
-
-					<button type="submit" value="Submit" class="primary-button" type="submit">
-						<span class="material-symbols-outlined">
-							check
-						</span>
-						Save
-					</button>
-				</section>
-
-				<section>
-					<dialog class="cover-dialog small-only-dialog" id="tag-select-dialog">
-						<div class="spaced-apart">
-							<label>
-								<h2>Likes</h2>
-							</label>
-
-							<div class="icon-bar hide-large">
-								<button class="header-icon" type="button" onclick="close_dialog('tag-select-dialog')" keyboard-shortcut="e">
-									<span class="material-symbols-outlined">
-										close
-									</span>
-								</button>
-							</div>
-						</div>
-
-						<fieldset>
-							<?php
-							$tags = $db->getAllTags($_SESSION["account_id"]);
-
-							if (!$tags->isOk() || $tags->isEmpty()) : ?>
-								<p>There was an error loading the tags please try again</p>
-							<?php else : ?>
-								<ul class="tag-select-list">
-									<?php foreach ($tags->array() as $tag) : ?>
-										<label class="tag-select">
-											<input type="checkbox" name="likes" value="<?= htmlspecialchars($tag["tag_id"]) ?>" <?= $tag["is_followed"] ? "checked" : "" ?>>
-											<span class="tag-pill-label"><?= htmlspecialchars($tag["title"]) ?></span>
-										</label>
-									<?php endforeach ?>
-								</ul>
-							<?php endif; ?>
-						</fieldset>
-					</dialog>
-				</section>
-			</form>
-
-			<dialog class="danger-dialog" id="delete-dialog">
-				<h2>Delete Account</h2>
-				<p>We are sorry to see you go, hope you come back soon!</p>
-				<div class="beside">
-					<button class="light-danger-button" onclick="close_dialog('delete-dialog')" keyboard-shortcut="e">Cancel</button>
-					<!-- No questionboard shortcut as want users to be sure -->
-					<button class="danger-button" onclick="delete_account()">Delete</button>
+				<div class="form-field">
+					<label for="username">Username</label>
+					<input name="username" type="username" value="<?= htmlspecialchars($user["username"]) ?>" required minlength="3" maxlength="16" pattern="[\w]+" oninput="this.setCustomValidity('');" />
 				</div>
-			</dialog>
-		</main>
+
+				<div class="form-field">
+					<label for="password">Password</label>
+					<input minlength="8" maxlength="24" pattern="[\S]+" name="password" type="password" oninput="checkPasswordsMatch(this)" />
+				</div>
+
+				<div class="form-field">
+					<label for="confirm-password">Confirm Password</label>
+					<input name="confirm-password" type="password" minlength="8" maxlength="24" pattern="[\S]+" name="password" type="password" oninput="checkPasswordsMatch(this)" />
+				</div>
+
+				<div class="form-field hide-large">
+					<label>Likes</label>
+					<button class="secondary-button button" type="button" onclick="open_dialog('tag-select-dialog')" keyboard-shortcut="l">
+						Show
+					</button>
+				</div>
+
+				<button type="submit" value="Submit" class="primary-button button" type="submit">
+					<span class="material-symbols-outlined">
+						check
+					</span>
+					Save
+				</button>
+			</section>
+
+			<section>
+				<dialog class="cover-dialog small-only-dialog" id="tag-select-dialog">
+					<div class="spaced-apart">
+						<label>
+							<h2>Likes</h2>
+						</label>
+
+						<div class="icon-bar hide-large">
+							<button class="header-icon" type="button" onclick="close_dialog('tag-select-dialog')" keyboard-shortcut="e">
+								<span class="material-symbols-outlined">
+									close
+								</span>
+							</button>
+						</div>
+					</div>
+
+					<fieldset>
+						<?php
+						$tags = $db->getAllTags($_SESSION["account_id"]);
+
+						if (!$tags->isOk() || $tags->isEmpty()) : ?>
+							<p>There was an error loading the tags please try again</p>
+						<?php else : ?>
+							<ul class="tag-select-list">
+								<?php foreach ($tags->array() as $tag) : ?>
+									<label class="tag-select">
+										<input type="checkbox" name="likes" value="<?= htmlspecialchars($tag["tag_id"]) ?>" <?= $tag["is_followed"] ? "checked" : "" ?>>
+										<span class="tag-pill-label"><?= htmlspecialchars($tag["title"]) ?></span>
+									</label>
+								<?php endforeach ?>
+							</ul>
+						<?php endif; ?>
+					</fieldset>
+				</dialog>
+			</section>
+		</form>
+
+		<dialog class="danger-dialog" id="delete-dialog">
+			<h2>Delete Account</h2>
+			<p>We are sorry to see you go, hope you come back soon!</p>
+			<div class="beside">
+				<button class="light-danger-button button" onclick="close_dialog('delete-dialog')" keyboard-shortcut="e">Cancel</button>
+				<!-- No questionboard shortcut as want users to be sure -->
+				<button class="danger-button button" onclick="delete_account()">Delete</button>
+			</div>
+		</dialog>
+	</main>
 	</div>
 </body>

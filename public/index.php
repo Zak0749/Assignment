@@ -1,7 +1,7 @@
 <?php
 // Imports
 use database\DB;
-use function cards\deck_card;
+use function panels\deck_panel;
 
 // Establish Db connection
 $db = new DB();
@@ -17,10 +17,10 @@ $db = new DB();
 <body>
     <?php require "components/navbar.php" ?>
 
-    <div class="page">
+    <main>
 
         <header>
-            <div class="spaced-apart">
+            <div class="spaced-apart ">
                 <h1>
                     Discover
                 </h1>
@@ -28,9 +28,9 @@ $db = new DB();
                 <?php
                 if (isset($_SESSION["account_id"])) :
                     $streak = $db->getStreak($_SESSION["account_id"], $_SESSION["account_id"]);
-                    if ($user_query->isOk()) : ?>
+                    if ($streak->isOk()) : ?>
                         <span class="streak-display">
-                            <span class="material-symbols-outlined">
+                            <span class="material-symbols-outlined large">
                                 local_fire_department
                             </span>
 
@@ -45,70 +45,69 @@ $db = new DB();
             </div>
         </header>
 
-        <main>
-            <section>
-                <h2>Popular</h2>
 
-                <?php
-                $popular_query = $db->getPopular($_SESSION["account_id"] ?? null);
-                if (!$popular_query->isOk()) :
-                ?>
-                    <p>An error occurred, please try again</p>
-                <?php elseif ($popular_query->isEmpty()) : ?>
-                    <p>There is currently no popular decks check back later and there might be</p>
-                <?php else : ?>
-                    <ul class="deck-grid">
-                        <?php foreach ($popular_query->array() as $deck) { // Display the card for each popular deck
-                            echo deck_card($deck, $db->getDeckTopics($deck["deck_id"]));
-                        } ?>
-                    </ul>
-                <?php endif; ?>
-            </section>
+        <section>
+            <h2>Popular</h2>
 
             <?php
-            // Show the user if logged in
-            if (isset($_SESSION["account_id"])) :
+            $popular_query = $db->getPopular($_SESSION["account_id"] ?? null);
+            if (!$popular_query->isOk()) :
             ?>
-                <section>
-                    <h2>For You</h2>
+                <p >An error occurred, please try again</p>
+            <?php elseif ($popular_query->isEmpty()) : ?>
+                <p >There is currently no popular decks check back later</p>
+            <?php else : ?>
+                <ul class="deck-grid">
+                    <?php foreach ($popular_query->array() as $deck) { // Display the panel for each popular deck
+                        echo deck_panel($deck, $db->getDeckTopics($deck["deck_id"], $_SESSION["account_id"] ?? null));
+                    } ?>
+                </ul>
+            <?php endif; ?>
+        </section>
 
-                    <?php
-                    $for_you_query = $db->getForYou($_SESSION["account_id"]);
-                    if (!$for_you_query->isOk()) :
-                    ?>
-                        <p>An error occurred, please try again</p>
-                    <?php elseif ($for_you_query->isEmpty()) : ?>
-                        <p>There is currently no recommended decks, check back later and there might be</p>
-                    <?php else : ?>
-                        <ul class="deck-grid">
-                            <?php // Display the card for each recommended deck
-                            foreach ($for_you_query->array() as $deck) {
-                                echo deck_card($deck, $db->getDeckTopics($deck["deck_id"]));
-                            } ?>
-                        </ul>
-                    <?php endif; ?>
-                </section>
-            <?php endif ?>
-
+        <?php
+        // Show the user if logged in
+        if (isset($_SESSION["account_id"])) :
+        ?>
             <section>
-                <h2>New</h2>
+                <h2>For You</h2>
 
                 <?php
-                $new_query = $db->getNew($_SESSION["account_id"] ?? null);
-                if (!$new_query->isOk()) :
+                $for_you_query = $db->getForYou($_SESSION["account_id"]);
+                if (!$for_you_query->isOk()) :
                 ?>
-                    <p>An error occurred, please try again</p>
-                <?php elseif ($new_query->isEmpty()) : ?>
-                    <p>There is currently no nwe decks check back later and there might be</p>
+                    <p >An error occurred, please try again</p>
+                <?php elseif ($for_you_query->isEmpty()) : ?>
+                    <p >There is currently no recommended decks, check back later</p>
                 <?php else : ?>
                     <ul class="deck-grid">
-                        <?php // Display the card for each new deck
-                        foreach ($new_query->array() as $deck) {
-                            echo deck_card($deck, $db->getDeckTopics($deck["deck_id"]));
+                        <?php // Display the panel for each recommended deck
+                        foreach ($for_you_query->array() as $deck) {
+                            echo deck_panel($deck, $db->getDeckTopics($deck["deck_id"], $_SESSION["account_id"] ?? null));
                         } ?>
                     </ul>
                 <?php endif; ?>
             </section>
-        </main>
-    </div>
+        <?php endif ?>
+
+        <section>
+            <h2>New</h2>
+
+            <?php
+            $new_query = $db->getNew($_SESSION["account_id"] ?? null);
+            if (!$new_query->isOk()) :
+            ?>
+                <p >An error occurred, please try again</p>
+            <?php elseif ($new_query->isEmpty()) : ?>
+                <p >There is currently no new decks check back later</p>
+            <?php else : ?>
+                <ul class="deck-grid">
+                    <?php // Display the panel for each new deck
+                    foreach ($new_query->array() as $deck) {
+                        echo deck_panel($deck, $db->getDeckTopics($deck["deck_id"], $_SESSION["account_id"] ?? null));
+                    } ?>
+                </ul>
+            <?php endif; ?>
+        </section>
+    </main>
 </body>
