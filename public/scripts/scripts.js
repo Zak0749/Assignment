@@ -50,7 +50,7 @@ async function loginUser(loginForm) {
     // If login was successful 
     if (result.ok) {
         // Send user to their account
-        window.location.replace('my-account');
+        window.location.replace("account");
     }
     // If it was an internal sever error
     else if (result.status == 500) {
@@ -134,7 +134,8 @@ async function createAccount(createAccountForm) {
     });
 
     if (result.ok) {
-        window.location.replace('my-account')
+        // Send user to their account
+        window.location.replace("account");
     } else {
         let body = await result.json()
 
@@ -236,7 +237,7 @@ async function submitEditAccount(editAccountForm) {
     });
 
     if (response.ok) {
-        window.location.replace('my-account')
+        window.location.replace('account')
     } else if (response.status == 500) {
         console.error(await response.text())
     }
@@ -522,7 +523,7 @@ async function deleteDeck() {
     });
 
     if (response.ok) {
-        window.location.replace(`my-account`)
+        window.location.replace(`account`)
     } else {
         console.error(await response.text())
     }
@@ -535,12 +536,18 @@ function selectAnswer(button) {
     // Get the first play-question witch is a ancestor of the button
     let questionElement = button.closest('.play-question');
 
+    console.log("selected", questionElement)
+
     // If question has already been answered stop function early
     if (questionElement.dataset.result) {
         return
     }
 
-    questionElement.dataset.result = questionElement.dataset.correctId == button.dataset.valueId ? 'correct' : 'wrong';
+    if (questionElement.dataset.correctId == button.dataset.answerId) {
+        questionElement.dataset.result = 'correct'
+    } else {
+        questionElement.dataset.result = 'wrong'
+    }
 }
 
 /**
@@ -627,7 +634,7 @@ function nextQuestion(button) {
         questionList.appendChild(duplicatedQuestion);
     }
 
-    if (questionElement.nextElementSibling == null || document.getElementById('play-question-list').lastElementChild.classList.contains('retry-page') && questionElement.nextElementSibling.classList.contains('retry-page')) {
+    if (questionElement.nextElementSibling == null || document.getElementById('round').lastElementChild.classList.contains('retry-page') && questionElement.nextElementSibling.classList.contains('retry-page')) {
         results();
     }
 }
@@ -658,7 +665,7 @@ function results() {
     // API STUFF
 
 
-    let questionList = document.getElementById('play-question-list')
+    let questionList = document.getElementById('round')
     questionList.style.display = 'none';
     document.getElementById('play-results').style.display = 'block';
 

@@ -63,8 +63,6 @@ if ($question_query->isEmpty()) {
 }
 
 $all_questions = $question_query->array();
-
-$question_types = ["select", "match", "self"];
 ?>
 
 <!DOCTYPE html>
@@ -76,8 +74,8 @@ $question_types = ["select", "match", "self"];
 </head>
 
 <body>
-    <div class="page">
-        <header class="row">
+    <main class="play-main">
+        <header class="spaced-apart">
             <progress id="play-progress" value="0" max="12"></progress>
 
             <div class="icon-bar">
@@ -88,77 +86,73 @@ $question_types = ["select", "match", "self"];
                 </a>
             </div>
         </header>
-        <main class="full-screen">
-            <ul id="play-question-list" data-deck-id="<?= htmlspecialchars($deck_id) ?>">
-                <?php foreach (range(0, 11) as $i) :
-                    // Chooses a random question type out of the array
-                    $type = random_from_array($question_types);
+        <ul id="round" data-deck-id="<?= htmlspecialchars($deck_id) ?>">
+            <?php foreach (range(0, 11) as $i) :
+                // Chooses a random question type out of the array
+                $type = random_from_array(["select", "match", "self"]);
 
-                    require match ($type) {
-                        'select' => 'components/select.php',
-                        'define' => 'components/define.php',
-                        'match' => 'components/match.php',
-                        'self' => 'components/self.php'
-                    };
-                ?>
-                <?php endforeach ?>
+                require match ($type) {
+                    'select' => 'components/select.php',
+                    'match' => 'components/match.php',
+                    'self' => 'components/self.php'
+                };
+            ?>
+            <?php endforeach ?>
 
-                <section class="retry-page">
-                    <header>
-                        <h2>Retry</h2>
-                        <p>Now it's time to retry all the questions you got wrong and fix your mistakes</p>
-                    </header>
+            <section class="retry-page">
+                <header>
+                    <h2>Retry</h2>
+                    <p>Now it's time to retry all the questions you got wrong and fix your mistakes</p>
+                </header>
 
-                    <main>
-                        <button onclick="nextQuestion(this)" class="secondary-button" keyboard-shortcut="n">
-                            Next
-                        </button>
-                    </main>
-                </section>
-            </ul>
 
-            <section id="play-results" style="display:none;">
-                <h1>Results for <?= htmlspecialchars($deck["title"]) ?></h1>
-
-                <div class="result-chart-section">
-                    <canvas id="results-chart"></canvas>
-
-                    <div class="spaced-apart result-chart-legend">
-                        <legend>
-                            <div class="correct-marker"></div>
-                            <h3>Correct:
-                                <div id="correct-number"></div>
-                            </h3>
-                        </legend>
-
-                        <legend>
-                            <div class="wrong-marker"></div>
-                            <h3>Wrong:
-                                <div id="wrong-number"></div>
-                            </h3>
-                        </legend>
-                    </div>
-                </div>
-
-                <div>
-                    <a class="primary-button" href="deck?deck_id=<?= htmlspecialchars($deck_id) ?>" keyboard-shortcut="esc">
-                        Exit
-                    </a>
-                </div>
-
-                <div>
-                    <table id="results-table">
-                        <thead>
-                            <th>No.</th>
-                            <th>Question</th>
-                            <th>Result</th>
-                        </thead>
-                        <tbody id="results-table-body">
-
-                        </tbody>
-                    </table>
-                </div>
+                <button onclick="nextQuestion(this)" class="secondary-button button" keyboard-shortcut="n">
+                    Next
+                </button>
             </section>
-        </main>
-    </div>
+        </ul>
+
+        <section id="results" style="display:none;">
+            <h1>Results for <?= htmlspecialchars($deck["title"]) ?></h1>
+
+            <div class="result-chart-section">
+                <canvas id="results-chart"></canvas>
+
+                <div class="spaced-apart result-chart-legend">
+                    <legend>
+                        <div class="correct-marker"></div>
+                        <h3>Correct:
+                            <div id="correct-number"></div>
+                        </h3>
+                    </legend>
+
+                    <legend>
+                        <div class="wrong-marker"></div>
+                        <h3>Wrong:
+                            <div id="wrong-number"></div>
+                        </h3>
+                    </legend>
+                </div>
+            </div>
+
+            <div>
+                <a class="primary-button button" href="deck?deck_id=<?= htmlspecialchars($deck_id) ?>" keyboard-shortcut="esc">
+                    Exit
+                </a>
+            </div>
+
+            <div>
+                <table id="results-table">
+                    <thead>
+                        <th>No.</th>
+                        <th>Question</th>
+                        <th>Result</th>
+                    </thead>
+                    <tbody id="results-table-body">
+
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
 </body>
