@@ -8,33 +8,35 @@
     justify-content: start;
 
     /* Remove ul default styles */
-    margin: 0;
+    margin: 5px 0;
     list-style-type: none;
 
     /* Add page spacing */
-    padding-left: var(--page-horizontal-padding);
+    padding-left: var(--page-horizontal-spacing);
+
+    grid-column: 1 / -1;
 }
 
-.deck-card {
+.deck-panel {
     /* General size and colours */
     width: 150px;
     height: 150px;
     border-radius: 10px;
     background-color: var(--secondary-background);
+    padding: 5px;
 }
 
 /* Highlight when hover */
-.deck-card:hover {
+.deck-panel:hover {
     background-color: var(--secondary-background-hover);
 }
 
-
-.deck-card a {
+.deck-panel a {
     /* Remove default styles */
     text-decoration: none;
     color: var(--primary-text);
 
-    /* Push top of card and bottom of card apart */
+    /* Push top of panel and bottom of panel apart */
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -43,36 +45,39 @@
     padding: 5px;
     box-sizing: border-box;
 
-    /* Fill up the whole card */
+    /* Fill up the whole panel */
     height: 100%;
-
-
 }
 
 /* Push the titles and the save icons apart */
-.deck-card header {
+.deck-panel header {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
 }
 
 /* Normal text color */
-.deck-card h3 {
+.deck-panel h3 {
     color: var(--primary-text);
 }
 
+.deck-panel a, .deck-panel p, .deck-panel h3 {
+    margin: 0;
+    padding: 0;
+}
+
 /* Give it less emphasis than the title */
-.deck-card .plays {
+.deck-panel .plays {
     color: var(--secondary-text);
 }
 
 /* Give emphasis to username and indicate it will become a link */
-.deck-card header p {
+.deck-panel header p {
     color: var(--accent);
 }
 
-.deck-card ul {
-    /* Make sure text doesn't grow past the card */
+.deck-panel ul {
+    /* Make sure text doesn't grow past the panel */
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
@@ -87,7 +92,7 @@
 @media only screen and (min-width: 600px) {
 
     /* Make larger for bigger screens */
-    .deck-card {
+    .deck-panel {
         width: 300px;
         height: 120px;
     }
@@ -102,13 +107,15 @@
     overflow-x: scroll;
 
     /* Remove default styles */
-    margin: 10px 0;
-    padding-left: var(--page-horizontal-padding);
+    margin: 5px 0;
+    padding-left: var(--page-horizontal-spacing);
     list-style-type: none;
+
+    grid-column: 1 / -1;
 }
 
 
-.tag-card {
+.tag-panel {
     /* Sizing and colours */
     background-color: var(--accent);
     border-radius: 25px;
@@ -119,12 +126,12 @@
 }
 
 /* Highlight when hovered */
-.tag-card:hover {
+.tag-panel:hover {
     background-color: var(--accent-hover);
     color: var(--light-text-hover)
 }
 
-.tag-card a {
+.tag-panel a {
     /* Sizing */
     padding: 5px 10px;
     height: 100%;
@@ -149,15 +156,17 @@
     overflow-x: scroll;
 
     /* Add page spacing */
-    padding-left: var(--page-horizontal-padding);
+    padding-left: var(--page-horizontal-spacing);
 
     /* Remove default ul styles */
-    margin: 0;
+    margin: 5px 0;
     list-style-type: none;
+
+    grid-column: 1 / -1;
 }
 
 /* Sizes and colours */
-.user-card {
+.user-panel {
     width: 150px;
     background-color: var(--secondary-background);
     border-radius: 10px;
@@ -165,20 +174,20 @@
 }
 
 /* Avatar sizes */
-.user-card img {
+.user-panel img {
     height: 140px;
     width: 140px;
     border-radius: 5px;
 }
 
 /* Highlights when hovered */
-.user-card:hover {
+.user-panel:hover {
     background-color: var(--secondary-background-hover);
 }
 
 
-.user-card a {
-    /* Horizontally split card */
+.user-panel a {
+    /* Horizontally split panel */
     flex-direction: column;
     gap: 5px;
     display: flex;
@@ -189,17 +198,17 @@
 }
 
 /* Vertical list */
-.user-card div {
+.user-panel div {
     display: flex;
     flex-direction: column;
 }
 
 /* Override link color */
-.user-card h3 {
+.user-panel h3 {
     color: var(--primary-text);
 }
 
-.user-card p {
+.user-panel p {
     /* Emphasises the element with the accent color */
     color: var(--accent);
 }
@@ -208,20 +217,20 @@
 /* Larger Screens */
 @media only screen and (min-width: 600px) {
 
-    /* Makes the user card bigged */
-    .user-card {
+    /* Makes the user panel bigged */
+    .user-panel {
         width: 300px;
     }
 
-    /* Sizes the avatar to the large card */
-    .user-card img {
+    /* Sizes the avatar to the large panel */
+    .user-panel img {
         height: 100px;
         width: 100px;
         border-radius: 5px;
     }
 
-    /* Flips the card to horizontal */
-    .user-card a {
+    /* Flips the panel to horizontal */
+    .user-panel a {
         flex-direction: row;
         gap: 10px;
     }
@@ -230,4 +239,23 @@
     .user-grid {
         grid-template-rows: auto auto;
     }
+}
+
+.card-list {
+    padding: 0;
+    margin: 0;
+    display: grid;
+
+    list-style-type: none;
+    gap: 10px;
+}
+
+.card-panel {
+    background-color: var(--secondary-background);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.card-panel h3, .card-panel p {
+    margin: 0;
 }
