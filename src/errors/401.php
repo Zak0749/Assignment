@@ -8,9 +8,9 @@
 <body>
     <?php require "components/navbar.php" ?>
 
-    <div class="page">
+    <main>
         <header>
-            <h1>Unauthorized</h1>
+            <h1>Unauthorised</h1>
         </header>
         <main class="center-main">
             <section>
@@ -18,5 +18,4 @@
                 <p>You are not authorised to do this, login <a keyboard-shortcut="enter" href="not-logged-in.php">here</a></p>
             </section>
         </main>
-    </div>
 </body>

@@ -8,7 +8,7 @@
 <body>
     <?php require "components/navbar.php" ?>
 
-    <div class="page">
+    <main>
         <header>
             <h1>Bad Request</h1>
         </header>
@@ -18,5 +18,4 @@
                 <p>This request was not in the format expected, check the url then try again</p>
             </section>
         </main>
-    </div>
 </body>

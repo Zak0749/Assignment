@@ -1,13 +1,13 @@
 <?php
 
-namespace cards;
+namespace panels;
 
 use database\DbResult;
 
-function deck_card(array $deck, DbResult $tag_query)
+function deck_panel(array $deck, DbResult $tag_query)
 {
 ?>
-	<li class="deck-card">
+	<li class="deck-panel">
 		<a href="deck?deck_id=<?= htmlspecialchars($deck["deck_id"]) ?>">
 			<header>
 				<div>
@@ -39,18 +39,18 @@ function deck_card(array $deck, DbResult $tag_query)
 			</header>
 
 			<?php if ($tag_query->isOk() && !$tag_query->isEmpty()) : ?>
-				<ul class="deck-card-topics">
-					<?= htmlspecialchars(implode("•", array_column($tag_query->array(), "title"))); ?>
-				</ul>
+				<p class="deck-panel-topics">
+					<?= htmlspecialchars(implode(" • ", array_column($tag_query->array(), "title"))); ?>
+				</p>
 			<?php endif; ?>
 		</a>
 	</li>
 <?php }
 
-function tag_card($tag)
+function tag_panel($tag)
 {
 ?>
-	<li class="tag-card">
+	<li class="tag-panel">
 		<a href="tag?tag_id=<?= htmlspecialchars($tag['tag_id']) ?>">
 			<?php if (isset($_SESSION["account_id"]) && $tag["is_followed"]) : ?>
 				<span class="material-symbols-outlined">
@@ -64,18 +64,18 @@ function tag_card($tag)
 
 
 
-function user_card($user)
+function user_panel($user)
 {
 ?>
-	<li class="user-card">
+	<li class="user-panel">
 		<a href="account?account_id=<?= htmlspecialchars($user["account_id"]) ?>">
 			<img src="https://api.dicebear.com/7.x/bottts/svg?backgroundColor=ffadad,ffd6a5,fdffb6,caffbf,9bf6ff,a0c4ff,bdb2ff,ffc6ff,fffffc&seed=<?= htmlspecialchars($user["avatar"]) ?>">
 			<div>
 				<h3>
 					<?= $user["is_current_user"] ? "You" : htmlspecialchars($user['username']) ?>
 				</h3>
-				<p><?= htmlspecialchars($user['deck_num']) ?> <?= $user['deck_num'] == 1 ? "deck" : "decks" ?></p>
+				<p><?= htmlspecialchars($user['deck_no']) ?> <?= $user['deck_no'] == 1 ? "deck" : "decks" ?></p>
 			</div>
 		</a>
 	</li>
-<?php } ?>
+<?php } ?

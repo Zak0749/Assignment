@@ -31,7 +31,7 @@
 			</li>
 		<?php endif ?>
 		<li>
-			<a href="<?= isset($_SESSION["account_id"]) ? 'account?account_id=' . $_SESSION["account_id"] : 'not-logged-in' ?>">
+			<a href="<?= isset($_SESSION["account_id"]) ? 'account' : 'not-logged-in' ?>">
 				<span class="material-symbols-outlined" keyboard-shortcut="alt+a">
 					person
 				</span>

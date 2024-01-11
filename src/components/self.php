@@ -8,32 +8,32 @@ $question_part = random_from_array(["question", "answer"]);
 $answer_part = $question_part == "question" ? "answer" : "question";
 ?>
 
-<section class="play-question self-question" data-question-text="<?= htmlspecialchars($question["question"]) ?>" data-index="<?= $i + 1 ?>" data-original="true">
+<section class="self-question play-question" data-question-text="<?= htmlspecialchars($question["question"]) ?>" data-index="<?= $i + 1 ?>" data-original="true">
     <header class="question-display">
-        <p class="play-<?= $question_part ?>">
+        <p class="<?= $question_part ?>-card">
             <?= htmlspecialchars($question[$question_part]) ?>
         </p>
 
-        <p class="play-<?= $answer_part ?> self-answer">
+        <p class="<?= $answer_part ?>-card self-answer">
             <?= htmlspecialchars($question[$answer_part]) ?>
         </p>
     </header>
 
-    <footer>
-        <button class="secondary-button reveal-button" onclick="displaySelfAnswer(this);" keyboard-shortcut="r">
+    <main>
+        <button class="secondary-button reveal-button button" onclick="displaySelfAnswer(this);" keyboard-shortcut="r">
             reveal
         </button>
-    </footer>
+    </main>
 
-    <footer class="self-answer-buttons">
-        <button class="success-button" onclick="selfAnswer(this, 'correct')" keyboard-shortcut="c">
+    <main class="self-answer-buttons">
+        <button class="success-button button" onclick="selfAnswer(this, 'correct')" keyboard-shortcut="c">
             correct
         </button>
 
-        <button class="danger-button" onclick="selfAnswer(this, 'wrong')" keyboard-shortcut="w">
+        <button class="danger-button button" onclick="selfAnswer(this, 'wrong')" keyboard-shortcut="w">
             wrong
         </button>
-    </footer>
+    </main>
 
     <footer class="question-correct">
         <h2>
@@ -43,7 +43,7 @@ $answer_part = $question_part == "question" ? "answer" : "question";
             Correct
         </h2>
 
-        <button onclick="nextQuestion(this)" class="success-button" keyboard-shortcut="n">
+        <button onclick="nextQuestion(this)" class="success-button button" keyboard-shortcut="n">
             Next
         </button>
     </footer>
@@ -55,7 +55,7 @@ $answer_part = $question_part == "question" ? "answer" : "question";
             Wrong
         </h2>
 
-        <button onclick="nextQuestion(this)" class="danger-button" keyboard-shortcut="n">
+        <button onclick="nextQuestion(this)" class="danger-button button" keyboard-shortcut="n">
             Next
         </button>
     </footer>

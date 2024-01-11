@@ -120,11 +120,11 @@ class Db
                         COUNT (*) as deck_play_no,
                         is_saved(deck.deck_id, :user_account_id) as is_saved
                     FROM follow 
-                        LEFT JOIN topic ON like.tag_id = deck_topic.tag_id
+                        LEFT JOIN topic ON follow.tag_id = topic.tag_id
                         LEFT JOIN deck ON topic.deck_id = deck.deck_id
                         LEFT JOIN account ON deck.account_id = account.account_id
                         LEFT JOIN play ON play.deck_id = deck.deck_id
-                    WHERE follow.account_id=:user_account_id,
+                    WHERE follow.account_id=:user_account_id
                     GROUP BY  deck.deck_id, account.account_id
                     ORDER BY deck_play_no DESC 
                     LIMIT 16 
@@ -186,14 +186,18 @@ class Db
     }
 
     function getDeckTopics(
-        string $deck_id
+        string $deck_id,
+        string | null $user_account_id
     ): DbResult {
         // Tries to execute the operation but if any query fails go to the catch block
         try {
             // Sets up the query
             $query = $this->db->prepare(
                 <<<SQL
-                    SELECT tag.title, tag.tag_id
+                    SELECT 
+                        tag.title, 
+                        tag.tag_id, 
+                        is_followed(tag.tag_id, :user_account_id) as is_followed
                     FROM topic 
                         LEFT JOIN tag ON topic.tag_id = tag.tag_id
                     WHERE deck_id=:deck_id
@@ -202,6 +206,8 @@ class Db
 
             // Binds the deck_id to the placeholder :deck_id
             $query->bindValue(":deck_id", $deck_id, PDO::PARAM_STR);
+            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
+
 
             // Executes the query
             $query->execute();
@@ -304,7 +310,7 @@ class Db
                         account.username,
                         deck.account_id = :user_account_id as is_owned,
                         is_saved(deck.deck_id, :user_account_id) as is_saved,
-                        COUNT (*) as deck_play_no,
+                        COUNT (*) as deck_play_no
                     FROM deck
                         LEFT JOIN account ON deck.account_id = account.account_id
                         LEFT JOIN play ON play.deck_id = deck.deck_id
@@ -443,8 +449,9 @@ class Db
         }
     }
 
-    function getStreak(): DbResult
-    {
+    function getStreak(
+        string $user_account_id
+    ): DbResult {
         // Tries to execute the operation but if any query fails go to the catch block
         try {
             // Sets up the query 
@@ -452,9 +459,11 @@ class Db
                 <<<SQL
                     SELECT user_streak(account.account_id)  as streak
                     FROM account 
-                    WHERE account.account_id=:account_id
+                    WHERE account.account_id=:user_account_id
                 SQL
             );
+
+            $query->bindValue(":user_account_id", $user_account_id);
 
 
             // Executes the query
@@ -663,7 +672,7 @@ class Db
         }
     }
 
-    function getDeckQuestions(
+    function getDeckCards(
         string $deck_id
     ): DbResult {
         // Tries to execute the operation but if any query fails go to the catch block
@@ -672,10 +681,10 @@ class Db
             $query = $this->db->prepare(
                 <<<SQL
                     SELECT 
-                        question.question_id, 
-                        question.question, 
-                        question.answer 
-                    FROM question 
+                        card.card_id, 
+                        card.question, 
+                        card.answer 
+                    FROM card 
                     WHERE deck_id=:deck_id 
                 SQL
             );
@@ -704,10 +713,10 @@ class Db
             $query = $this->db->prepare(
                 <<<SQL
                     SELECT 
-                        question.question_id,
-                        question.question,
-                        question.answer 
-                    FROM Question 
+                        card.card_id,
+                        card.question,
+                        card.answer 
+                    FROM card 
                     WHERE deck_id=:deck_id 
                     ORDER BY RANDOM() 
                     LIMIT 20 
@@ -747,7 +756,7 @@ class Db
                     is_saved(deck.deck_id, :user_account_id) as is_saved
                 FROM topic 
                     LEFT JOIN deck ON topic.deck_id = deck.deck_id
-                    LEFT JOIN account deck.account_id = account.account_id
+                    LEFT JOIN account ON deck.account_id = account.account_id
                     LEFT JOIN play ON play.deck_id = deck.deck_id
                 WHERE topic.tag_id = :tag_id
                 GROUP BY  deck.deck_id, account.account_id
@@ -790,11 +799,11 @@ class Db
                         account.username, 
                         deck.account_id = :user_account_id as is_owned,
                         is_saved(deck.deck_id, :user_account_id) as is_saved
-                    FROM deck_topic   
-                        LEFT JOIN deck ON deck_topic.deck_id = deck.deck_id
-                        LEFT JOIN account deck.account_id = account.account_id
+                    FROM topic   
+                        LEFT JOIN deck ON topic.deck_id = deck.deck_id
+                        LEFT JOIN account ON deck.account_id = account.account_id
                         LEFT JOIN play ON play.deck_id = deck.deck_id
-                    WHERE deck_topic.tag_id = :tag_id
+                    WHERE topic.tag_id = :tag_id
                     GROUP BY  deck.deck_id, account.account_id
                     LIMIT 16
                 SQL
@@ -907,10 +916,10 @@ class Db
                         deck.title, 
                         account.username, 
                         deck.account_id = :user_account_id as is_owned,
-                        is_saved(deck.deck_id, :user_account_id) as is_saved
-                        COUNT (*) as deck_play_no,
-                        FROM play  
-                            LEFT JOIN deck ON save.deck_id = deck.deck_id
+                        is_saved(deck.deck_id, :user_account_id) as is_saved,
+                        COUNT (*) as deck_play_no
+                        FROM play
+                            LEFT JOIN deck ON play.deck_id = deck.deck_id
                             LEFT JOIN account ON deck.account_id = account.account_id 
                             LEFT JOIN play as deck_play ON deck_play.deck_id = deck.deck_id
                         WHERE play.account_id = :user_account_id
@@ -1039,7 +1048,7 @@ class Db
                 // Setup the query
                 $query = $this->db->prepare(
                     <<<SQL
-                        INSERT INTO User_Likes (
+                        INSERT INTO follow (
                             account_id, 
                             tag_id
                         ) VALUES (
@@ -1115,19 +1124,19 @@ class Db
         string $title,
         string $description,
         array | null $topics,
-        array $questions
+        array $cards
     ): DbResult {
         // Tries to execute the operation but if any query fails go to the catch block
         try {
             // Sets up the insert
             $query = $this->db->prepare(
                 <<<SQL
-                    INSERT INTO Deck (
+                    INSERT INTO deck (
                         account_id,
                         title,
                         description
                     )
-                    answerS (
+                    VALUES (
                         :account_id,
                         :title,
                         :description
@@ -1145,7 +1154,7 @@ class Db
 
             $query = $this->db->prepare(
                 <<<SQL
-                    INSERT INTO Question (
+                    INSERT INTO card (
                         deck_id, 
                         question, 
                         answer
@@ -1169,7 +1178,7 @@ class Db
             $query->bindParam(":answer", $answer, PDO::PARAM_STR);
 
             // For every question replace $question and $answer with the current values then insert them 
-            foreach ($questions as ["question" => $question, "answer" => $answer]) {
+            foreach ($cards as ["question" => $question, "answer" => $answer]) {
                 $query->execute();
             }
 
@@ -1177,10 +1186,10 @@ class Db
             if ($topics !== null) {
                 $query = $this->db->prepare(
                     <<<SQL
-                        INSERT INTO Deck_Topic (
+                        INSERT INTO topic (
                             deck_id, tag_id
                         )
-                        answerS (
+                        VALUES (
                             :deck_id,
                             :tag_id
                         )
@@ -1212,7 +1221,8 @@ class Db
     }
 
     function getAnnotatedTopics(
-        string $deck_id
+        string $deck_id,
+        string | null $user_account_id
     ): DbResult {
         // Tries to execute the operation but if any query fails go to the catch block
         try {
@@ -1222,13 +1232,15 @@ class Db
                     SELECT 
                         tag_id, 
                         title,
-                        is_topic(tag.tag_id, deck.deck_id) as is_topic
+                        is_topic(tag.tag_id, :deck_id) as is_topic,
+                        is_followed(tag.tag_id, :user_account_id) as is_followed
                     FROM tag
                 SQL
             );
 
             // Inserts the parameters to the query
             $query->bindValue(":deck_id", $deck_id);
+            $query->bindValue(":user_account_id", $user_account_id);
 
             // Executes the query
             $query->execute();
@@ -1248,9 +1260,9 @@ class Db
         string | null $description,
         array | null $added_topics,
         array | null $removed_topics,
-        array | null $new_questions,
-        array | null $edited_questions,
-        array | null $deleted_questions
+        array | null $new_cards,
+        array | null $edited_cards,
+        array | null $deleted_cards
     ): DbResult {
         // Tries to execute the operation but if any query fails go to the catch block
         try {
@@ -1274,8 +1286,8 @@ class Db
             if ($added_topics !== null) {
                 $query = $this->db->prepare(
                     <<<SQL
-            INSERT INTO Deck_Topic (deck_id, tag_id) 
-            answerS (:deck_id, :tag_id) 
+            INSERT INTO topic (deck_id, tag_id) 
+            VALUES (:deck_id, :tag_id) 
             SQL
                 );
 
@@ -1291,7 +1303,7 @@ class Db
             if ($removed_topics !== null) {
                 $query = $this->db->prepare(
                     <<<SQL
-                    DELETE FROM Deck_Topic 
+                    DELETE FROM topic 
                     WHERE deck_id=:deck_id AND tag_id=:tag_id 
                 SQL
                 );
@@ -1305,50 +1317,51 @@ class Db
             }
 
             // If there are any deleted questions
-            if ($deleted_questions !== null) {
+            if ($deleted_cards !== null) {
                 $query = $this->db->prepare(<<<SQL
-                    DELETE FROM Question WHERE question_id=:question_id AND deck_id = :deck_id
+                    DELETE FROM card WHERE card_id=:card_id AND deck_id = :deck_id
                 SQL);
 
-                $question_id = "";
-                $query->bindParam(":question_id", $question_id, PDO::PARAM_STR);
+                $card_id = "";
+
+                $query->bindParam(":card_id", $card_id, PDO::PARAM_STR);
                 $query->bindValue(":deck_id", $deck_id, PDO::PARAM_STR);
 
-                foreach ($deleted_questions as $question_id) {
+                foreach ($deleted_cards as $question_id) {
                     $query->execute();
                 }
             }
 
             // If there are any edited questions
-            if ($edited_questions !== null) {
+            if ($edited_cards !== null) {
                 $query = $this->db->prepare(<<<SQL
-                UPDATE Question SET
+                UPDATE card SET
                     question = COALESCE(:question, question),
                     answer = COALESCE(:answer, answer)
-                WHERE question_id = :question_id AND deck_id = :deck_id
+                WHERE card_id = :card_id AND deck_id = :deck_id
             SQL);
 
                 $question = "";
                 $answer = "";
-                $question_id = "";
+                $card_id = "";
 
                 $query->bindValue(":deck_id", $deck_id, PDO::PARAM_STR);
                 $query->bindParam(":question", $question, PDO::PARAM_STR);
                 $query->bindParam(":answer", $answer, PDO::PARAM_STR);
-                $query->bindParam(":question_id", $question_id, PDO::PARAM_STR);
+                $query->bindParam(":card_id", $card_id, PDO::PARAM_STR);
 
-                foreach ($edited_questions as ["question" => $question, "answer" => $answer, "id" => $question_id]) {
+                foreach ($edited_cards as ["question" => $question, "answer" => $answer, "id" => $card_id]) {
                     $query->execute();
                 }
             }
 
             // If there are any new questions
-            if ($new_questions !== null) {
+            if ($new_cards !== null) {
                 $query = $this->db->prepare(<<<SQL
-            INSERT INTO Question (
+            INSERT INTO card (
                 deck_id, question, answer
             )
-            answerS (
+            VALUES (
                 :deck_id,
                 :question,
                 :answer
@@ -1362,7 +1375,7 @@ class Db
                 $query->bindParam(":question", $question, PDO::PARAM_STR);
                 $query->bindParam(":answer", $answer, PDO::PARAM_STR);
 
-                foreach ($new_questions as ["question" => $question, "answer" => $answer]) {
+                foreach ($new_cards as ["question" => $question, "answer" => $answer]) {
                     $query->execute();
                 }
             }
