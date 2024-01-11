@@ -20,27 +20,20 @@ if (isset($_SESSION["account_id"])) {
 <body>
     <?php require "components/navbar.php" ?>
 
-    <div class="page">
-        <header>
+    <main class="center-main">
+        <header >
             <h1>Account</h1>
         </header>
 
-        <main class="center-main">
-            <section>
-                <h3>Have an account?</h3>
+        <p >You are not logged in, if you have an account?</p>
 
-                <a href="login" class="primary-button" keyboard-shortcut="l">
-                    <span class="material-symbols-outlined">login</span> Login
-                </a>
-            </section>
+        <a  href="login" class=" primary-button button" keyboard-shortcut="l">
+            <span class="material-symbols-outlined">login</span> Login
+        </a>
 
-            <section>
-                <h3>Otherwise</h3>
+        <p >Otherwise</p>
 
-                <a href="create-account" class="primary-button" keyboard-shortcut="c">
-                    <span class="material-symbols-outlined">person_add</span> Create Account
-                </a>
-            </section>
-        </main>
-    </div>
+        <a href="create-account" class=" primary-button button" keyboard-shortcut="c">
+            <span class="material-symbols-outlined">person_add</span> Create Account
+        </a>
 </body>

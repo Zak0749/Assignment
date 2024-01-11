@@ -4,7 +4,7 @@
 
 // Imports
 use database\DB;
-use function cards\deck_card;
+use function panels\deck_panel;
 
 $tag_id = filter_input(
 	INPUT_GET,
@@ -56,11 +56,11 @@ $tag = $tag_query->single()
 <body>
 	<?php require "components/navbar.php" ?>
 
-	<div class="page">
-		<header class="spaced-apart">
+	<main>
+		<header class="spaced-apart ">
 			<h1>
 				<?php if (isset($_SESSION["account_id"]) && $tag["is_followed"]) : ?>
-					<span class="material-symbols-outlined">
+					<span class="material-symbols-outlined large">
 						star
 					</span>
 				<?php endif ?>
@@ -68,50 +68,50 @@ $tag = $tag_query->single()
 			</h1>
 		</header>
 
-		<main>
+		
 			<section>
-				<h2>Popular</h2>
+				<h2 >Popular</h2>
 
 				<?php
 				$popular = $db->popularByTag($tag_id, $_SESSION["account_id"] ?? null);
 
 				if (!$popular->isOk()) : ?>
-					<p>
+					<p >
 						There was an error trying to find popular decks with this tags please try again
 					</p>
 				<?php elseif ($popular->isEmpty()) : ?>
-					<p>
+					<p >
 						There are no popular decks with this tag,
 						when they are created they will appear here
 					</p>
 				<?php else : ?>
 					<ul class="deck-grid">
 						<?php foreach ($popular->array() as $deck) {
-							echo deck_card($deck, $db->getDeckTopics($deck["deck_id"]));
+							echo deck_panel($deck, $db->getDeckTopics($deck["deck_id"], $_SESSION["account_id"] ?? null));
 						} ?>
 					</ul>
 				<?php endif; ?>
 			</section>
 
 			<section>
-				<h2>New</h2>
+				<h2 >New</h2>
 
 				<?php
 				$new = $db->newByTag($tag_id, $_SESSION["account_id"] ?? null);
 
 				if (!$new->isOk()) : ?>
-					<p>
+					<p >
 						There was an error trying to find new decks with this tags please try again
 					</p>
 				<?php elseif ($new->isEmpty()) : ?>
-					<p>
+					<p >
 						There are no new decks with this tag,
 						when they are created they will appear here
 					</p>
 				<?php else : ?>
 					<ul class="deck-grid">
 						<?php foreach ($new->array() as $deck) {
-							echo deck_card($deck, $db->getDeckTopics($deck["deck_id"]));
+							echo deck_panel($deck, $db->getDeckTopics($deck["deck_id"], $_SESSION["account_id"] ?? null));
 						} ?>
 					</ul>
 				<?php endif; ?>
