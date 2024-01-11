@@ -50,6 +50,3 @@ services:
         - path: src/components
           action: sync
           target: var/www/src/components
-        - path: .htacess
-          action: rebuild
-          target: .
