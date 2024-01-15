@@ -39,7 +39,7 @@ $db = new Db();
         </header>
 
 
-        <form class="tabbed-main" onsubmit="createDeck(this); return false" oninput="contentChanged()">
+        <form class="tabbed-main" onsubmit="createDeck(this); return false">
             <section id="info-tab" class="split-main selected-tab">
                 <section>
                     <div class="form-field">
@@ -110,10 +110,10 @@ $db = new Db();
                     <input id="card-counter" type="number" value="1" min="8" oninvalid="changeTab(document.getElementById('card-tab-button'), 'card-tab')">
                 </legend>
 
-                <ul id="card-list">
+                <ul id="card-edit-list">
                     <li>
-                        <fieldset name="cards" class="card">
-                            <div class="card-pair form-field" oninput="matchHeights(this)">
+                        <fieldset class="card-fieldset" name="cards">
+                            <div class="card-editor form-field" oninput="matchHeights(this)">
                                 <textarea placeholder="question" name="question" class="card-question" required maxlength="128" oninvalid="changeTab(document.getElementById('card-tab-button'),'card-tab')"></textarea>
                                 <textarea placeholder="answer" name="answer" class="card-answer" required maxlength="256" oninvalid="changeTab(document.getElementById('card-tab-button'),'card-tab')"></textarea>
                             </div>

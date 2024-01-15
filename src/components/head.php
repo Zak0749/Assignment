@@ -8,7 +8,7 @@
 <!-- Styling -->
 <link href="styles/styles.css" rel="stylesheet">
 <link href="styles/navbar.css" rel="stylesheet">
-<link href="styles/cards.css" rel="stylesheet">
+<link href="styles/panels.css" rel="stylesheet">
 <link href="styles/variables.css" rel="stylesheet">
 <link href="styles/search.css" rel="stylesheet">
 <link href="styles/forms.css" rel="stylesheet">

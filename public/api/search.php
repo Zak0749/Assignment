@@ -1,9 +1,10 @@
 <?php
 // Imports
 use database\DB;
-use function cards\deck_card;
-use function cards\tag_card;
-use function cards\user_card;
+
+use function panels\deck_panel;
+use function panels\tag_panel;
+use function panels\user_panel;
 
 header("Content-Type: text/html");
 
@@ -40,7 +41,7 @@ if (!$tag_query->isOk()) :
 
 		<ul class="tag-list">
 			<?php foreach ($tag_query->array() as $tag) {
-				echo tag_card($tag);
+				echo tag_panel($tag);
 			} ?>
 		</ul>
 	</section>
@@ -61,7 +62,7 @@ elseif (!$user_query->isEmpty()) : ?>
 
 		<ul class="user-grid">
 			<?php foreach ($user_query->array() as $user) {
-				echo user_card($user);
+				echo user_panel($user);
 			} ?>
 		</ul>
 	</section>
@@ -81,7 +82,7 @@ if (!$deck_query->isOk()) :
 
 		<ul class="deck-grid">
 			<?php foreach ($deck_query->array() as $deck) {
-				echo deck_card($deck, $db->getDeckTopics($deck["deck_id"]));
+				echo deck_panel($deck, $db->getDeckTopics($deck["deck_id"], $_SESSION["user_id"] ?? null));
 			} ?>
 		</ul>
 	</section>

@@ -117,7 +117,7 @@ $user = $user_query->single();
             </figure>
             <figure class="statistic">
                 <span class="material-symbols-outlined">
-                    playing_panels
+                    playing_cards
                 </span>
                 <span>
                     <h3><?= htmlspecialchars($user["play_no"]) ?></h3>

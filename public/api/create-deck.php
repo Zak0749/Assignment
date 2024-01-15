@@ -28,10 +28,13 @@ $body = filter_input_array(INPUT_POST, [
         ]
     ],
     "topics" => [
-        "filter" => FILTER_VALIDATE_INT,
-        'flags' => FILTER_FORCE_ARRAY
+        "filter" => FILTER_VALIDATE_REGEXP,
+        'flags' => FILTER_FORCE_ARRAY,
+        "options" => [
+            'regexp' =>  '/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i'
+        ]
     ],
-    "questions" => [
+    "cards" => [
         'flags' => FILTER_FORCE_ARRAY,
     ]
 ]);
@@ -40,15 +43,15 @@ if (
     in_array(false, $body, true) ||
     $body["title"] === null ||
     $body["description"] === null ||
-    $body["questions"] === null ||
-    count($body["questions"]) < 8
+    $body["cards"] === null ||
+    count($body["cards"]) < 8
 ) {
     http_response_code(400);
     return;
 }
 
-$body["questions"] = array_map(function ($question) {
-    $question = filter_var_array($question, [
+$body["cards"] = array_map(function ($card) {
+    $card = filter_var_array($card, [
         "question" => [
             "filter" => FILTER_VALIDATE_REGEXP,
             "options" => [
@@ -63,15 +66,15 @@ $body["questions"] = array_map(function ($question) {
         ],
     ]);
 
-    if (in_array(false, $question, true) || in_array(null, $question, true)) {
+    if (in_array(false, $card, true) || in_array(null, $card, true)) {
         return false;
     } else {
-        return $question;
+        return $card;
     }
-}, $body["questions"]);
+}, $body["cards"]);
 
 if (
-    in_array(false, $body["questions"], true)
+    in_array(false, $body["cards"], true)
 ) {
     http_response_code(400);
     return;
@@ -83,7 +86,7 @@ $result = $db->createDeck(
     $body["title"],
     $body["description"],
     $body["topics"],
-    $body["questions"]
+    $body["cards"]
 );
 
 if ($result->isOk()) {

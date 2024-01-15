@@ -115,7 +115,7 @@ $deck = $deck_query->single();
                 <ul class="statistic-grid">
                     <figure class="statistic">
                         <span class="material-symbols-outlined">
-                            playing_panels
+                            playing_cards
                         </span>
                         <span>
                             <h3><?= htmlspecialchars($deck["deck_play_no"]) ?></h3>

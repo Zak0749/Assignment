@@ -10,7 +10,7 @@ $question_part = random_from_array(["question", "answer"]);
 $answer_part = $question_part == "question" ? "answer" : "question";
 ?>
 
-<section class="select-question play-question" data-correct-id="<?= htmlspecialchars($correct_question["question_id"]) ?>" data-question-text="<?= htmlspecialchars($correct_question["question"]) ?>" data-index="<?= $i + 1 ?>" data-original="true">
+<section class="select-question play-question" data-correct-id="<?= htmlspecialchars($correct_question["card_id"]) ?>" data-question-text="<?= htmlspecialchars($correct_question["question"]) ?>" data-index="<?= $i + 1 ?>" data-original="true">
 
         <header class="question-display">
                 <p class="<?= $question_part ?>-card">
@@ -20,7 +20,7 @@ $answer_part = $question_part == "question" ? "answer" : "question";
 
         <main class="question-answers-grid">
                 <?php foreach ($questions as $index => $question) : ?>
-                        <button class="<?= $answer_part ?>-card" data-answer-id="<?= htmlspecialchars($question["question_id"]) ?>" onclick="selectAnswer(this);" keyboard-shortcut="<?= $index + 1 ?>">
+                        <button class="<?= $answer_part ?>-card" data-answer-id="<?= htmlspecialchars($question["card_id"]) ?>" onclick="selectAnswer(this);" keyboard-shortcut="<?= $index + 1 ?>">
                                 <?= htmlspecialchars($question[$answer_part]) ?>
                         </button>
                 <?php endforeach; ?>

@@ -88,8 +88,8 @@ if (!$deck["is_owned"]) {
                 <button onclick="changeTab(this,'info-tab')" class="selected-tab-button">
                     Info
                 </button>
-                <button id="question-tab-button" onclick="changeTab(this,'question-tab')">
-                    Questions
+                <button id="card-tab-button" onclick="changeTab(this,'card-tab')">
+                    Cards
                 </button>
             </nav>
         </header>
@@ -97,7 +97,7 @@ if (!$deck["is_owned"]) {
 
 
 
-        <form class="tabbed-main" data-deck-id="<?= htmlspecialchars($deck_id) ?>" onsubmit="submitEditDeck(this); return false" oninput="contentChanged()">
+        <form class="tabbed-main" data-deck-id="<?= htmlspecialchars($deck_id) ?>" onsubmit="submitEditDeck(this); return false">
             <section id="info-tab" class="split-main selected-tab">
                 <section>
                     <div class="form-field">
@@ -107,7 +107,7 @@ if (!$deck["is_owned"]) {
 
                     <div class="form-field">
                         <label for="description">Description</label>
-                        <textarea name="description" type="text" maxlength="512" required oninput="autoHeight(this)"><?= htmlspecialchars($deck["description"]) ?></textarea>
+                        <textarea name="description" type="text" maxlength="512" required onload="autoHeight(this)" oninput="autoHeight(this)"><?= htmlspecialchars($deck["description"]) ?></textarea>
                     </div>
 
                     <div class="form-field hide-large">
@@ -162,26 +162,26 @@ if (!$deck["is_owned"]) {
                 </section>
             </section>
 
-            <section id="question-tab" data-mode="edit">
+            <section id="card-tab" data-mode="edit">
                 <?php
-                $questions = $db->getDeckCards($deck_id);
-                if (!$questions->isOk() || $questions->isEmpty()) : ?>
-                    <p>There was an error loading the questions please try again </p>
+                $cards = $db->getDeckCards($deck_id);
+                if (!$cards->isOk() || $cards->isEmpty()) : ?>
+                    <p>There was an error loading the cards please try again </p>
                 <?php else : ?>
-                    <legend>Questions:
+                    <legend>Cards:
                         <!-- Pointer events stop clicking and inputing while still validating as readoly stops html validaiton -->
-                        <input id="question-counter" type="number" value="<?= htmlspecialchars($questions->rowCount()) ?>" min="8" oninvalid="changeTab(document.getElementById('question-tab-button'),'question-tab')">
+                        <input id="card-counter" type="number" value="<?= htmlspecialchars($cards->rowCount()) ?>" min="8" oninvalid="changeTab(document.getElementById('card-tab-button'),'card-tab')">
                     </legend>
 
-                    <ul id="question-list">
-                        <?php foreach ($questions->array() as $question) : ?>
+                    <ul id="card-edit-list">
+                        <?php foreach ($cards->array() as $card) : ?>
                             <li>
-                                <fieldset name="questions" class="question" id="<?= htmlspecialchars($question["question_id"]) ?>">
-                                    <div class="question-pair form-field" oninput="matchHeights(this)">
-                                        <textarea placeholder="question" name="question" class="question-question" required maxlength="128" oninvalid="changeTab(document.getElementById('question-tab-button'),'question-tab')"><?= htmlspecialchars($question["question"]) ?></textarea>
-                                        <textarea placeholder="answer" name="answer" class="question-answer" required maxlength="256" oninvalid="changeTab(document.getElementById('question-tab-button'),'question-tab')"><?= htmlspecialchars($question["answer"]) ?></textarea>
+                                <fieldset class="card-fieldset" name="cards" id="<?= htmlspecialchars($card["card_id"]) ?>">
+                                    <div class="card-editor form-field" oninput="matchHeights(this)" onload="matchHeights(this)">
+                                        <textarea placeholder="question" name="question" class="card-question" required maxlength="128" oninvalid="changeTab(document.getElementById('card-tab-button'),'card-tab')"><?= htmlspecialchars($card["question"]) ?></textarea>
+                                        <textarea placeholder="answer" name="answer" class="card-answer" required maxlength="256" oninvalid="changeTab(document.getElementById('card-tab-button'),'card-tab')"><?= htmlspecialchars($card["answer"]) ?></textarea>
                                     </div>
-                                    <button class="question-delete-button" type="button" onclick="removeQuestion(this)">
+                                    <button class="card-delete-button" type="button" onclick="removeCard(this)">
                                         <span class="material-symbols-outlined">
                                             delete
                                         </span>
@@ -193,14 +193,14 @@ if (!$deck["is_owned"]) {
                 <?php endif; ?>
 
                 <div class="beside" id="edit-buttons">
-                    <button type="button" class="primary-button button" onclick="addQuestion()" keyboard-shortcut="+">
+                    <button type="button" class="primary-button button" onclick="addCard()" keyboard-shortcut="+">
                         <span class="material-symbols-outlined">
                             add
                         </span>
 
-                        Add Question
+                        Add Card
                     </button>
-                    <button type="button" onclick="question_mode_delete()" class="danger-button button" keyboard-shortcut="m">
+                    <button type="button" onclick="cardModeDelete()" class="danger-button button" keyboard-shortcut="m">
                         <span class="material-symbols-outlined">
                             delete
                         </span>
@@ -218,7 +218,7 @@ if (!$deck["is_owned"]) {
                         Undo Deletions
                     </button>
 
-                    <button type="button" onclick="question_mode_edit()" class="primary-button button edit-mode-button" keyboard-shortcut="m">
+                    <button type="button" onclick="cardModeEdit()" class="primary-button button edit-mode-button" keyboard-shortcut="m">
                         <span class="material-symbols-outlined">
                             edit
                         </span>
@@ -233,7 +233,7 @@ if (!$deck["is_owned"]) {
             <h2>Delete Deck</h2>
             <div class="beside">
                 <button class="light-danger-button button" onclick="close_dialog('delete-dialog')" keyboard-shortcut="e">Cancel</button>
-                <!-- No questionboard shortcut as want users to be sure -->
+                <!-- No keyboard shortcut as want users to be sure -->
                 <button class="danger-button button" onclick="deleteDeck()">Delete</button>
             </div>
         </dialog>

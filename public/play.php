@@ -46,7 +46,7 @@ if ($deck_query->isEmpty()) {
 $deck = $deck_query->single();
 
 // Get the deck
-$question_query = $db->getPlayQuestions($deck_id);
+$question_query = $db->getPlayCards($deck_id);
 
 // If error occurred when getting the questions send user to error page
 if (!$question_query->isOk()) {
@@ -69,7 +69,7 @@ $all_questions = $question_query->array();
 <html lang="en">
 
 <head>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <?php require "components/head.php" ?>
 </head>
 

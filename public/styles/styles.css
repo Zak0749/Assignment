@@ -391,6 +391,7 @@ section {
 .tab-bar {
     margin-left: var(--page-horizontal-spacing);
     margin-right: var(--page-horizontal-spacing);
+    margin-bottom: 20px;
 }
 
 .tab-bar button {

@@ -53,7 +53,7 @@ CREATE TABLE public.deck(
   description VARCHAR(256) NOT NULL,
   -- Date and time set when deck created
   -- When the user created their the deck
-  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
 );
 -- Table to store cards each with a question and answer
 CREATE TABLE public.card(
@@ -224,7 +224,7 @@ INSERT INTO play (account_id, deck_id, score, timestamp) VALUES
 	('96dcf4e0-4095-43df-955b-8bfa54baaf97', 'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3', 12, '2023-11-13 12:30:00'),
 	('96dcf4e0-4095-43df-955b-8bfa54baaf97', 'ff0678dd-2331-4615-b6e8-230614961dd2', 7, '2023-11-7 02:30:00');
 	
-INSERT INTO card (card_id, deck_id, card, answer) VALUES
+INSERT INTO card (card_id, deck_id, question, answer) VALUES
 	('4191bb49-94c9-45ad-828d-49d01780f6e4', '20630b8d-7d55-486f-8070-1c0f4ff2fca6', 'Firewall', 'Control network use'),
 	('d3214777-f504-48b1-96a2-21ee0917dde2', '20630b8d-7d55-486f-8070-1c0f4ff2fca6', 'XSS Attack', 'Inject script tags into other users machines getting to run code on their browser'),
 	('efda5e2c-2211-4a18-b387-30f3195bb17c', '20630b8d-7d55-486f-8070-1c0f4ff2fca6', 'SQL Injection', 'Injecting sql into database as string input is not sanitised '),

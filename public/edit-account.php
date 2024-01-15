@@ -68,7 +68,7 @@ $user = $user_query->single();
 		</header>
 
 
-		<form class="split-main" onsubmit="submitEditAccount(this); return false;" oninput="contentChanged()">
+		<form class="split-main" onsubmit="submitEditAccount(this); return false;" >
 			<section>
 				<?php $seed = randomise_avatar() ?>
 				<button name="avatar" class="avatar-input" type="button" value="<?= htmlspecialchars($user["avatar"]) ?>" style="background-image: url(https://api.dicebear.com/7.x/bottts/svg?backgroundColor=ffadad,ffd6a5,fdffb6,caffbf,9bf6ff,a0c4ff,bdb2ff,ffc6ff,fffffc&seed=<?= htmlspecialchars($user["avatar"]) ?>" onclick="randomiseAvatar(this);" keyboard-shortcut="r">

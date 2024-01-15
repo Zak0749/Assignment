@@ -59,6 +59,7 @@ class Db
             // Query has been a success return the rows
             return DbResult::query($query);
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -98,6 +99,7 @@ class Db
             // Query has been a success returns the found rows
             return DbResult::query($query);
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -140,6 +142,7 @@ class Db
             // Query has been a success returns the found rows
             return DbResult::query($query);
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -179,6 +182,7 @@ class Db
             // Query has been a success returns the found rows
             return DbResult::query($query);
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -215,6 +219,7 @@ class Db
             // Query has been a success returns the found rows
             return DbResult::query($query);
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -246,6 +251,7 @@ class Db
             // Query has been a success returns the found rows
             return DbResult::query($query);
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -289,6 +295,7 @@ class Db
             // Query has been a success returns the found rows
             return DbResult::query($query);
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -332,6 +339,7 @@ class Db
             // Query has been a success returns the found rows
             return DbResult::query($query);
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -369,6 +377,7 @@ class Db
             // Query has been a success returns the found rows
             return DbResult::query($query);
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -394,7 +403,7 @@ class Db
                         :username, 
                         :password, 
                         :avatar
-                    )
+                    ) RETURNS account_id
             SQL
             );
 
@@ -407,7 +416,7 @@ class Db
             $query->execute();
 
             // Gets the id of the user that was just created
-            $account_id = $this->db->lastInsertId();
+            $account_id = $query->fetch()["account_id"];
 
             // If there are any likes
             if ($likes !== null) {
@@ -443,6 +452,7 @@ class Db
             // Insert has been a success returns the new user_id
             return DbResult::value($account_id);
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -474,6 +484,7 @@ class Db
             // Query has been a success returns the found rows
             return DbResult::value($streak);
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -526,6 +537,7 @@ class Db
             // Query has been a success returns the found rows
             return DbResult::query($query);
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -561,6 +573,7 @@ class Db
             // Query has been a success returns the found rows
             return DbResult::query($query);
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -604,6 +617,7 @@ class Db
             // Query has been a success returns the found rows
             return DbResult::query($query);
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -666,6 +680,7 @@ class Db
             // Query has been a success returns the found rows
             return DbResult::query($query);
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -698,13 +713,14 @@ class Db
             // Query has been a success returns the found rows
             return DbResult::query($query);
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
         }
     }
 
-    function getPlayQuestions(
+    function getPlayCards(
         string $deck_id
     ): DbResult {
         // Tries to execute the operation but if any query fails go to the catch block
@@ -732,6 +748,7 @@ class Db
             // Query has been a success returns the found rows
             return DbResult::query($query);
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -777,6 +794,7 @@ class Db
             // Query has been a success returns the found rows
             return DbResult::query($query);
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -821,6 +839,7 @@ class Db
             // Query has been a success returns the found rows
             return DbResult::query($query);
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -857,6 +876,7 @@ class Db
             // Query has been a success returns the found rows
             return DbResult::query($query);
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -897,6 +917,7 @@ class Db
             // Query has been a success returns the found rows
             return DbResult::query($query);
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -937,6 +958,7 @@ class Db
             // Query has been a success returns the found rows
             return DbResult::query($query);
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -974,6 +996,7 @@ class Db
             // Insert has been an success
             return DbResult::ok();
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -1006,6 +1029,7 @@ class Db
             // Delete has been an success
             return DbResult::ok();
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -1091,6 +1115,7 @@ class Db
             // All the inserts have been a success 
             return DbResult::ok();
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -1113,6 +1138,7 @@ class Db
             // Delete has been an success
             return DbResult::ok();
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -1140,7 +1166,7 @@ class Db
                         :account_id,
                         :title,
                         :description
-                    )
+                    ) RETURNING deck_id
                 SQL
             );
 
@@ -1150,7 +1176,7 @@ class Db
 
             $query->execute();
 
-            $deck_id = $this->db->lastInsertId();
+            $deck_id = $query->fetch()["deck_id"];
 
             $query = $this->db->prepare(
                 <<<SQL
@@ -1214,6 +1240,7 @@ class Db
             // Query has been a success return the new deck_id
             return DbResult::value($deck_id);
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -1248,6 +1275,7 @@ class Db
             // Query has been a success returns the found rows
             return DbResult::query($query);
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -1316,7 +1344,7 @@ class Db
                 }
             }
 
-            // If there are any deleted questions
+            // If there are any deleted cards
             if ($deleted_cards !== null) {
                 $query = $this->db->prepare(<<<SQL
                     DELETE FROM card WHERE card_id=:card_id AND deck_id = :deck_id
@@ -1327,12 +1355,12 @@ class Db
                 $query->bindParam(":card_id", $card_id, PDO::PARAM_STR);
                 $query->bindValue(":deck_id", $deck_id, PDO::PARAM_STR);
 
-                foreach ($deleted_cards as $question_id) {
+                foreach ($deleted_cards as $card_id) {
                     $query->execute();
                 }
             }
 
-            // If there are any edited questions
+            // If there are any edited cards
             if ($edited_cards !== null) {
                 $query = $this->db->prepare(<<<SQL
                 UPDATE card SET
@@ -1350,12 +1378,13 @@ class Db
                 $query->bindParam(":answer", $answer, PDO::PARAM_STR);
                 $query->bindParam(":card_id", $card_id, PDO::PARAM_STR);
 
-                foreach ($edited_cards as ["question" => $question, "answer" => $answer, "id" => $card_id]) {
+                foreach ($edited_cards as ["question" => $question, "answer" => $answer, "card_id" => $card_id]) {
+                    var_dump($card_id, $question, $answer);
                     $query->execute();
                 }
             }
 
-            // If there are any new questions
+            // If there are any new cards
             if ($new_cards !== null) {
                 $query = $this->db->prepare(<<<SQL
             INSERT INTO card (
@@ -1383,6 +1412,7 @@ class Db
             return DbResult::ok();
         } catch (PDOException $error) {
             var_dump($error);
+            // http_response_code(500);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
         }
@@ -1402,6 +1432,7 @@ class Db
 
             return DbResult::ok();
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
@@ -1435,6 +1466,7 @@ class Db
 
             return DbResult::ok();
         } catch (PDOException $error) {
+            http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
             return DbResult::error($error->getCode());
