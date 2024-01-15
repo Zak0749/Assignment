@@ -8,7 +8,7 @@
 <body>
     <?php require "components/navbar.php" ?>
 
-    <div class="page">
+    <main>
 
         <header>
             <h1>Internal Server Error</h1>
@@ -19,5 +19,4 @@
                 <p>An error has occurred wait a few minutes then try again please try again</p>
             </section>
         </main>
-    </div>
 </body>

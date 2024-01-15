@@ -13,15 +13,15 @@ $questions = random_from_array($all_questions, 4);
     <main class="match-grid">
         <section>
             <?php foreach ($r->shuffleArray($questions) as $index => $question) : ?>
-                <button class="play-key" onclick="matchAnswer(this)" data-question-id=<?= htmlspecialchars($question["question_id"]) ?> keyboard-shortcut="<?= $index + 1 ?>">
-                    <?= htmlspecialchars($question["key"]) ?>
+                <button class="question-card" onclick="matchAnswer(this)" data-question-id=<?= htmlspecialchars($question["card_id"]) ?> keyboard-shortcut="<?= $index + 1 ?>">
+                    <?= htmlspecialchars($question["question"]) ?>
                 </button>
             <?php endforeach; ?>
         </section>
         <section>
             <?php foreach ($r->shuffleArray($questions) as $index => $question) : ?>
-                <button class="play-value" onclick="matchAnswer(this)" data-question-id=<?= htmlspecialchars($question["question_id"]) ?> keyboard-shortcut="<?= $index + 5 ?>">
-                    <?= htmlspecialchars($question["value"]) ?>
+                <button class="answer-card" onclick="matchAnswer(this)" data-question-id=<?= htmlspecialchars($question["card_id"]) ?> keyboard-shortcut="<?= $index + 5 ?>">
+                    <?= htmlspecialchars($question["answer"]) ?>
                 </button>
             <?php endforeach; ?>
         </section>
@@ -35,7 +35,7 @@ $questions = random_from_array($all_questions, 4);
             Correct
         </h2>
 
-        <button onclick="nextQuestion(this)" class="success-button" keyboard-shortcut="n">
+        <button onclick="nextQuestion(this)" class="success-button button" keyboard-shortcut="n">
             Next
         </button>
     </footer>
@@ -47,7 +47,7 @@ $questions = random_from_array($all_questions, 4);
             Wrong
         </h2>
 
-        <button onclick="nextQuestion(this)" class="danger-button" keyboard-shortcut="n">
+        <button onclick="nextQuestion(this)" class="danger-button button" keyboard-shortcut="n">
             Next
         </button>
     </footer>

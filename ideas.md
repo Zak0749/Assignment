@@ -163,3 +163,30 @@ Try to avoid redirects to make nicer
 Was planning to use a JS library for keyboard shortcuts but decided to write my own code as none of them did it inline so i used mousetrap with my own code to get it good
 
 Tried to use mouse trap but deicde to use hotkeysw-js
+
+
+##
+
+key, value needs to be changed to question, answer
+
+change question length to 64
+
+https://learnsql.com/blog/how-to-calculate-length-of-series-in-sql/
+
+
+WITH Dates AS (
+  SELECT Date(timestamp) as streak_date FROM User_Play
+)
+SELECT
+streak_date,
+  DATEDIFF(lag_date, streak_date)
+FROM (
+  SELECT
+    streak_date,
+    IF(LAG(streak_date, 1, DATE_ADD(CURDATE(), INTERVAL 1 DAY)) OVER (ORDER BY streak_date DESC) as lag_date
+ FROM Dates
+) subquery
+
+on this thought just could you datediff greatert than one but it no work so have to use vairble
+
+use mysql functions to take stuff repeareed / complex stuff away 

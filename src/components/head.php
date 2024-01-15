@@ -8,7 +8,7 @@
 <!-- Styling -->
 <link href="styles/styles.css" rel="stylesheet">
 <link href="styles/navbar.css" rel="stylesheet">
-<link href="styles/cards.css" rel="stylesheet">
+<link href="styles/panels.css" rel="stylesheet">
 <link href="styles/variables.css" rel="stylesheet">
 <link href="styles/search.css" rel="stylesheet">
 <link href="styles/forms.css" rel="stylesheet">
@@ -16,8 +16,7 @@
 
 <!-- Fonts and icons -->
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet">
-
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 <!-- Scripts -->
 <script type="text/javascript" src="scripts/scripts.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mousetrap/1.6.3/mousetrap.min.js"></script>

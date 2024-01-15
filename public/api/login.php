@@ -5,7 +5,7 @@ use database\DB;
 header('Content-Type: application/json');
 
 // If logged in give error code and stop request
-if (isset($_SESSION["user_id"])) {
+if (isset($_SESSION["account_id"])) {
 	http_response_code(403);
 	return;
 }
@@ -71,8 +71,8 @@ if (!password_verify($body["password"], $user["password"])) {
 		]
 	);
 } else {
-	// Stores the user_id of the logged in user
-	$_SESSION["user_id"] = $user["user_id"];
+	// Stores the account_id of the logged in user
+	$_SESSION["account_id"] = $user["account_id"];
 
 	// Response of `No Content`
 	http_response_code(204);

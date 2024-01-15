@@ -14,7 +14,7 @@ async function displaySearchResults(searchForm) {
     if (searchForm.search.value.length < 3) {
         results.innerHTML = '';
     }
-    // If the search bar has a value
+    // If the search bar has a answer
     else {
         // Set the url and search params
         let url = new URL('api/search', document.location);
@@ -50,7 +50,7 @@ async function loginUser(loginForm) {
     // If login was successful 
     if (result.ok) {
         // Send user to their account
-        window.location.replace('my-account');
+        window.location.replace("account");
     }
     // If it was an internal sever error
     else if (result.status == 500) {
@@ -134,7 +134,8 @@ async function createAccount(createAccountForm) {
     });
 
     if (result.ok) {
-        window.location.replace('my-account')
+        // Send user to their account
+        window.location.replace("account");
     } else {
         let body = await result.json()
 
@@ -201,15 +202,15 @@ async function logout() {
 async function submitEditAccount(editAccountForm) {
     let data = new URLSearchParams();
 
-    if (editAccountForm['username'].value != editAccountForm['username'].defaultValue) {
+    if (editAccountForm['username'].value != editAccountForm['username'].defaultanswer) {
         data.set("username", editAccountForm.username.value)
     }
 
-    if (editAccountForm['password'].value != editAccountForm['password'].defaultValue) {
+    if (editAccountForm['password'].value != editAccountForm['password'].defaultanswer) {
         data.set("password", editAccountForm.password.value)
     }
 
-    if (editAccountForm['avatar'].value != editAccountForm['avatar'].defaultValue) {
+    if (editAccountForm['avatar'].value != editAccountForm['avatar'].defaultanswer) {
         data.set("avatar", editAccountForm.avatar.value)
     }
 
@@ -236,7 +237,7 @@ async function submitEditAccount(editAccountForm) {
     });
 
     if (response.ok) {
-        window.location.replace('my-account')
+        window.location.replace('account')
     } else if (response.status == 500) {
         console.error(await response.text())
     }
@@ -320,53 +321,78 @@ function autoHeight(textArea) {
     textArea.style.height = textArea.scrollHeight + 'px';
 }
 
-function question_mode_edit() {
-    document.getElementById('question-tab').dataset.mode = 'edit';
+function cardModeEdit() {
+    document.getElementById('card-tab').dataset.mode = 'edit';
 }
 
-function question_mode_delete() {
-    document.getElementById('question-tab').dataset.mode = 'delete';
+function cardModeDelete() {
+    document.getElementById('card-tab').dataset.mode = 'delete';
 }
 
-function addQuestion() {
-    // TODo replace with validated etc
+function addCard() {
+    // Get the list of elements from the DOM
+    let cardList = document.getElementById("card-edit-list");
 
-    let questionList = document.getElementById('question-list');
+    // Creates a list element
+    let newCard = document.createElement("li");
 
-    let newQuestion = questionList.firstElementChild.cloneNode(true);
+    // Insert the html
+    newCard.innerHTML = `
+        <fieldset class="card-fieldset" name="cards">
+            <div class="card-editor form-field" oninput="matchHeights(this)">
+                <textarea placeholder="question" name="question" class="card-question" required="" maxlength="128" oninvalid="changeTab(document.getElementById('card-tab-button'),'card-tab')"></textarea>
+                <textarea placeholder="answer" name="answer" class="card-answer" required="" maxlength="256" oninvalid="changeTab(document.getElementById('card-tab-button'),'card-tab')"></textarea>
+            </div>
+            <button class="card-delete-button" type="button" onclick="removeCard(this)">
+                <span class="material-symbols-outlined">
+                    delete
+                </span>
+            </button>
+        </fieldset>
+    `;
 
-    newQuestion.children[0].removeAttribute('id');
-    newQuestion.getElementsByTagName('textarea')[0].value = '';
-    newQuestion.getElementsByTagName('textarea')[1].value = '';
+    // Add it to the card list
+    cardList.appendChild(newCard);
 
-    questionList.appendChild(newQuestion);
-
-    document.getElementById('question-counter').value = 1 + parseInt(document.getElementById('question-counter').value);
+    // Increment the counter
+    document.getElementById('card-counter').value = Number(document.getElementById('card-counter').value) + 1;
 }
 
 /**
  *  * @param {HTMLButtonElement} button - the edit deck form
  */
-function removeQuestion(button) {
-    let question = button.parentElement;
+function removeCard(button) {
+    // Gets the form field element associated with the button
+    let card = button.parentElement;
 
-    question.dataset.remove = true;
-    question.setAttribute('disabled', '');
+    // Marks it to be deleted
+    card.dataset.remove = true;
 
-    document.getElementById('question-counter').value -= 1;
+    // Hides it
+    card.setAttribute('disabled', '');
+
+    // Removes one from the counter
+    document.getElementById('card-counter').value -= 1;
 }
 
 /**
  *  * @param {HTMLButtonElement} button - the edit deck form
  */
 function undoDeletions() {
+    // Find all the elements marked to be removed
     let removed = Array.from(document.querySelectorAll('[data-remove="true"]'))
-    removed.forEach((question) => {
-        question.dataset.remove = false;
-        question.removeAttribute('disabled');
+
+    // Loop over each element that was going to be deleted
+    removed.forEach((card) => {
+        // Mark it not to be deleted
+        card.dataset.remove = false;
+
+        // Show the card editor
+        card.removeAttribute('disabled');
     })
 
-    document.getElementById('question-counter').value = removed.length + parseInt(document.getElementById('question-counter').value);
+    // Add the number of items brought back to the question counter
+    document.getElementById('card-counter').value = removed.length + Number(document.getElementById('card-counter').value);
 }
 
 
@@ -374,48 +400,56 @@ function undoDeletions() {
  *  * @param {HTMLDivElement} button - the edit deck form
  */
 function matchHeights(button) {
-    // On small screens the boxes are vertically stacked so no moving is needed
+
+    // Get both the text areas
+    let [question_input, answer_input] = button.children;
+
+    // On small screens the boxes are vertically stacked so they both need to be done individually 
     if (window.innerWidth < 600) {
-        return
+        // Have their heights calculated only based on themselves
+        autoHeight(question_input);
+        autoHeight(answer_input);
+    } else {
+        // Required to get the height of the text
+        question_input.style.height = 'auto';
+        answer_input.style.height = 'auto';
+
+        // Find the tallest of the two boxes
+        let max = Math.max(question_input.scrollHeight, answer_input.scrollHeight);
+
+        // Set both inputs heights to the largest one
+        question_input.style.height = max + 'px';
+        answer_input.style.height = max + 'px';
     }
-
-
-    let [key_input, value_input] = button.children;
-
-    key_input.style.height = 'auto';
-    value_input.style.height = 'auto';
-
-    let max = Math.max(key_input.scrollHeight, value_input.scrollHeight);
-
-    key_input.style.height = max + 'px';
-    value_input.style.height = max + 'px';
-
 }
 
 /**
  *  * @param {HTMLFormElement} createDeckForm - the edit deck form
  */
 async function createDeck(createDeckForm) {
+    // Enstatite data structure to send data to server
     let data = new URLSearchParams();
 
+    // Add the title and description to be sent to the server
     data.set("title", createDeckForm['title'].value);
     data.set("description", createDeckForm['description'].value);
 
+    // Get all the topics elements
     Array.from(createDeckForm.topics)
-        .filter((checkbox) => checkbox.checked)
-        .map((checkbox) => checkbox.value)
-        .forEach((like, index) => {
-            data.set(`topics[${index}]`, like)
+        .filter((checkbox) => checkbox.checked) // Filter down to all selected tags
+        .forEach((checkbox, index) => { // For each checkbox add it's id to be sent to the server
+            data.set(`topics[${index}]`, checkbox.value)
         });
 
-    Array.from(createDeckForm.getElementsByClassName('question'))
-        .filter((question) => question.dataset.remove !== 'true')
-        .forEach((question, index) => {
-            data.set(`questions[${index}][key]`, question.getElementsByClassName('question-key')[0].value)
-            data.set(`questions[${index}][value]`, question.getElementsByClassName('question-value')[0].value)
+    // Get all the card elements
+    Array.from(createDeckForm.cards)
+        .filter((card) => card.dataset.remove !== 'true') // Filter out the elements that have been deleted
+        .forEach((card, index) => { // For each editor add the data to be sent to the server
+            data.set(`cards[${index}][question]`, card.getElementsByClassName('card-question')[0].value)
+            data.set(`cards[${index}][answer]`, card.getElementsByClassName('card-answer')[0].value)
         })
 
-
+    // Send the request to the server
     let result = await fetch('api/create-deck', {
         method: 'POST',
         headers: {
@@ -424,11 +458,18 @@ async function createDeck(createDeckForm) {
         body: data
     });
 
+    // If request was successful 
     if (result.ok) {
-        let deck_id = await result.text();
-        window.location.replace(`deck?deck_id=${deck_id}`)
+        // Get the newly created deck_id
+        // let deck_id = await result.text();
+
+        // Redirect to the newly created deck's page
+        // window.location.replace(`deck?deck_id=${deck_id}`)
+
+        console.log(await result.text())
     } else {
-        console.log('ERROR:', await result.text())
+        // Send a major error to the user
+        alert("There was an error trying to submit this form please try again later")
     }
 }
 
@@ -436,65 +477,82 @@ async function createDeck(createDeckForm) {
  *  * @param {HTMLFormElement} form - the edit deck form
  */
 async function submitEditDeck(editDeckForm) {
-    let data = new URLSearchParams(window.location.search);
+    // Enstatite data structure to send data to server
+    let data = new URLSearchParams();
 
+    // Add the deck_id from the current page to send to the server
+    data.set("deck_id", (new URLSearchParams(window.location.search)).get("deck_id"));
+
+    // If the title has changed
     if (editDeckForm.title.value !== editDeckForm.title.defaultValue) {
+        // Add the title to be send to the server
         data.set("title", editDeckForm['title'].value);
     }
 
+    // If the description has changed
     if (editDeckForm.description.value !== editDeckForm.description.defaultValue) {
+        // Add the description to be send to the server
         data.set("description", editDeckForm.description.value);
     }
 
+    // Get the list of topics
     let topics = Array.from(editDeckForm.topics)
 
+
     topics
-        .filter((checkbox) => checkbox.checked != checkbox.defaultChecked && checkbox.checked == true)
-        .forEach((checkbox, index) => {
+        .filter((checkbox) => checkbox.checked != checkbox.defaultChecked && checkbox.checked == true) // Find the topics that are new
+        .forEach((checkbox, index) => { // For each new topic add to be sent to the server
             data.set(`added_topics[${index}]`, checkbox.value)
         });
 
     topics
-        .filter((checkbox) => checkbox.checked != checkbox.defaultChecked && checkbox.checked == false)
-        .forEach((checkbox, index) => {
+        .filter((checkbox) => checkbox.checked != checkbox.defaultChecked && checkbox.checked == false) // Find the topics that were set but are no longer
+        .forEach((checkbox, index) => { // For each removed topic add to be sent to the server
             data.set(`removed_topics[${index}]`, checkbox.value)
         });
 
-    let questions = Array.from(document.getElementsByClassName('question'));
+    // Get the list of cards
+    let cards = Array.from(editDeckForm.cards);
 
-    questions
-        .filter((question) => question.dataset.remove !== "true" && question.id === "")
-        .forEach((question, index) => {
-            data.set(`new_questions[${index}][key]`, question.getElementsByClassName('question-key')[0].value)
-            data.set(`new_questions[${index}][value]`, question.getElementsByClassName('question-value')[0].value)
+    cards
+        .filter((card) => card.dataset.remove !== "true" && card.id === "") // Find all the new card
+        .forEach((card, index) => { // For each new card add to be sent to the server
+            data.set(`new_cards[${index}][question]`, card.getElementsByClassName('card-question')[0].value)
+            data.set(`new_cards[${index}][answer]`, card.getElementsByClassName('card-answer')[0].value)
         });
 
-    questions
-        .filter((question) => question.dataset.remove !== "true" && question.id !== "")
-        .map((question) => {
+    cards
+        .filter((card) => card.dataset.remove !== "true" && card.id !== "") // Filter out cards that have been removed or are new
+        .map((card) => { // Tidy up fields 
             return {
-                id: question.id,
-                key: question.getElementsByClassName('question-key')[0],
-                value: question.getElementsByClassName('question-value')[0]
+                id: card.id,
+                question: card.getElementsByClassName('card-question')[0],
+                answer: card.getElementsByClassName('card-answer')[0]
             }
         })
-        .filter((question) => question.key.value !== question.key.defaultValue || question.value.value !== question.value.defaultValue)
-        .forEach((question, index) => {
-            data.set(`edited_questions[${index}][id]`, question.id)
-            if (question.key.value !== question.key.defaultValue) {
-                data.set(`edited_questions[${index}][key]`, question.key.value)
+        .filter((card) => card.question.value !== card.question.defaultValue || card.answer.value !== card.answer.defaultValue) // Find cards that have been changed 
+        .forEach((card, index) => { // For each changed card
+            // Add the edited card's id to be sent to the server
+            data.set(`edited_cards[${index}][card_id]`, card.id)
+
+            // If the cards question has been changed add it to be sent to the server
+            if (card.question.value !== card.question.defaultValue) {
+                data.set(`edited_cards[${index}][question]`, card.question.value)
             }
-            if (question.value.value !== question.value.defaultValue) {
-                data.set(`edited_questions[${index}][value]`, question.value.value)
+
+            // If the cards answer has been changed add it to be sent to the server
+            if (card.answer.value !== card.answer.defaultValue) {
+                data.set(`edited_cards[${index}][answer]`, card.answer.value)
             }
         });
 
-    questions
-        .filter((question) => question.dataset.remove === "true" && question.id !== "")
-        .forEach((question, index) => {
-            data.set(`removed_questions[${index}][id]`, question.id)
+    cards
+        .filter((question) => question.dataset.remove === "true" && question.id !== "") // Find all the previously created cards to be deleted
+        .forEach((question, index) => { // For each deleted card mark down its id to be deleted
+            data.set(`removed_cards[${index}]`, question.id)
         });
 
+    // Send the data to the server
     let response = await fetch('/api/edit-deck', {
         method: 'POST',
         headers: {
@@ -503,16 +561,24 @@ async function submitEditDeck(editDeckForm) {
         body: data
     });
 
+    // If the edit was a success 
     if (response.ok) {
-        window.location.replace(`deck?deck_id=${data.get("deck_id")}`)
+        // Redirect to see the changes 
+        window.location.replace(`deck?deck_id=${data.get("deck_id")}`);
     } else {
-        console.error(await response.text())
+        // Send a error to the user
+        alert("there was an error editing this deck please try again later");
     }
 }
 
 async function deleteDeck() {
-    let data = new URLSearchParams(window.location.search);
+     // Enstatite data structure to send data to server
+     let data = new URLSearchParams();
 
+     // Add the deck_id from the current page to send to the server
+     data.set("deck_id", (new URLSearchParams(window.location.search)).get("deck_id"));
+
+    // Send the data to the server
     let response = await fetch('/api/delete-deck', {
         method: 'POST',
         headers: {
@@ -521,10 +587,13 @@ async function deleteDeck() {
         body: data
     });
 
+    // If the edit was a success 
     if (response.ok) {
-        window.location.replace(`my-account`)
+        // Redirect to the account page
+        window.location.replace(`account`)
     } else {
-        console.error(await response.text())
+         // Send a error to the user
+         alert("there was an error deleting this deck please try again later");
     }
 }
 
@@ -535,12 +604,18 @@ function selectAnswer(button) {
     // Get the first play-question witch is a ancestor of the button
     let questionElement = button.closest('.play-question');
 
+    console.log("selected", questionElement)
+
     // If question has already been answered stop function early
     if (questionElement.dataset.result) {
         return
     }
 
-    questionElement.dataset.result = questionElement.dataset.correctId == button.dataset.answerId ? 'correct' : 'wrong';
+    if (questionElement.dataset.correctId == button.dataset.answerId) {
+        questionElement.dataset.result = 'correct'
+    } else {
+        questionElement.dataset.result = 'wrong'
+    }
 }
 
 /**
@@ -627,7 +702,7 @@ function nextQuestion(button) {
         questionList.appendChild(duplicatedQuestion);
     }
 
-    if (questionElement.nextElementSibling == null || document.getElementById('play-question-list').lastElementChild.classList.contains('retry-page') && questionElement.nextElementSibling.classList.contains('retry-page')) {
+    if (questionElement.nextElementSibling == null || document.getElementById('round').lastElementChild.classList.contains('retry-page') && questionElement.nextElementSibling.classList.contains('retry-page')) {
         results();
     }
 }
@@ -658,9 +733,9 @@ function results() {
     // API STUFF
 
 
-    let questionList = document.getElementById('play-question-list')
+    let questionList = document.getElementById('round')
     questionList.style.display = 'none';
-    document.getElementById('play-results').style.display = 'block';
+    document.getElementById('results').style.display = 'block';
 
     // Chart
 
@@ -693,12 +768,12 @@ function results() {
             datasets: [{
                 data: [correct_number, wrong_number],
                 backgroundColor: [
-                    getComputedStyle(document.body).getPropertyValue('--accent'),
-                    getComputedStyle(document.body).getPropertyValue('--secondary-background')
+                    getComputedStyle(document.body).getPropertyanswer('--accent'),
+                    getComputedStyle(document.body).getPropertyanswer('--secondary-background')
                 ],
                 hoverBackgroundColor: [
-                    getComputedStyle(document.body).getPropertyValue('--accent-hover'),
-                    getComputedStyle(document.body).getPropertyValue('--secondary-background-hover')
+                    getComputedStyle(document.body).getPropertyanswer('--accent-hover'),
+                    getComputedStyle(document.body).getPropertyanswer('--secondary-background-hover')
                 ],
                 hoverOffset: 4,
                 borderWidth: 0,
@@ -802,4 +877,7 @@ window.addEventListener("load", () => {
             })
         });
     })
+
+    // Calls the on load function for all elements with the onload property set
+    Array.from(document.querySelectorAll("[onload]")).forEach((textarea) => textarea.onload())
 })

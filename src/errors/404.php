@@ -8,7 +8,7 @@
 <body>
     <?php require "components/navbar.php" ?>
 
-    <div class="page">
+    <main>
 
         <header>
             <h1>Not found</h1>
@@ -19,5 +19,4 @@
                 <p>The page could be found, but the item requested doesn't exist</p>
             </section>
         </main>
-    </div>
 </body>

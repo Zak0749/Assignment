@@ -6,21 +6,21 @@ $questions = random_from_array($all_questions, 4);
 
 $correct_question = random_from_array($questions);
 
-$question_part = random_from_array(["key", "value"]);
-$answer_part = $question_part == "key" ? "value" : "key";
+$question_part = random_from_array(["question", "answer"]);
+$answer_part = $question_part == "question" ? "answer" : "question";
 ?>
 
-<section class="play-question select-question" data-correct-id="<?= htmlspecialchars($correct_question["question_id"]) ?>" data-question-text="<?= htmlspecialchars($correct_question["key"]) ?>" data-index="<?= $i + 1 ?>" data-original="true">
+<section class="select-question play-question" data-correct-id="<?= htmlspecialchars($correct_question["card_id"]) ?>" data-question-text="<?= htmlspecialchars($correct_question["question"]) ?>" data-index="<?= $i + 1 ?>" data-original="true">
 
         <header class="question-display">
-                <p class="play-<?= $question_part ?>">
+                <p class="<?= $question_part ?>-card">
                         <?= htmlspecialchars($correct_question[$question_part]) ?>
                 </p>
         </header>
 
         <main class="question-answers-grid">
                 <?php foreach ($questions as $index => $question) : ?>
-                        <button class="play-<?= $answer_part ?>" data-answer-id="<?= htmlspecialchars($question["question_id"]) ?>" onclick="selectAnswer(this);" keyboard-shortcut="<?= $index + 1 ?>">
+                        <button class="<?= $answer_part ?>-card" data-answer-id="<?= htmlspecialchars($question["card_id"]) ?>" onclick="selectAnswer(this);" keyboard-shortcut="<?= $index + 1 ?>">
                                 <?= htmlspecialchars($question[$answer_part]) ?>
                         </button>
                 <?php endforeach; ?>
@@ -34,7 +34,7 @@ $answer_part = $question_part == "key" ? "value" : "key";
                         Correct
                 </h2>
 
-                <button onclick="nextQuestion(this)" class="success-button" keyboard-shortcut="n">
+                <button onclick="nextQuestion(this)" class="success-button button" keyboard-shortcut="n">
                         Next
                 </button>
         </footer>
@@ -48,7 +48,7 @@ $answer_part = $question_part == "key" ? "value" : "key";
 
                 <p><?= htmlspecialchars($correct_question[$answer_part]) ?></p>
 
-                <button onclick="nextQuestion(this)" class="danger-button" keyboard-shortcut="n">
+                <button onclick="nextQuestion(this)" class="danger-button button" keyboard-shortcut="n">
                         Next
                 </button>
         </footer>

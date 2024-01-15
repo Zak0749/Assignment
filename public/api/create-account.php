@@ -6,7 +6,7 @@ use database\DB;
 header("Content-type:application/json");
 
 // If logged in give error code and stop request
-if (isset($_SESSION["user_id"])) {
+if (isset($_SESSION["account_id"])) {
 	http_response_code(403);
 	return;
 }
@@ -61,13 +61,13 @@ $result = $db->createAccount(
 // If the insert was successful
 if ($result->isOk()) {
 	// Store id of user
-	$_SESSION["user_id"] = $result->value;
+	$_SESSION["account_id"] = $result->value;
 
 	// Response of `Created`
 	http_response_code(201);
 
 	// If username is not unique
-} else if ($result->error == 2067) {
+} else if ($result->error == 23505) {
 	// Response of `Bad Request`
 	http_response_code(400);
 

@@ -1,10 +1,32 @@
 {
-  "cSpell.enableFiletypes": ["sql", "sqlite"],
+  "cSpell.enableFiletypes": [
+    "sql",
+    "sqlite"
+  ],
   "cSpell.words": [
     "AUTOINCREMENT",
-    "Learnify"
+    "ILIKE",
+    "Learnify",
+    "plpgsql",
+    "tsquery"
   ],
   "cSpell.language": "en-GB",
   "php.validate.run": "onType",
-  "html.format.templating": true
+  "html.format.templating": true,
+  "sqltools.connections": [
+    {
+      "mysqlOptions": {
+        "authProtocol": "default",
+        "enableSsl": "Disabled"
+      },
+      "previewLimit": 50,
+      "server": "localhost",
+      "port": 3306,
+      "driver": "MySQL",
+      "name": "DockerDB",
+      "database": "db",
+      "username": "root",
+      "password": "password"
+    }
+  ]
 }

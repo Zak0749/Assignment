@@ -6,7 +6,7 @@ use database\Db;
 header("Content-type:application/json");
 
 // If not logged in give error code and stop request
-if (!isset($_SESSION["user_id"])) {
+if (!isset($_SESSION["account_id"])) {
     http_response_code(401);
     return;
 }
@@ -14,12 +14,14 @@ if (!isset($_SESSION["user_id"])) {
 // Establish Db connection
 $db = new Db();
 
-$result = $db->deleteAccount($_SESSION["user_id"]);
+$result = $db->deleteAccount(
+    $_SESSION["account_id"] 
+);
 
 // If the deletion was successful
 if ($result->isOk()) {
     // log the end user out
-    unset($_SESSION["user_id"]);
+    unset($_SESSION["account_id"]);
 
     // Response of `No Content`
     http_response_code(204);

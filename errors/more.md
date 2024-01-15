@@ -78,3 +78,45 @@ window.addEventListener("load", () => {
         });
     })
 })
+
+
+-- next
+
+i was using mysqlite but stuggled for more complex queries so switched to mysql and better lol anyway
+
+when trying to do so couldn tnonnect mysql when using docker turns out sinse in container no use 127. ... i use the name in docker compose and it works
+
+
+--- MORE 
+
+-- Function for calculating the streak given by account_id 
+-- Is complex and not possible to do in regular sql so extracting into function makes sense
+CREATE FUNCTION user_streak (account_id UUID) RETURNS INT AS $$
+#variable_conflict use_variable
+-- Declare variables
+DECLARE streak INT DEFAULT 0;
+DECLARE date_diff INT;
+BEGIN 
+  -- Repeat for each item in column results
+  FOR date_diff IN 
+      SELECT EXTRACT(
+        DAY FROM 
+          LAG(timestamp, 1, CURRENT_TIMESTAMP) OVER (
+            ORDER BY timestamp DESC
+          ) 
+         - timestamp
+    ) as date_diff -- Gets the day part of the difference between the current row's timestamp and previous rows or for the first row the current timestamp
+	  FROM play 
+    WHERE play.account_id = user_id
+  LOOP
+  	IF date_diff > 1 THEN
+      exit;
+    END IF;
+    streak := streak + 1;
+  END LOOP;
+  RETURN streak;
+END $$ LANGUAGE plpgsql;
+
+when muliple in one day counted so had to add else if = 1
+
+ran into issue where I couln't have muliple count's in one SQL statement soluution: left join to sub query

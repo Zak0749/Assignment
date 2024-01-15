@@ -2,11 +2,8 @@
 // Imports
 use database\Db;
 
-// Sets the response type
-// header("Content-type:application/json");
-
 // If not logged in give error code and stop request
-if (!isset($_SESSION["user_id"])) {
+if (!isset($_SESSION["account_id"])) {
 	http_response_code(401);
 	return;
 }
@@ -58,6 +55,7 @@ if ($body["password"] !== null) {
 }
 
 $result = $db->updateAccount(
+	$_SESSION["account_id"],
 	$body["username"],
 	$body["password"],
 	$body["avatar"],
@@ -69,7 +67,7 @@ $result = $db->updateAccount(
 if ($result->isOk()) {
 	// Response of `No Content`
 	http_response_code(204);
-} else if ($result->error == 2067) {
+} else if ($result->error == 23505) {
 	// Response of `Bad Request`
 	http_response_code(400);
 
