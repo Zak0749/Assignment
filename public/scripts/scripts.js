@@ -23,8 +23,13 @@ async function displaySearchResults(searchForm) {
         // Fetch the data from the api
         let response = await fetch(url);
 
-        // Display result on page
-        results.innerHTML = await response.text();
+        if (response.ok) {
+            // Display result on page
+            results.innerHTML = await response.text();
+        } else {
+            // Send an error to the user
+            alert("Oh no! An error occurred, this shouldn't have happened, please try again later");
+        }
     }
 }
 
@@ -54,7 +59,8 @@ async function loginUser(loginForm) {
     }
     // If it was an internal sever error
     else if (result.status == 500) {
-        console.error(await result.text())
+        // Send an error to the user
+        alert("Oh no! An error occurred, this shouldn't have happened, please try again later");
     }
     // When it is a client error (problem with inputs)
     else {
@@ -118,11 +124,11 @@ async function createAccount(createAccountForm) {
     data.set("password", createAccountForm.password.value)
     data.set("avatar", createAccountForm.avatar.value)
 
-    Array.from(createAccountForm.likes)
+    Array.from(createAccountForm.follows)
         .filter((checkbox) => checkbox.checked)
         .map((checkbox) => checkbox.value)
-        .forEach((like, index) => {
-            data.set(`likes[${index}]`, like)
+        .forEach((follow, index) => {
+            data.set(`follows[${index}]`, follow)
         });
 
     let result = await fetch('api/create-account', {
@@ -136,6 +142,9 @@ async function createAccount(createAccountForm) {
     if (result.ok) {
         // Send user to their account
         window.location.replace("account");
+    } else if (result.status === "500") {
+        // Send an error to the user
+        alert("Oh no! An error occurred, this shouldn't have happened, please try again later");
     } else {
         let body = await result.json()
 
@@ -166,7 +175,8 @@ async function toggleSave(toggleButton) {
             toggleButton.children[0].innerHTML = 'bookmark_add';
             toggleButton.dataset.save = true
         } else {
-            console.error('Unexpected server error');
+            // Send an error to the user
+            alert("Oh no! An error occurred, this shouldn't have happened, please try again later");
         }
     } else {
         let result = await fetch('api/save', {
@@ -181,7 +191,8 @@ async function toggleSave(toggleButton) {
             toggleButton.children[0].innerHTML = 'bookmark_added';
             toggleButton.dataset.save = false
         } else {
-            console.error('Unexpected server error');
+            // Send an error to the user
+            alert("Oh no! An error occurred, this shouldn't have happened, please try again later");
         }
     }
 }
@@ -192,7 +203,8 @@ async function logout() {
     if (request.ok) {
         window.location.replace('/')
     } else {
-        console.error(await request.text())
+        // Send an error to the user
+        alert("Oh no! An error occurred, this shouldn't have happened, please try again later");
     }
 }
 
@@ -202,30 +214,30 @@ async function logout() {
 async function submitEditAccount(editAccountForm) {
     let data = new URLSearchParams();
 
-    if (editAccountForm['username'].value != editAccountForm['username'].defaultanswer) {
+    if (editAccountForm['username'].value != editAccountForm['username'].defaultValue) {
         data.set("username", editAccountForm.username.value)
     }
 
-    if (editAccountForm['password'].value != editAccountForm['password'].defaultanswer) {
+    if (editAccountForm['password'].value != editAccountForm['password'].defaultValue) {
         data.set("password", editAccountForm.password.value)
     }
 
-    if (editAccountForm['avatar'].value != editAccountForm['avatar'].defaultanswer) {
+    if (editAccountForm['avatar'].value != editAccountForm['avatar'].defaultValue) {
         data.set("avatar", editAccountForm.avatar.value)
     }
 
-    Array.from(editAccountForm.likes)
+    Array.from(editAccountForm.follows)
         .filter((checkbox) => checkbox.checked != checkbox.defaultChecked && checkbox.checked == true)
         .map((checkbox) => checkbox.value)
-        .forEach((like, index) => {
-            data.set(`added_likes[${index}]`, like)
+        .forEach((follow, index) => {
+            data.set(`added_follows[${index}]`, follow)
         });
 
-    Array.from(editAccountForm.likes)
+    Array.from(editAccountForm.follows)
         .filter((checkbox) => checkbox.checked != checkbox.defaultChecked && checkbox.checked == false)
         .map((checkbox) => checkbox.value)
-        .forEach((like, index) => {
-            data.set(`removed_likes[${index}]`, like)
+        .forEach((follow, index) => {
+            data.set(`removed_follows[${index}]`, follow)
         });
 
     let response = await fetch('/api/edit-account', {
@@ -239,7 +251,8 @@ async function submitEditAccount(editAccountForm) {
     if (response.ok) {
         window.location.replace('account')
     } else if (response.status == 500) {
-        console.error(await response.text())
+        // Send an error to the user
+        alert("Oh no! An error occurred, this shouldn't have happened, please try again later");
     }
     // When it is a client error (problem with inputs)
     else {
@@ -257,34 +270,8 @@ async function submitEditAccount(editAccountForm) {
     }
 }
 
-function open_dialog(id) {
-    document.getElementById(id).showModal();
-}
 
-function close_dialog(id) {
-    document.getElementById(id).close();
-}
-
-// Problem solve -> get coordinates of click had to used onload with event listener
-
-// When the page loads add an on click event to all dialog's so when the user clicks outside the dialog the dialog closes
-window.addEventListener('load', () => {
-    // Foreach dialog element
-    Array.from(document.getElementsByTagName('dialog')).forEach((dialog) => {
-        dialog.addEventListener('click', (click) => {
-            // Gets the actual size of the dialog
-            const size = click.target.getBoundingClientRect();
-
-            // If clicked outside the dialog close it and the dialog is open
-            if ((size.top > click.clientY || click.clientY > size.top + size.height || size.left > click.clientX || click.clientX > size.left + size.width) && click.target.open == true) {
-                click.target.close();
-            }
-        });
-    });
-});
-
-
-async function delete_account() {
+async function deleteAccount() {
     let response = await fetch('api/delete-account', {
         method: 'POST'
     });
@@ -292,7 +279,8 @@ async function delete_account() {
     if (response.ok) {
         window.location.replace('/');
     } else {
-        console.error(await response.text());
+        // Send an error to the user
+        alert("Oh no! An error occurred, this shouldn't have happened, please try again later");
     }
 }
 
@@ -307,9 +295,9 @@ function changeTab(button, id) {
     old_tab.classList.remove('selected-tab');
     old_button.classList.remove('selected-tab-button');
 
-    let new_tag = document.getElementById(id);
+    let new_tab = document.getElementById(id);
 
-    new_tag.classList.add('selected-tab')
+    new_tab.classList.add('selected-tab')
     button.classList.add('selected-tab-button')
 }
 
@@ -319,14 +307,6 @@ function changeTab(button, id) {
 function autoHeight(textArea) {
     textArea.style.height = 'auto';
     textArea.style.height = textArea.scrollHeight + 'px';
-}
-
-function cardModeEdit() {
-    document.getElementById('card-tab').dataset.mode = 'edit';
-}
-
-function cardModeDelete() {
-    document.getElementById('card-tab').dataset.mode = 'delete';
 }
 
 function addCard() {
@@ -355,6 +335,7 @@ function addCard() {
     cardList.appendChild(newCard);
 
     // Increment the counter
+    // NOTE THIS WAS PROBLEM SOLVING AND JS KEEPS IT AS STRING AND ADDING WOULD JUST ADD A LEADING DIGIT
     document.getElementById('card-counter').value = Number(document.getElementById('card-counter').value) + 1;
 }
 
@@ -461,15 +442,13 @@ async function createDeck(createDeckForm) {
     // If request was successful 
     if (result.ok) {
         // Get the newly created deck_id
-        // let deck_id = await result.text();
+        let deck_id = await result.text();
 
         // Redirect to the newly created deck's page
-        // window.location.replace(`deck?deck_id=${deck_id}`)
-
-        console.log(await result.text())
+        window.location.replace(`deck?deck_id=${deck_id}`)
     } else {
-        // Send a major error to the user
-        alert("There was an error trying to submit this form please try again later")
+        // Send an error to the user
+        alert("Oh no! An error occurred, this shouldn't have happened, please try again later");
     }
 }
 
@@ -566,17 +545,17 @@ async function submitEditDeck(editDeckForm) {
         // Redirect to see the changes 
         window.location.replace(`deck?deck_id=${data.get("deck_id")}`);
     } else {
-        // Send a error to the user
-        alert("there was an error editing this deck please try again later");
+        // Send an error to the user
+        alert("Oh no! An error occurred, this shouldn't have happened, please try again later");
     }
 }
 
 async function deleteDeck() {
-     // Enstatite data structure to send data to server
-     let data = new URLSearchParams();
+    // Enstatite data structure to send data to server
+    let data = new URLSearchParams();
 
-     // Add the deck_id from the current page to send to the server
-     data.set("deck_id", (new URLSearchParams(window.location.search)).get("deck_id"));
+    // Add the deck_id from the current page to send to the server
+    data.set("deck_id", (new URLSearchParams(window.location.search)).get("deck_id"));
 
     // Send the data to the server
     let response = await fetch('/api/delete-deck', {
@@ -592,8 +571,8 @@ async function deleteDeck() {
         // Redirect to the account page
         window.location.replace(`account`)
     } else {
-         // Send a error to the user
-         alert("there was an error deleting this deck please try again later");
+        // Send an error to the user
+        alert("Oh no! An error occurred, this shouldn't have happened, please try again later");
     }
 }
 
@@ -603,8 +582,6 @@ async function deleteDeck() {
 function selectAnswer(button) {
     // Get the first play-question witch is a ancestor of the button
     let questionElement = button.closest('.play-question');
-
-    console.log("selected", questionElement)
 
     // If question has already been answered stop function early
     if (questionElement.dataset.result) {
@@ -663,47 +640,40 @@ function matchAnswer(button) {
  *  * @param {HTMLButtonElement} button - the edit deck form
  */
 function nextQuestion(button) {
-    // document.body.onbeforeunload = () => {
-    //     return 'Your changes may not be saved, are you sure you want to leave?'
-    // };
-
-
     // Get the first play-question witch is a ancestor of the button
     let questionElement = button.closest('.play-question');
 
-    // This means it is the rety poage so just return
-    if (questionElement === null) {
-        let retryPage = button.closest('.retry-page');
-        retryPage.dataset.complete = true;
-        return;
-    }
+    if (questionElement !== null) {
+        if (questionElement.dataset.result == 'correct') {
+            document.getElementById('play-progress').value += 1;
+        } else {
+            let duplicatedQuestion = questionElement.cloneNode(true);
 
-    questionElement.dataset.complete = true;
+            duplicatedQuestion.removeAttribute('data-result');
+            duplicatedQuestion.removeAttribute('data-original');
+            duplicatedQuestion.classList.remove('revealed');
 
-    // If last question
+            duplicatedQuestion.style.display = "none";
 
+            let questionList = questionElement.parentElement;
 
-    // If the retry page
+            questionList.appendChild(duplicatedQuestion);
+        }
 
-
-
-    if (questionElement.dataset.result == 'correct') {
-        document.getElementById('play-progress').value += 1;
     } else {
-        let duplicatedQuestion = questionElement.cloneNode(true);
-
-        duplicatedQuestion.removeAttribute('data-result');
-        duplicatedQuestion.removeAttribute('data-complete');
-        duplicatedQuestion.removeAttribute('data-original');
-        duplicatedQuestion.classList.remove('revealed');
-
-        let questionList = questionElement.parentElement;
-
-        questionList.appendChild(duplicatedQuestion);
+        // If null means it is retry page so put it as the question element
+        questionElement = button.closest('.retry-page')
     }
 
-    if (questionElement.nextElementSibling == null || document.getElementById('round').lastElementChild.classList.contains('retry-page') && questionElement.nextElementSibling.classList.contains('retry-page')) {
+    // Hide the current question
+    questionElement.style.display = 'none'
+
+
+    if (questionElement.nextElementSibling == null || (document.getElementById('round').lastElementChild.classList.contains('retry-page') && questionElement.nextElementSibling.classList.contains('retry-page'))) {
         results();
+    } else {
+        // Get the next question and show it
+        questionElement.nextElementSibling.style.display = 'grid'
     }
 }
 
@@ -727,38 +697,27 @@ function selfAnswer(button, result) {
     questionElement.dataset.result = result;
 }
 
-let addedUnLoadCheck = false;
-
 function results() {
-    // API STUFF
-
-
-    let questionList = document.getElementById('round')
+    let questionList = document.getElementById('round');
     questionList.style.display = 'none';
     document.getElementById('results').style.display = 'block';
 
     // Chart
-
     let questions = Array.from(questionList.children)
 
     let markable_questions = questions.filter((question) => question.dataset.original === "true");
-
-    questions.forEach((q) => {
-        console.log(q.dataset.original);
-    })
 
     let correct_number = markable_questions.filter((question) => question.dataset.result == 'correct').length;
     let wrong_number = markable_questions.filter((question) => question.dataset.result == 'wrong').length;
 
     saveResults(correct_number);
 
-    const ctx = document.getElementById('results-chart');
-
     document.getElementById('correct-number').innerText = correct_number
     document.getElementById('wrong-number').innerText = wrong_number
+    
+    const canvas = document.getElementById('results-chart');
 
-
-    new Chart(ctx, {
+    new Chart(canvas, {
         type: 'doughnut',
         data: {
             labels: [
@@ -768,12 +727,12 @@ function results() {
             datasets: [{
                 data: [correct_number, wrong_number],
                 backgroundColor: [
-                    getComputedStyle(document.body).getPropertyanswer('--accent'),
-                    getComputedStyle(document.body).getPropertyanswer('--secondary-background')
+                    getComputedStyle(document.body).getPropertyValue('--accent'),
+                    getComputedStyle(document.body).getPropertyValue('--secondary-background')
                 ],
                 hoverBackgroundColor: [
-                    getComputedStyle(document.body).getPropertyanswer('--accent-hover'),
-                    getComputedStyle(document.body).getPropertyanswer('--secondary-background-hover')
+                    getComputedStyle(document.body).getPropertyValue('--accent-hover'),
+                    getComputedStyle(document.body).getPropertyValue('--secondary-background-hover')
                 ],
                 hoverOffset: 4,
                 borderWidth: 0,
@@ -791,9 +750,7 @@ function results() {
         }
     });
 
-
     // Table
-
     let tableBody = document.getElementById('results-table-body');
 
     questions.forEach((question) => {
@@ -816,7 +773,6 @@ function results() {
             row.appendChild(questionElement);
             row.appendChild(resultElement);
 
-
             tableBody.appendChild(row);
         }
     })
@@ -824,13 +780,11 @@ function results() {
 
 /**
  *  * @param {integer} score - the edit deck form
- * 
  */
 async function saveResults(score) {
     let data = new URLSearchParams(window.location.search);
 
     data.set("score", score)
-
 
     let result = await fetch('/api/play', {
         method: 'POST',
@@ -841,10 +795,8 @@ async function saveResults(score) {
     });
 
     if (!result.ok) {
-        console.error(await result.text())
-    } else {
-        // REMOVE LATER
-        console.log('error')
+        // Send an error to the user
+        alert("Oh no! An error occurred, this shouldn't have happened, please try again later");
     }
 }
 
@@ -854,8 +806,10 @@ async function saveResults(score) {
 */
 window.addEventListener("load", () => {
     let shortcutItems = {}
-    // Iterates through all the elements on the page with the ks-bind attribute
+    // Iterates through all the elements on the page with the keyboard-short attribute
+    // This needs to be done as the library I am using only allows one shortcut for each key therefore they have to be grouped
     Array.from(document.querySelectorAll("[keyboard-shortcut]")).forEach((element) => {
+        element.setAttribute("title", element.getAttribute("keyboard-shortcut"))
         // Adds a key bind to the element with the name specified to do it's click action
         // e.g. a button will do it's onclick event a tag will redirect etc
         if (shortcutItems[element.getAttribute("keyboard-shortcut")]) {
@@ -863,8 +817,6 @@ window.addEventListener("load", () => {
         } else {
             shortcutItems[element.getAttribute("keyboard-shortcut")] = [element]
         }
-
-
     })
 
     Object.entries(shortcutItems).forEach(([key, elements]) => {
@@ -878,6 +830,22 @@ window.addEventListener("load", () => {
         });
     })
 
-    // Calls the on load function for all elements with the onload property set
-    Array.from(document.querySelectorAll("[onload]")).forEach((textarea) => textarea.onload())
+    // Calls the on load function for all elements with the onload property set this means textarea can auto change it's height etc
+    Array.from(document.querySelectorAll("[onload]")).forEach((element) => element.onload())
+
+
+
+    // This code will allow dialogs to be closed by clicking outside them this is used in many places across the web so is important to include
+    // Foreach dialog element
+    Array.from(document.getElementsByTagName('dialog')).forEach((dialog) => {
+        dialog.addEventListener('click', (click) => {
+            // Gets the actual size of the dialog
+            const size = click.target.getBoundingClientRect();
+
+            // If clicked outside the dialog close it and the dialog is open
+            if ((size.top > click.clientY || click.clientY > size.top + size.height || size.left > click.clientX || click.clientX > size.left + size.width) && click.target.open == true) {
+                click.target.close();
+            }
+        });
+    });
 })

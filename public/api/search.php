@@ -4,7 +4,7 @@ use database\DB;
 
 use function panels\deck_panel;
 use function panels\tag_panel;
-use function panels\user_panel;
+use function panels\account_panel;
 
 header("Content-Type: text/html");
 
@@ -48,21 +48,21 @@ if (!$tag_query->isOk()) :
 <?php endif; ?>
 
 <?php
-$user_query = $db->searchUsers(
+$account_query = $db->searchUsers(
 	$search_string,
 	$_SESSION["account_id"] ?? null
 );
-if (!$user_query->isOk()) :
+if (!$account_query->isOk()) :
 ?>
 	<p>An error occurred trying to find users please try again</p>
 <?php
-elseif (!$user_query->isEmpty()) : ?>
+elseif (!$account_query->isEmpty()) : ?>
 	<section>
-		<h2>Users</h2>
+		<h2>Accounts</h2>
 
 		<ul class="user-grid">
-			<?php foreach ($user_query->array() as $user) {
-				echo user_panel($user);
+			<?php foreach ($account_query->array() as $account) {
+				echo account_panel($account);
 			} ?>
 		</ul>
 	</section>

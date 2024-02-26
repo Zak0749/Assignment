@@ -74,7 +74,7 @@ $db = new DB();
             <h2 >Recent</h2>
 
             <?php
-            $recent = $db->getRecent($_SESSION["account_id"]);
+            $recent = $db->getRecentlyPlayed($_SESSION["account_id"]);
             if (!$recent->isOk()) :
             ?>
                 <p >An error occurred, please try again</p>

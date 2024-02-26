@@ -16,7 +16,7 @@ if (!isset($_SESSION["account_id"])) {
 // Establish Db connection
 $db = new DB();
 
-$user_query = $db->getUser($_SESSION["account_id"], $_SESSION["account_id"]);
+$user_query = $db->getAccount($_SESSION["account_id"], $_SESSION["account_id"]);
 
 // If error occurred while finding the user send user to error page
 if (!$user_query->isOk()) {
@@ -41,6 +41,9 @@ $user = $user_query->single();
 
 <head>
 	<?php require "components/head.php" ?>
+
+	<!-- Styles for form elements -->
+    <link href="styles/forms.css" rel="stylesheet">
 </head>
 
 <body>
@@ -54,7 +57,7 @@ $user = $user_query->single();
 			</h1>
 
 			<div class="icon-bar">
-				<button class="header-icon" type="button" onclick="open_dialog('delete-dialog')" keyboard-shortcut="d">
+				<button class="header-icon" type="button" onclick="document.getElementById('delete-dialog').showModal()" keyboard-shortcut="d">
 					<span class="material-symbols-outlined">
 						delete
 					</span>
@@ -93,8 +96,8 @@ $user = $user_query->single();
 				</div>
 
 				<div class="form-field hide-large">
-					<label>Likes</label>
-					<button class="secondary-button button" type="button" onclick="open_dialog('tag-select-dialog')" keyboard-shortcut="l">
+					<label>Follows</label>
+					<button class="secondary-button button" type="button" onclick="document.getElementById('tag-select-dialog').showModal()" keyboard-shortcut="l">
 						Show
 					</button>
 				</div>
@@ -111,11 +114,11 @@ $user = $user_query->single();
 				<dialog class="cover-dialog small-only-dialog" id="tag-select-dialog">
 					<div class="spaced-apart">
 						<label>
-							<h2>Likes</h2>
+							<h2>Follows</h2>
 						</label>
 
 						<div class="icon-bar hide-large">
-							<button class="header-icon" type="button" onclick="close_dialog('tag-select-dialog')" keyboard-shortcut="e">
+							<button class="header-icon" type="button" onclick="document.getElementById('tag-select-dialog').close()" keyboard-shortcut="e">
 								<span class="material-symbols-outlined">
 									close
 								</span>
@@ -133,7 +136,7 @@ $user = $user_query->single();
 							<ul class="tag-select-list">
 								<?php foreach ($tags->array() as $tag) : ?>
 									<label class="tag-select">
-										<input type="checkbox" name="likes" value="<?= htmlspecialchars($tag["tag_id"]) ?>" <?= $tag["is_followed"] ? "checked" : "" ?>>
+										<input type="checkbox" name="follows" value="<?= htmlspecialchars($tag["tag_id"]) ?>" <?= $tag["is_followed"] ? "checked" : "" ?>>
 										<span class="tag-pill-label"><?= htmlspecialchars($tag["title"]) ?></span>
 									</label>
 								<?php endforeach ?>
@@ -148,9 +151,9 @@ $user = $user_query->single();
 			<h2>Delete Account</h2>
 			<p>We are sorry to see you go, hope you come back soon!</p>
 			<div class="beside">
-				<button class="light-danger-button button" onclick="close_dialog('delete-dialog')" keyboard-shortcut="e">Cancel</button>
+				<button class="light-danger-button button" onclick="document.getElementById('delete-dialog').close()" keyboard-shortcut="e">Cancel</button>
 				<!-- No questionboard shortcut as want users to be sure -->
-				<button class="danger-button button" onclick="delete_account()">Delete</button>
+				<button class="danger-button button" onclick="deleteAccount()">Delete</button>
 			</div>
 		</dialog>
 	</main>

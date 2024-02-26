@@ -59,8 +59,6 @@ $body = filter_input_array(INPUT_POST, [
     ]
 ]);
 
-var_dump($body);
-
 // If not null or valid
 if ($body["new_cards"]) {
     $body["new_cards"] = array_map(function ($card) {
@@ -136,21 +134,21 @@ if (
 
 $db = new Db();
 
-$deck = $db->getDeck($body["deck_id"], $_SESSION["account_id"]);
+$deck_query = $db->getDeck($body["deck_id"], $_SESSION["account_id"]);
 
 // If getting deck had an error give error code then stop request
-if (!$deck->isOk()) {
+if (!$deck_query->isOk()) {
     http_response_code(500);
     return;
 }
 
 //If deck doesn't exist give error code and stop request
-if ($deck->isEmpty()) {
+if ($deck_query->isEmpty()) {
     http_response_code(404);
     return;
 }
 
-$d = $deck->single();
+$d = $deck_query->single();
 
 // If not owner in give error code and stop request
 if (!$d["is_owned"]) {

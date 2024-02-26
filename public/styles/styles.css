@@ -11,6 +11,70 @@ body {
     padding: 0;
 }
 
+/* Css variables */
+:root {
+    /* Padding style to reduce having a media query for each element */
+    --page-horizontal-spacing: 10px;
+
+    /* Light mode styles */
+    --primary-text: #2f3639ff;
+    --secondary-text: #454f54ff;
+
+    --accent: #70a7c2;
+    --accent-hover: #4d91b3;
+
+    --light-text: #e6e6e6;
+    --light-text-hover: #cccccc;
+
+    --primary-background: #ecf4f9;
+    --secondary-background: #d5e0ec;
+    --secondary-background-hover: #b2c6dc;
+
+    --danger: #c27e70;
+    --danger-hover: #b35e4d;
+    --danger-background: #d19e94;
+
+    --success: #70c270;
+    --success-hover: #4db34d;
+    --success-background: #94d194;
+}
+
+/* Large Screens */
+@media only screen and (min-width: 600px) {
+
+    /* Increase padding as navbar is beside screen */
+    :root {
+        --page-horizontal-spacing: 20px;
+    }
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --primary-text: #ecf4f9;
+        --secondary-text: #d5e0ec;
+
+        --accent: #3d748f;
+        --accent-hover: #4d91b3;
+
+        --light-text: #cccccc;
+        --light-text-hover: #e6e6e6;
+
+
+        --primary-background: #2f3639;
+        --secondary-background: #454f54;
+        --secondary-background-hover: #5c6970;
+
+        --danger: #8f4b3d;
+        --danger-hover: #b35e4d;
+        --danger-background: #c27e70;
+
+        --success: #3d8f3d;
+        --success-hover: #4db34d;
+        --success-background: #70c270;
+    }
+}
+
 body {
     /* Remove browser defaults */
     margin: 0;
@@ -122,7 +186,8 @@ h3 {
     margin: 0 var(--page-horizontal-spacing);
 }
 
-.center-main p {
+/* Centers all the paragraphs in a centred main */
+.center-main p, .center-main h2 {
     text-align: center;
 }
 
@@ -141,7 +206,7 @@ a:hover {
 
 .primary-button:hover {
     background-color: var(--accent-hover);
-    color: var(--light-text-hover);
+    color: var(--light-text-hover)
 }
 
 .secondary-button {
@@ -195,7 +260,7 @@ a:hover {
 
     text-decoration: none;
     height: 60px;
-    
+
     font-size: 16px;
     font-weight: 500;
 
@@ -416,9 +481,276 @@ section {
 
 .tab-bar .selected-tab-button:hover {
     background-color: var(--accent-hover);
-    color: var(--light-text-hover);
 }
 
 header {
     margin-bottom: 5px;
+}
+
+.deck-grid {
+    /* A two row horizontally scrolling list */
+    display: grid;
+    grid-auto-flow: column;
+    gap: 10px;
+    overflow-x: scroll;
+    grid-template-rows: auto auto;
+    justify-content: start;
+
+    /* Remove ul default styles */
+    margin: 5px 0;
+    list-style-type: none;
+
+    /* Add page spacing */
+    padding-left: var(--page-horizontal-spacing);
+
+    grid-column: 1 / -1;
+}
+
+.deck-panel {
+    /* General size and colours */
+    width: 150px;
+    height: 150px;
+    border-radius: 10px;
+    background-color: var(--secondary-background);
+    padding: 5px;
+}
+
+/* Highlight when hover */
+.deck-panel:hover {
+    background-color: var(--secondary-background-hover);
+}
+
+.deck-panel a {
+    /* Remove default styles */
+    text-decoration: none;
+    color: var(--primary-text);
+
+    /* Push top of panel and bottom of panel apart */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    /* Don't hit the edges of the element */
+    padding: 5px;
+    box-sizing: border-box;
+
+    /* Fill up the whole panel */
+    height: 100%;
+}
+
+/* Push the titles and the save icons apart */
+.deck-panel header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+/* Normal text color */
+.deck-panel h3 {
+    color: var(--primary-text);
+}
+
+.deck-panel a,
+.deck-panel p,
+.deck-panel h3 {
+    margin: 0;
+    padding: 0;
+}
+
+/* Give it less emphasis than the title */
+.deck-panel .plays {
+    color: var(--secondary-text);
+}
+
+/* Give emphasis to username and indicate it will become a link */
+.deck-panel header p {
+    color: var(--accent);
+}
+
+.deck-panel ul {
+    /* Make sure text doesn't grow past the panel */
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+
+    /* Remove default styles */
+    padding: 0;
+    text-decoration: none;
+    color: var(--secondary-text);
+}
+
+/* Styles for larger devices */
+@media only screen and (min-width: 600px) {
+
+    /* Make larger for bigger screens */
+    .deck-panel {
+        width: 300px;
+        height: 120px;
+    }
+}
+
+.tag-list {
+    /* 1 row horizontally scrolling list */
+    gap: 10px;
+    display: grid;
+    grid-auto-flow: column;
+    justify-content: start;
+    overflow-x: scroll;
+
+    /* Remove default styles */
+    margin: 5px 0;
+    padding-left: var(--page-horizontal-spacing);
+    list-style-type: none;
+
+    grid-column: 1 / -1;
+}
+
+
+.tag-panel {
+    /* Sizing and colours */
+    background-color: var(--accent);
+    border-radius: 25px;
+    height: 40px;
+
+    /* Reset default styles */
+    list-style-type: none;
+}
+
+/* Highlight when hovered */
+.tag-panel:hover {
+    background-color: var(--accent-hover);
+}
+
+.tag-panel a {
+    /* Sizing */
+    padding: 5px 10px;
+    height: 100%;
+
+    /* Remove anchor default styles */
+    text-decoration: none;
+    color: var(--light-text);
+    white-space: nowrap;
+
+    /* Vertically centre text */
+    display: flex;
+    align-items: center;
+}
+
+.tag-panel p {
+    vertical-align: middle;
+}
+
+.user-grid {
+    /* A one row horizontally scrolling grid */
+    display: grid;
+    gap: 10px;
+    grid-auto-flow: column;
+    grid-template-rows: auto;
+    justify-content: start;
+    overflow-x: scroll;
+
+    /* Add page spacing */
+    padding-left: var(--page-horizontal-spacing);
+
+    /* Remove default ul styles */
+    margin: 5px 0;
+    list-style-type: none;
+
+    grid-column: 1 / -1;
+}
+
+/* Sizes and colours */
+.user-panel {
+    width: 150px;
+    background-color: var(--secondary-background);
+    border-radius: 10px;
+    padding: 5px;
+}
+
+/* Avatar sizes */
+.user-panel img {
+    height: 140px;
+    width: 140px;
+    border-radius: 5px;
+}
+
+/* Highlights when hovered */
+.user-panel:hover {
+    background-color: var(--secondary-background-hover);
+}
+
+
+.user-panel a {
+    /* Horizontally split panel */
+    flex-direction: column;
+    gap: 5px;
+    display: flex;
+
+    /* Removes link default styles */
+    text-decoration: none;
+    color: var(--primary-text);
+}
+
+/* Vertical list */
+.user-panel div {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Override link color */
+.user-panel h3 {
+    color: var(--primary-text);
+}
+
+.user-panel p {
+    /* Emphasises the element with the accent color */
+    color: var(--accent);
+}
+
+
+/* Larger Screens */
+@media only screen and (min-width: 600px) {
+
+    /* Makes the user panel bigged */
+    .user-panel {
+        width: 300px;
+    }
+
+    /* Sizes the avatar to the large panel */
+    .user-panel img {
+        height: 100px;
+        width: 100px;
+        border-radius: 5px;
+    }
+
+    /* Flips the panel to horizontal */
+    .user-panel a {
+        flex-direction: row;
+        gap: 10px;
+    }
+
+    /* Adds another row for a larger screen */
+    .user-grid {
+        grid-template-rows: auto auto;
+    }
+}
+
+.card-list {
+    padding: 0;
+    margin: 0;
+    display: grid;
+
+    list-style-type: none;
+    gap: 10px;
+}
+
+.card-panel {
+    background-color: var(--secondary-background);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.card-panel h3,
+.card-panel p {
+    margin: 0;
 }

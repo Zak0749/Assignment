@@ -69,7 +69,9 @@ $all_questions = $question_query->array();
 <html lang="en">
 
 <head>
+    <!-- Dependences only used on this page -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link href="styles/play.css" rel="stylesheet">
     <?php require "components/head.php" ?>
 </head>
 
@@ -87,7 +89,7 @@ $all_questions = $question_query->array();
             </div>
         </header>
         <ul id="round" data-deck-id="<?= htmlspecialchars($deck_id) ?>">
-            <?php foreach (range(0, 11) as $i) :
+            <?php foreach (range(0,  11) as $i) : // was 11
                 // Chooses a random question type out of the array
                 $type = random_from_array(["select", "match", "self"]);
 
@@ -101,10 +103,9 @@ $all_questions = $question_query->array();
 
             <section class="retry-page">
                 <header>
-                    <h2>Retry</h2>
+                    <h1>Retry</h1>
                     <p>Now it's time to retry all the questions you got wrong and fix your mistakes</p>
                 </header>
-
 
                 <button onclick="nextQuestion(this)" class="secondary-button button" keyboard-shortcut="n">
                     Next

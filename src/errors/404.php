@@ -16,7 +16,7 @@
         <main class="center-main">
             <section>
                 <h2>404</h2>
-                <p>The page could be found, but the item requested doesn't exist</p>
+                <p>The item request doesn't exist check the URL and try again later</p>
             </section>
         </main>
 </body>

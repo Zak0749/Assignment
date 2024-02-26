@@ -8,7 +8,7 @@ $question_part = random_from_array(["question", "answer"]);
 $answer_part = $question_part == "question" ? "answer" : "question";
 ?>
 
-<section class="self-question play-question" data-question-text="<?= htmlspecialchars($question["question"]) ?>" data-index="<?= $i + 1 ?>" data-original="true">
+<section class="self-question play-question" data-question-text="<?= htmlspecialchars($question["question"]) ?>" data-index="<?= $i + 1 ?>" data-original="true" style="display:<?= $i == 0 ? "grid" : "none" ?>">
     <header class="question-display">
         <p class="<?= $question_part ?>-card">
             <?= htmlspecialchars($question[$question_part]) ?>

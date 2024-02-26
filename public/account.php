@@ -33,7 +33,7 @@ if ($account_id === null || $account_id === false) {
 // Establish Db connection
 $db = new DB();
 
-$user_query = $db->getUser($account_id, $_SESSION["account_id"] ?? null);
+$user_query = $db->getAccount($account_id, $_SESSION["account_id"] ?? null);
 
 // If error occurred while getting the user send the user to an error page
 if (!$user_query->isOk()) {
@@ -138,14 +138,14 @@ $user = $user_query->single();
         <section>
             <h2>Following</h2>
             <?php
-            $likes = $db->getFollows($account_id, $_SESSION["account_id"] ?? null);
-            if (!$likes->isOk()) : ?>
+            $follows = $db->getFollows($account_id, $_SESSION["account_id"] ?? null);
+            if (!$follows->isOk()) : ?>
                 <p>There was an error loading the users follows please try again</p>
-            <?php elseif ($likes->isEmpty()) : ?>
+            <?php elseif ($follows->isEmpty()) : ?>
                 <p>This user currently has no follows</p>
             <?php else : ?>
                 <ul class="tag-list">
-                    <?php foreach ($likes->array() as $tag) {
+                    <?php foreach ($follows->array() as $tag) {
                         echo tag_panel($tag);
                     } ?>
                 </ul>

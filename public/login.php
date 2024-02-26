@@ -15,6 +15,9 @@ if (isset($_SESSION["account_id"])) {
 
 <head>
     <?php require "components/head.php" ?>
+
+    <!-- Styles for form elements -->
+    <link href="styles/forms.css" rel="stylesheet">
 </head>
 
 <body>
@@ -27,7 +30,7 @@ if (isset($_SESSION["account_id"])) {
         <form class="form" onsubmit="loginUser(this); return false;">
             <div class="form-field" id="username">
                 <label for="username">Username</label>
-                <input name="username" type="username" required minlength="3" maxlength="16" pattern="[\w]+" oninput="this.setCustomValidity('')" />
+                <input name="username" type="text" required minlength="3" maxlength="16" pattern="[\w]+" oninput="this.setCustomValidity('')" />
             </div>
 
             <div class="form-field" id="password">

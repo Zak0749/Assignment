@@ -35,7 +35,7 @@ $db = new DB();
                             </span>
 
                             <h1>
-                                <?= htmlspecialchars($streak->value) ?>
+                                <?= htmlspecialchars($streak->getValue()) ?>
                             </h1>
                         </span>
                 <?php

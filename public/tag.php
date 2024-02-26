@@ -73,7 +73,7 @@ $tag = $tag_query->single()
 				<h2 >Popular</h2>
 
 				<?php
-				$popular = $db->popularByTag($tag_id, $_SESSION["account_id"] ?? null);
+				$popular = $db->getPopularByTag($tag_id, $_SESSION["account_id"] ?? null);
 
 				if (!$popular->isOk()) : ?>
 					<p >
@@ -97,7 +97,7 @@ $tag = $tag_query->single()
 				<h2 >New</h2>
 
 				<?php
-				$new = $db->newByTag($tag_id, $_SESSION["account_id"] ?? null);
+				$new = $db->getNewByTag($tag_id, $_SESSION["account_id"] ?? null);
 
 				if (!$new->isOk()) : ?>
 					<p >

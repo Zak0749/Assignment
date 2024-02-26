@@ -27,21 +27,28 @@ $body = filter_input_array(INPUT_POST, [
 			'regexp' => "/^[0-9, a-f]{8}$/"
 		],
 	],
-	"added_likes" => [
-		"filter" => FILTER_VALIDATE_INT,
-		'flags' => FILTER_FORCE_ARRAY
+	"added_follows" => [
+		"filter" => FILTER_VALIDATE_REGEXP,
+        'flags' => FILTER_FORCE_ARRAY,
+        "options" => [
+            'regexp' =>  '/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i'
+        ]
 	],
-	"removed_likes" => [
-		"filter" => FILTER_VALIDATE_INT,
-		'flags' => FILTER_FORCE_ARRAY
+	"removed_follows" => [
+		"filter" => FILTER_VALIDATE_REGEXP,
+        'flags' => FILTER_FORCE_ARRAY,
+        "options" => [
+            'regexp' =>  '/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i'
+        ]
 	]
 ]);
 
 // if any invalid
 if (
+	$body == null ||
 	in_array(false, $body, true) ||
-	($body["added_likes"] !== null && in_array(false, $body["added_likes"], true)) ||
-	($body["added_likes"] !== null && in_array(false, $body["added_likes"], true))
+	($body["added_follows"] !== null && in_array(false, $body["added_follows"], true)) ||
+	($body["added_follows"] !== null && in_array(false, $body["added_follows"], true))
 ) {
 	http_response_code(400);
 	return;
@@ -59,15 +66,15 @@ $result = $db->updateAccount(
 	$body["username"],
 	$body["password"],
 	$body["avatar"],
-	$body["added_likes"],
-	$body["removed_likes"]
+	$body["added_follows"],
+	$body["removed_follows"]
 );
 
 // If the edit was successful
 if ($result->isOk()) {
 	// Response of `No Content`
 	http_response_code(204);
-} else if ($result->error == 23505) {
+} else if ($result->errorCode() == 23505) {
 	// Response of `Bad Request`
 	http_response_code(400);
 

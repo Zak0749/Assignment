@@ -26,7 +26,7 @@ class Db
         $password = getenv('DB_PASS');
         $dbName = getenv('DB_NAME');
         $instanceHost = getenv('INSTANCE_HOST');
-
+        
         // Generates a data source name for the database
         $dsn = "pgsql:" . "host=" . $instanceHost . ";dbname=" . $dbName;
 
@@ -34,361 +34,11 @@ class Db
         $this->db = new PDO($dsn, $username, $password);
     }
 
-    public function getAllTags(
-        string | null $user_account_id
-    ): DbResult {
-        // Tries to execute the operation but if any query fails go to the catch block
-        try {
-            // Sets up the query
-            $query = $this->db->prepare(
-                <<<SQL
-                    SELECT 
-                        tag.tag_id,
-                        tag.title,
-                        is_followed(tag.tag_id, :user_account_id) as is_followed
-                    FROM tag
-                SQL
-            );
-
-            // Binds the current users account_id to the placeholder :user_account_id
-            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
-
-            // Executes the query
-            $query->execute();
-
-            // Query has been a success return the rows
-            return DbResult::query($query);
-        } catch (PDOException $error) {
-            http_response_code(500);
-            var_dump($error);
-            // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
-        }
-    }
-
-    function getPopular(
-        string | null $user_account_id
-    ): DbResult {
-        // Tries to execute the operation but if any query fails go to the catch block
-        try {
-            // Sets up the query
-            $query = $this->db->prepare(
-                <<<SQL
-                    SELECT 
-                        deck.deck_id,
-                        deck.title,
-                        account.username,
-                        deck.account_id = :user_account_id as is_owned,
-                        COUNT (*) as deck_play_no,
-                        is_saved(deck.deck_id, :user_account_id) as is_saved
-                    FROM deck
-                        LEFT JOIN account ON deck.account_id = account.account_id
-                        LEFT JOIN play ON play.deck_id = deck.deck_id
-                    GROUP BY  deck.deck_id, account.account_id
-                    ORDER BY deck_play_no DESC
-                    LIMIT 16
-                SQL
-            );
-
-            // Binds the current users account_id to the placeholder :user_account_id
-            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
-
-            // Executes the query
-            $query->execute();
-
-            // Query has been a success returns the found rows
-            return DbResult::query($query);
-        } catch (PDOException $error) {
-            http_response_code(500);
-            var_dump($error);
-            // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
-        }
-    }
-
-    function getForYou(
-        string $user_account_id
-    ): DbResult {
-        // Tries to execute the operation but if any query fails go to the catch block
-        try {
-            // Sets up the query
-            $query = $this->db->prepare(
-                <<<SQL
-                    SELECT 
-                        deck.deck_id, 
-                        deck.title, 
-                        account.username, 
-                        deck.account_id = :user_account_id as is_owned,
-                        COUNT (*) as deck_play_no,
-                        is_saved(deck.deck_id, :user_account_id) as is_saved
-                    FROM follow 
-                        LEFT JOIN topic ON follow.tag_id = topic.tag_id
-                        LEFT JOIN deck ON topic.deck_id = deck.deck_id
-                        LEFT JOIN account ON deck.account_id = account.account_id
-                        LEFT JOIN play ON play.deck_id = deck.deck_id
-                    WHERE follow.account_id=:user_account_id
-                    GROUP BY  deck.deck_id, account.account_id
-                    ORDER BY deck_play_no DESC 
-                    LIMIT 16 
-                SQL
-            );
-
-            // Binds the current users account_id to the placeholder :user_account_id
-            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
-
-            // Executes the query
-            $query->execute();
-
-            // Query has been a success returns the found rows
-            return DbResult::query($query);
-        } catch (PDOException $error) {
-            http_response_code(500);
-            var_dump($error);
-            // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
-        }
-    }
-
-    function getNew(
-        string | null $user_account_id
-    ): DbResult {
-        // Tries to execute the operation but if any query fails go to the catch block
-        try {
-            // Sets up the query
-            $query = $this->db->prepare(
-                <<<SQL
-                    SELECT
-                        deck.deck_id,
-                        deck.title,
-                        account.username,
-                        deck.account_id = :user_account_id as is_owned,
-                        COUNT (*) as deck_play_no,
-                        is_saved(deck.deck_id, :user_account_id) as is_saved
-                    FROM deck
-                        LEFT JOIN account ON deck.account_id = account.account_id
-                        LEFT JOIN play ON play.deck_id = deck.deck_id
-                    GROUP BY  deck.deck_id, account.account_id
-                    ORDER BY deck.timestamp DESC
-                    LIMIT 16
-                SQL
-            );
-
-            // Binds the current users account_id to the placeholder :user_account_id
-            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
-
-            // Executes the query
-            $query->execute();
-
-            // Query has been a success returns the found rows
-            return DbResult::query($query);
-        } catch (PDOException $error) {
-            http_response_code(500);
-            var_dump($error);
-            // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
-        }
-    }
-
-    function getDeckTopics(
-        string $deck_id,
-        string | null $user_account_id
-    ): DbResult {
-        // Tries to execute the operation but if any query fails go to the catch block
-        try {
-            // Sets up the query
-            $query = $this->db->prepare(
-                <<<SQL
-                    SELECT 
-                        tag.title, 
-                        tag.tag_id, 
-                        is_followed(tag.tag_id, :user_account_id) as is_followed
-                    FROM topic 
-                        LEFT JOIN tag ON topic.tag_id = tag.tag_id
-                    WHERE deck_id=:deck_id
-                SQL
-            );
-
-            // Binds the deck_id to the placeholder :deck_id
-            $query->bindValue(":deck_id", $deck_id, PDO::PARAM_STR);
-            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
-
-
-            // Executes the query
-            $query->execute();
-
-            // Query has been a success returns the found rows
-            return DbResult::query($query);
-        } catch (PDOException $error) {
-            http_response_code(500);
-            var_dump($error);
-            // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
-        }
-    }
-
-    function getLogin(
-        string $username
-    ): DbResult {
-        // Tries to execute the operation but if any query fails go to the catch block
-        try {
-            // Sets up the query
-            $query = $this->db->prepare(
-                <<<SQL
-                    SELECT 
-                        account.account_id,
-                        account.password
-                    FROM account
-                    WHERE username = :username
-                SQL
-            );
-
-            // Binds the username to the placeholder :username
-            $query->bindValue(":username", $username, PDO::PARAM_STR);
-
-            // Executes the query
-            $query->execute();
-
-            // Query has been a success returns the found rows
-            return DbResult::query($query);
-        } catch (PDOException $error) {
-            http_response_code(500);
-            var_dump($error);
-            // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
-        }
-    }
-
-    function searchUsers(
-        string $search_string,
-        string | null $user_account_id
-    ): DbResult {
-        // Tries to execute the operation but if any query fails go to the catch block
-        try {
-            // Sets up the query
-            $query = $this->db->prepare(
-                <<<SQL
-                    SELECT 
-                        account.account_id,
-                        account.username,
-                        account.avatar,
-                        account.account_id = :user_account_id as is_current_user,
-                        COUNT (*) as deck_no 
-                    FROM account
-                        LEFT JOIN deck ON account.account_id = deck.account_id
-                    WHERE account.username ILIKE :search_string
-                    GROUP BY account.account_id
-                    LIMIT 16;
-                SQL
-            );
-
-            // Binds the search_sting to the placeholder :search_string
-            $query->bindValue(":search_string", '%' . $search_string . '%', PDO::PARAM_STR);
-
-            // Binds the current users account_id to the placeholder :user_account_id
-            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
-
-
-
-            // Executes the query
-            $query->execute();
-
-            // Query has been a success returns the found rows
-            return DbResult::query($query);
-        } catch (PDOException $error) {
-            http_response_code(500);
-            var_dump($error);
-            // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
-        }
-    }
-
-    function searchDecks(
-        string $search_string,
-        string | null $user_account_id
-    ): DbResult {
-        // Tries to execute the operation but if any query fails go to the catch block
-        try {
-            // Sets up the query
-            $query = $this->db->prepare(
-                <<<SQL
-                    SELECT 
-                        deck.deck_id,
-                        deck.title,
-                        account.username,
-                        deck.account_id = :user_account_id as is_owned,
-                        is_saved(deck.deck_id, :user_account_id) as is_saved,
-                        COUNT (*) as deck_play_no
-                    FROM deck
-                        LEFT JOIN account ON deck.account_id = account.account_id
-                        LEFT JOIN play ON play.deck_id = deck.deck_id
-                    WHERE deck.title ILIKE :search_string
-                    GROUP BY  deck.deck_id, account.account_id
-                    LIMIT 16
-                SQL
-            );
-
-            // Binds the search_sting to the placeholder :search_string
-            $query->bindValue(":search_string", '%' . $search_string . '%', PDO::PARAM_STR);
-
-            // Binds the current users account_id to the placeholder :user_account_id
-            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
-
-            // Executes the query
-            $query->execute();
-
-            // Query has been a success returns the found rows
-            return DbResult::query($query);
-        } catch (PDOException $error) {
-            http_response_code(500);
-            var_dump($error);
-            // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
-        }
-    }
-
-    function searchTags(
-        string $search_string,
-        string | null $user_account_id
-    ): DbResult {
-        // Tries to execute the operation but if any query fails go to the catch block
-        try {
-            // Sets up the query
-            $query = $this->db->prepare(
-                <<<SQL
-                    SELECT 
-                        tag.tag_id,
-                        tag.title,
-                        is_followed(tag.tag_id, :user_account_id) as is_followed
-                    FROM tag
-                    WHERE tag.title ILIKE :search_string
-                    LIMIT 16
-                SQL
-            );
-
-            // Adds the search string to the query
-            $query->bindValue(":search_string", '%' . $search_string . '%', PDO::PARAM_STR);
-
-            // Binds the current users account_id to the placeholder :user_account_id
-            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
-
-            // Executes the query
-            $query->execute();
-
-            // Query has been a success returns the found rows
-            return DbResult::query($query);
-        } catch (PDOException $error) {
-            http_response_code(500);
-            var_dump($error);
-            // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
-        }
-    }
-
     function createAccount(
         string $username,
         string $password,
         string $avatar,
-        array | null $likes
+        array | null $follows
     ): DbResult {
         // Tries to execute the operation but if any query fails go to the catch block
         try {
@@ -418,8 +68,8 @@ class Db
             // Gets the id of the user that was just created
             $account_id = $query->fetch()["account_id"];
 
-            // If there are any likes
-            if ($likes !== null) {
+            // If there are any follows
+            if ($follows !== null) {
                 // Sets up the insert 
                 $query = $this->db->prepare(
                     <<<SQL
@@ -443,55 +93,55 @@ class Db
                 $query->bindParam("tag_id", $tag, PDO::PARAM_STR);
 
                 // for every tag 
-                foreach ($likes as $tag) {
+                foreach ($follows as $tag) {
                     // Executes the query with the current tag id
                     $query->execute();
                 }
             }
 
             // Insert has been a success returns the new user_id
-            return DbResult::value($account_id);
+            return new DbResult(ResultState::VALUE, value: $account_id);
         } catch (PDOException $error) {
             http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
         }
     }
 
-    function getStreak(
-        string $user_account_id
+    function getLogin(
+        string $username
     ): DbResult {
         // Tries to execute the operation but if any query fails go to the catch block
         try {
-            // Sets up the query 
+            // Sets up the query
             $query = $this->db->prepare(
                 <<<SQL
-                    SELECT user_streak(account.account_id)  as streak
-                    FROM account 
-                    WHERE account.account_id=:user_account_id
+                    SELECT 
+                        account.account_id,
+                        account.password
+                    FROM account
+                    WHERE username = :username
                 SQL
             );
 
-            $query->bindValue(":user_account_id", $user_account_id);
-
+            // Binds the username to the placeholder :username
+            $query->bindValue(":username", $username, PDO::PARAM_STR);
 
             // Executes the query
             $query->execute();
 
-            $streak = $query->fetch()["streak"];
-
             // Query has been a success returns the found rows
-            return DbResult::value($streak);
+            return new DbResult(ResultState::QUERY, query: $query);
         } catch (PDOException $error) {
             http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
         }
     }
 
-    function getUser(
+    function getAccount(
         string $account_id,
         ?string $user_account_id
     ): DbResult {
@@ -535,504 +185,44 @@ class Db
             $query->execute();
 
             // Query has been a success returns the found rows
-            return DbResult::query($query);
+            return new DbResult(ResultState::QUERY, query: $query);
         } catch (PDOException $error) {
             http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
         }
     }
 
-    function getFollows(
-        string $account_id,
-        string | null $user_account_id
-    ): DbResult {
-        // Tries to execute the operation but if any query fails go to the catch block
-        try {
-            // Sets up the query
-            $query = $this->db->prepare(
-                <<<SQL
-                    SELECT 
-                        tag.title, 
-                        follow.tag_id ,
-                        is_followed(tag.tag_id, :user_account_id) as is_followed
-                    FROM follow
-                        LEFT JOIN tag USING(tag_id)
-                    WHERE account_id=:account_id
-                SQL
-            );
-
-            // Binds the given user_id to the placeholder 
-            $query->bindValue(":account_id", $account_id, PDO::PARAM_STR);
-            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
-
-            // Executes the query
-            $query->execute();
-
-            // Query has been a success returns the found rows
-            return DbResult::query($query);
-        } catch (PDOException $error) {
-            http_response_code(500);
-            var_dump($error);
-            // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
-        }
-    }
-
-    function getCreations(
-        string $account_id,
-        string | null $user_account_id
-    ): DbResult {
-        // Tries to execute the operation but if any query fails go to the catch block
-        try {
-            // Sets up the query
-            $query = $this->db->prepare(
-                <<<SQL
-                    SELECT 
-                        deck.deck_id, 
-                        deck.title, 
-                        account.username,
-                        deck.account_id = :user_account_id as is_owned,
-                        is_saved(deck.deck_id, :user_account_id),
-                       COUNT (*) as deck_play_no
-                    FROM deck
-                        LEFT JOIN account ON deck.account_id = account.account_id
-                        LEFT JOIN play ON play.deck_id = deck.deck_id
-                    WHERE deck.account_id = :account_id
-                    GROUP BY  deck.deck_id, account.account_id
-                    LIMIT 16
-                SQL
-            );
-
-            // Binds the account_id given to the placeholder :account_id
-            $query->bindValue(":account_id", $account_id, PDO::PARAM_STR);
-
-            // Binds the current users account_id to the placeholder :user_account_id
-            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
-
-            // Executes the query
-            $query->execute();
-
-            // Query has been a success returns the found rows
-            return DbResult::query($query);
-        } catch (PDOException $error) {
-            http_response_code(500);
-            var_dump($error);
-            // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
-        }
-    }
-
-    function getDeck(
-        string $deck_id,
-        string | null $user_account_id
-    ): DbResult {
-        // Tries to execute the operation but if any query fails go to the catch block
-        try {
-            // Sets up the query
-            $query = $this->db->prepare(
-                <<<SQL
-                     SELECT 
-                        deck.title, 
-                        deck.timestamp, 
-                        deck.description, 
-                        account.account_id,
-                        account.username, 
-                        deck.account_id = :user_account_id AS is_owned,
-                        is_saved(deck.deck_id, :user_account_id) AS is_saved,
-                        COALESCE(play_stats.deck_play_no, 0) as deck_play_no,
-                        COALESCE(play_stats.user_play_no, 0) as user_play_no,
-                        COALESCE(play_stats.average_score, 0) as average_score,
-                        COALESCE(deck_save.save_no, 0) as save_no
-                    FROM deck 
-                        LEFT JOIN account ON deck.account_id = account.account_id
-                        LEFT JOIN (
-                            SELECT 
-                                deck_id,
-                                COUNT (*) AS deck_play_no,
-                                COUNT(*) FILTER (WHERE account_id = :user_account_id) AS user_play_no,
-                                AVG(play.score) FILTER (WHERE account_id = :user_account_id) AS average_score 
-                            FROM play 
-                            GROUP BY play.deck_id
-                        ) AS play_stats ON play_stats.deck_id = deck.deck_id
-                        LEFT JOIN (
-                            SELECT 
-                                deck_id, 
-                                COUNT(*) as save_no
-                            FROM save
-                            GROUP BY deck_id
-                        ) AS deck_save ON deck_save.deck_id = deck.deck_id
-                    WHERE deck.deck_id = :deck_id
-                SQL
-            );
-
-
-            // Binds the deck_id given to the placeholder :deck_id
-            $query->bindValue(":deck_id", $deck_id, PDO::PARAM_STR);
-
-            // Binds the current users account_id to the placeholder :user_account_id
-            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
-
-            // Executes the query
-            $query->execute();
-
-            // Query has been a success returns the found rows
-            return DbResult::query($query);
-        } catch (PDOException $error) {
-            http_response_code(500);
-            var_dump($error);
-            // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
-        }
-    }
-
-    function getDeckCards(
-        string $deck_id
-    ): DbResult {
-        // Tries to execute the operation but if any query fails go to the catch block
-        try {
-            // Sets up the query
-            $query = $this->db->prepare(
-                <<<SQL
-                    SELECT 
-                        card.card_id, 
-                        card.question, 
-                        card.answer 
-                    FROM card 
-                    WHERE deck_id=:deck_id 
-                SQL
-            );
-
-            // Binds the deck_id given to the placeholder :deck_id
-            $query->bindValue(":deck_id", $deck_id, PDO::PARAM_STR);
-
-            // Executes the query
-            $query->execute();
-
-            // Query has been a success returns the found rows
-            return DbResult::query($query);
-        } catch (PDOException $error) {
-            http_response_code(500);
-            var_dump($error);
-            // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
-        }
-    }
-
-    function getPlayCards(
-        string $deck_id
-    ): DbResult {
-        // Tries to execute the operation but if any query fails go to the catch block
-        try {
-            // Sets up the query
-            $query = $this->db->prepare(
-                <<<SQL
-                    SELECT 
-                        card.card_id,
-                        card.question,
-                        card.answer 
-                    FROM card 
-                    WHERE deck_id=:deck_id 
-                    ORDER BY RANDOM() 
-                    LIMIT 20 
-                SQL
-            );
-
-            // Binds the deck_id given to the placeholder :deck_id
-            $query->bindValue(":deck_id", $deck_id, PDO::PARAM_STR);
-
-            // Executes the query
-            $query->execute();
-
-            // Query has been a success returns the found rows
-            return DbResult::query($query);
-        } catch (PDOException $error) {
-            http_response_code(500);
-            var_dump($error);
-            // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
-        }
-    }
-
-    function popularByTag(
-        string $tag_id,
-        string | null $user_account_id
-    ): DbResult {
-        // Tries to execute the operation but if any query fails go to the catch block
-        try {
-            // Sets up the query
-            $query = $this->db->prepare(
-                <<<SQL
-                SELECT 
-                    deck.deck_id, 
-                    deck.title, 
-                    COUNT (*) as deck_play_no,
-                    deck.account_id = :user_account_id as is_owned,
-                    account.username, 
-                    is_saved(deck.deck_id, :user_account_id) as is_saved
-                FROM topic 
-                    LEFT JOIN deck ON topic.deck_id = deck.deck_id
-                    LEFT JOIN account ON deck.account_id = account.account_id
-                    LEFT JOIN play ON play.deck_id = deck.deck_id
-                WHERE topic.tag_id = :tag_id
-                GROUP BY  deck.deck_id, account.account_id
-                ORDER BY deck_play_no DESC 
-                LIMIT 16
-            SQL
-            );
-
-            // Binds the tag_id given to the placeholder :tag_id
-            $query->bindValue(":tag_id", $tag_id, PDO::PARAM_STR);
-
-            // Binds the current users account_id to the placeholder :user_account_id
-            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
-
-            // Executes the query
-            $query->execute();
-
-            // Query has been a success returns the found rows
-            return DbResult::query($query);
-        } catch (PDOException $error) {
-            http_response_code(500);
-            var_dump($error);
-            // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
-        }
-    }
-
-    function newByTag(
-        string $tag_id,
-        string | null $user_account_id
-    ): DbResult {
-        // Tries to execute the operation but if any query fails go to the catch block
-        try {
-            // Sets up the query
-            $query = $this->db->prepare(
-                <<<SQL
-                    SELECT 
-                        deck.deck_id, 
-                        deck.title, 
-                        COUNT (*) as deck_play_no,
-                        account.username, 
-                        deck.account_id = :user_account_id as is_owned,
-                        is_saved(deck.deck_id, :user_account_id) as is_saved
-                    FROM topic   
-                        LEFT JOIN deck ON topic.deck_id = deck.deck_id
-                        LEFT JOIN account ON deck.account_id = account.account_id
-                        LEFT JOIN play ON play.deck_id = deck.deck_id
-                    WHERE topic.tag_id = :tag_id
-                    GROUP BY  deck.deck_id, account.account_id
-                    LIMIT 16
-                SQL
-            );
-
-            // Binds the tag_id given to the placeholder :tag_id
-            $query->bindValue(":tag_id", $tag_id, PDO::PARAM_STR);
-
-            // Binds the current users account_id to the placeholder :user_account_id
-            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
-
-            // Executes the query
-            $query->execute();
-
-            // Query has been a success returns the found rows
-            return DbResult::query($query);
-        } catch (PDOException $error) {
-            http_response_code(500);
-            var_dump($error);
-            // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
-        }
-    }
-
-    function getTag(
-        string $tag_id,
-        string | null $user_account_id
-    ): DbResult {
-        // Tries to execute the operation but if any query fails go to the catch block
-        try {
-            // Sets up the query
-            $query = $this->db->prepare(
-                <<<SQL
-                    SELECT 
-                        tag.tag_id,
-                        tag.title,
-                        is_followed(tag.tag_id, :user_account_id) as is_followed
-                    FROM tag 
-                    WHERE tag_id = :tag_id
-                SQL
-            );
-
-            // Binds the tag_id given to the placeholder :tag_id
-            $query->bindValue(":tag_id", $tag_id, PDO::PARAM_STR);
-
-            // Binds the tag_id given to the placeholder :tag_id
-            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
-
-            // Executes the query
-            $query->execute();
-
-            // Query has been a success returns the found rows
-            return DbResult::query($query);
-        } catch (PDOException $error) {
-            http_response_code(500);
-            var_dump($error);
-            // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
-        }
-    }
-
-    function getSaved(
+    function getStreak(
         string $user_account_id
     ): DbResult {
         // Tries to execute the operation but if any query fails go to the catch block
         try {
-            // Sets up the query
+            // Sets up the query 
             $query = $this->db->prepare(
                 <<<SQL
-                    SELECT 
-                        deck.deck_id, 
-                        deck.title, 
-                       COUNT (*) as deck_play_no,
-                        account.username, 
-                        deck.account_id = :user_account_id as is_owned,
-                        is_saved(deck.deck_id, :user_account_id) as is_saved
-                    FROM save  
-                        LEFT JOIN deck ON save.deck_id = deck.deck_id
-                        LEFT JOIN account ON deck.account_id = account.account_id 
-                        LEFT JOIN play ON play.deck_id = deck.deck_id
-                    WHERE save.account_id = :user_account_id
-                    GROUP BY  deck.deck_id, account.account_id
-                    LIMIT 16
+                    SELECT user_streak(account.account_id)  as streak
+                    FROM account 
+                    WHERE account.account_id=:user_account_id
                 SQL
             );
 
-            // Binds the current users account_id to the placeholder :user_account_id
-            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
+            $query->bindValue(":user_account_id", $user_account_id);
+
 
             // Executes the query
             $query->execute();
 
-            // Query has been a success returns the found rows
-            return DbResult::query($query);
-        } catch (PDOException $error) {
-            http_response_code(500);
-            var_dump($error);
-            // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
-        }
-    }
-
-    function getRecent(
-        string $user_account_id
-    ): DbResult {
-        // Tries to execute the operation but if any query fails go to the catch block
-        try {
-            // Sets up the query
-            $query = $this->db->prepare(
-                <<<SQL
-                    SELECT 
-                        deck.deck_id, 
-                        deck.title, 
-                        account.username, 
-                        deck.account_id = :user_account_id as is_owned,
-                        is_saved(deck.deck_id, :user_account_id) as is_saved,
-                        COUNT (*) as deck_play_no
-                        FROM play
-                            LEFT JOIN deck ON play.deck_id = deck.deck_id
-                            LEFT JOIN account ON deck.account_id = account.account_id 
-                            LEFT JOIN play as deck_play ON deck_play.deck_id = deck.deck_id
-                        WHERE play.account_id = :user_account_id
-                        GROUP BY deck.deck_id, account.account_id
-                        LIMIT 16
-                SQL
-            );
-
-            // Binds the current users account_id to the placeholder :user_account_id
-            $query->bindValue("user_account_id", $user_account_id, PDO::PARAM_STR);
-
-            // Executes the query
-            $query->execute();
+            $streak = $query->fetch()["streak"];
 
             // Query has been a success returns the found rows
-            return DbResult::query($query);
+            return new DbResult(ResultState::VALUE, value: $streak);
         } catch (PDOException $error) {
             http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
-        }
-    }
-
-    function save(
-        string $deck_id,
-        string $user_account_id
-    ): DbResult {
-        // Tries to execute the operation but if any query fails go to the catch block
-        try {
-            // Sets up the insert
-            $query = $this->db->prepare(
-                <<<SQL
-                    INSERT INTO save (
-                        deck_id, 
-                        account_id
-                    ) VALUES (
-                        :deck_id, 
-                        :user_account_id
-                    )
-                SQL
-            );
-
-            // Binds the current users account_id to the placeholder :user_account_id
-            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
-
-            // Binds the specified deck_id to the :deck_id placeholder
-            $query->bindValue(":deck_id", $deck_id, PDO::PARAM_STR);
-
-            // Executes the insert
-            $query->execute();
-
-            // Insert has been an success
-            return DbResult::ok();
-        } catch (PDOException $error) {
-            http_response_code(500);
-            var_dump($error);
-            // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
-        }
-    }
-
-    function deleteSave(
-        string $deck_id,
-        string $user_account_id
-    ): DbResult {
-        // Tries to execute the operation but if any query fails go to the catch block
-        try {
-            // Sets up the delete
-            $query = $this->db->prepare(
-                <<<SQL
-                    DELETE FROM save 
-                    WHERE deck_id=:deck_id AND account_id=:user_account_id
-                SQL
-            );
-
-            // Binds the current users account_id to the placeholder :user_account_id
-            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
-
-            // Binds the specified deck_id to the :deck_id placeholder
-            $query->bindValue(":deck_id", $deck_id, PDO::PARAM_STR);
-
-            // Executes the delete
-            $query->execute();
-
-            // Delete has been an success
-            return DbResult::ok();
-        } catch (PDOException $error) {
-            http_response_code(500);
-            var_dump($error);
-            // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
         }
     }
 
@@ -1041,8 +231,8 @@ class Db
         string | null $username,
         string | null $password,
         string| null $avatar,
-        array | null $added_likes,
-        array | null $removed_likes
+        array | null $added_follows,
+        array | null $removed_follows
     ): DbResult {
         // Tries to execute the operation but if any query fails go to the catch block
         try {
@@ -1050,7 +240,7 @@ class Db
             $query = $this->db->prepare(
                 <<<SQL
                     UPDATE
-                        user
+                        account
                     SET
                         username=COALESCE(:username, username),
                         password=COALESCE(:password, password),
@@ -1067,8 +257,8 @@ class Db
 
             $query->execute();
 
-            // If any likes has been added
-            if ($added_likes !== null) {
+            // If any follows has been added
+            if ($added_follows !== null) {
                 // Setup the query
                 $query = $this->db->prepare(
                     <<<SQL
@@ -1084,16 +274,16 @@ class Db
 
                 // Inserts the parameters to the insert statement
                 $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
-                $query->bindParam(":tag_id", $like, PDO::PARAM_STR);
+                $query->bindParam(":tag_id", $follow, PDO::PARAM_STR);
 
-                // Execute the query for each new like
-                foreach ($added_likes as $like) {
+                // Execute the query for each new follow
+                foreach ($added_follows as $follow) {
                     $query->execute();
                 }
             }
 
-            // If any likes have been removed 
-            if ($removed_likes !== null) {
+            // If any follows have been removed 
+            if ($removed_follows !== null) {
                 // Setup the query
                 $query = $this->db->prepare(
                     <<<SQL
@@ -1104,25 +294,26 @@ class Db
 
                 // Inserts the parameters to the delete statement
                 $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
-                $query->bindParam(":tag_id", $like, PDO::PARAM_STR);
+                $query->bindParam(":tag_id", $follow, PDO::PARAM_STR);
 
-                // Execute the query for each like
-                foreach ($removed_likes as $like) {
+                // Execute the query for each follow
+                foreach ($removed_follows as $follow) {
                     $query->execute();
                 }
             }
 
             // All the inserts have been a success 
-            return DbResult::ok();
+            return new DbResult(ResultState::OK);
         } catch (PDOException $error) {
             http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
         }
     }
 
-    function deleteAccount(string $user_account_id): DbResult
+    function deleteAccount(
+        string $user_account_id): DbResult
     {
         // Tries to execute the operation but if any query fails go to the catch block
         try {
@@ -1136,12 +327,12 @@ class Db
             $query->execute();
 
             // Delete has been an success
-            return DbResult::ok();
+            return new DbResult(ResultState::OK);
         } catch (PDOException $error) {
             http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
         }
     }
 
@@ -1238,16 +429,16 @@ class Db
             }
 
             // Query has been a success return the new deck_id
-            return DbResult::value($deck_id);
+            return new DbResult(ResultState::VALUE, value:$deck_id);
         } catch (PDOException $error) {
             http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
         }
     }
 
-    function getAnnotatedTopics(
+    function getDeck(
         string $deck_id,
         string | null $user_account_id
     ): DbResult {
@@ -1256,29 +447,57 @@ class Db
             // Sets up the query
             $query = $this->db->prepare(
                 <<<SQL
-                    SELECT 
-                        tag_id, 
-                        title,
-                        is_topic(tag.tag_id, :deck_id) as is_topic,
-                        is_followed(tag.tag_id, :user_account_id) as is_followed
-                    FROM tag
+                     SELECT 
+                        deck.title, 
+                        deck.timestamp, 
+                        deck.description, 
+                        account.account_id,
+                        account.username, 
+                        deck.account_id = :user_account_id AS is_owned,
+                        is_saved(deck.deck_id, :user_account_id) AS is_saved,
+                        COALESCE(play_stats.deck_play_no, 0) as deck_play_no,
+                        COALESCE(play_stats.user_play_no, 0) as user_play_no,
+                        COALESCE(play_stats.average_score, 0) as average_score,
+                        COALESCE(deck_save.save_no, 0) as save_no
+                    FROM deck 
+                        LEFT JOIN account ON deck.account_id = account.account_id
+                        LEFT JOIN (
+                            SELECT 
+                                deck_id,
+                                COUNT (*) AS deck_play_no,
+                                COUNT(*) FILTER (WHERE account_id = :user_account_id) AS user_play_no,
+                                AVG(play.score) FILTER (WHERE account_id = :user_account_id) AS average_score 
+                            FROM play 
+                            GROUP BY play.deck_id
+                        ) AS play_stats ON play_stats.deck_id = deck.deck_id
+                        LEFT JOIN (
+                            SELECT 
+                                deck_id, 
+                                COUNT(*) as save_no
+                            FROM save
+                            GROUP BY deck_id
+                        ) AS deck_save ON deck_save.deck_id = deck.deck_id
+                    WHERE deck.deck_id = :deck_id
                 SQL
             );
 
-            // Inserts the parameters to the query
-            $query->bindValue(":deck_id", $deck_id);
-            $query->bindValue(":user_account_id", $user_account_id);
+
+            // Binds the deck_id given to the placeholder :deck_id
+            $query->bindValue(":deck_id", $deck_id, PDO::PARAM_STR);
+
+            // Binds the current users account_id to the placeholder :user_account_id
+            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
 
             // Executes the query
             $query->execute();
 
             // Query has been a success returns the found rows
-            return DbResult::query($query);
+            return new DbResult(ResultState::QUERY, query: $query);
         } catch (PDOException $error) {
             http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
         }
     }
 
@@ -1297,7 +516,7 @@ class Db
             // Sets up the update
             $query = $this->db->prepare(
                 <<<SQL
-                UPDATE Deck SET 
+                UPDATE deck SET 
                     title=COALESCE(:title, title), 
                     description=COALESCE(:description, description) 
                 WHERE deck_id=:deck_id
@@ -1337,9 +556,9 @@ class Db
                 );
 
                 $query->bindValue(":deck_id", $deck_id, PDO::PARAM_STR);
-                $query->bindParam(":tag_id", $like, PDO::PARAM_STR);
+                $query->bindParam(":tag_id", $follow, PDO::PARAM_STR);
 
-                foreach ($removed_topics as $like) {
+                foreach ($removed_topics as $follow) {
                     $query->execute();
                 }
             }
@@ -1409,12 +628,12 @@ class Db
                 }
             }
 
-            return DbResult::ok();
+            return new DbResult(ResultState::OK);
         } catch (PDOException $error) {
             var_dump($error);
             // http_response_code(500);
             // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
         }
     }
 
@@ -1430,16 +649,799 @@ class Db
 
             $query->execute();
 
-            return DbResult::ok();
+            return new DbResult(ResultState::OK);
         } catch (PDOException $error) {
             http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
         }
     }
 
-    function savePlay(
+    function getNew(
+        string | null $user_account_id
+    ): DbResult {
+        // Tries to execute the operation but if any query fails go to the catch block
+        try {
+            // Sets up the query
+            $query = $this->db->prepare(
+                <<<SQL
+                    SELECT
+                        deck.deck_id,
+                        deck.title,
+                        account.username,
+                        deck.account_id = :user_account_id as is_owned,
+                        COUNT (play.play_id) as deck_play_no,
+                        is_saved(deck.deck_id, :user_account_id) as is_saved
+                    FROM deck
+                        LEFT JOIN account ON deck.account_id = account.account_id
+                        LEFT JOIN play ON play.deck_id = deck.deck_id
+                    GROUP BY  deck.deck_id, account.account_id
+                    ORDER BY deck.timestamp DESC
+                    LIMIT 16
+                SQL
+            );
+
+            // Binds the current users account_id to the placeholder :user_account_id
+            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
+
+            // Executes the query
+            $query->execute();
+
+            // Query has been a success returns the found rows
+            return new DbResult(ResultState::QUERY, query: $query);
+        } catch (PDOException $error) {
+            http_response_code(500);
+            var_dump($error);
+            // An error has occurred return an error with the code
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
+        }
+    }
+
+    function getForYou(
+        string $user_account_id
+    ): DbResult {
+        // Tries to execute the operation but if any query fails go to the catch block
+        try {
+            // Sets up the query
+            $query = $this->db->prepare(
+                <<<SQL
+                    SELECT 
+                        deck.deck_id, 
+                        deck.title, 
+                        account.username, 
+                        deck.account_id = :user_account_id as is_owned,
+                        COUNT (play.play_id) as deck_play_no,
+                        is_saved(deck.deck_id, :user_account_id) as is_saved
+                    FROM follow 
+                        LEFT JOIN topic ON follow.tag_id = topic.tag_id
+                        INNER JOIN deck ON topic.deck_id = deck.deck_id
+                        LEFT JOIN account ON deck.account_id = account.account_id
+                        LEFT JOIN play ON play.deck_id = deck.deck_id
+                    WHERE follow.account_id=:user_account_id
+                    GROUP BY  deck.deck_id, account.account_id
+                    ORDER BY deck_play_no DESC 
+                    LIMIT 16 
+                SQL
+            );
+
+            // Binds the current users account_id to the placeholder :user_account_id
+            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
+
+            // Executes the query
+            $query->execute();
+
+            // Query has been a success returns the found rows
+            return new DbResult(ResultState::QUERY, query: $query);
+        } catch (PDOException $error) {
+            http_response_code(500);
+            var_dump($error);
+            // An error has occurred return an error with the code
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
+        }
+    }
+
+    function getPopular(
+        string | null $user_account_id
+    ): DbResult {
+        // Tries to execute the operation but if any query fails go to the catch block
+        try {
+            // Sets up the query
+            $query = $this->db->prepare(
+                <<<SQL
+                    SELECT 
+                        deck.deck_id,
+                        deck.title,
+                        account.username,
+                        deck.account_id = :user_account_id as is_owned,
+                        COUNT (play.play_id) as deck_play_no,
+                        is_saved(deck.deck_id, :user_account_id) as is_saved
+                    FROM deck
+                        LEFT JOIN account ON deck.account_id = account.account_id
+                        LEFT JOIN play ON play.deck_id = deck.deck_id
+                    GROUP BY deck.deck_id, account.account_id
+                    ORDER BY deck_play_no DESC
+                    LIMIT 16
+                SQL
+            );
+
+            // Binds the current users account_id to the placeholder :user_account_id
+            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
+
+            // Executes the query
+            $query->execute();
+
+            // Query has been a success returns the found rows
+            return new DbResult(ResultState::QUERY, query: $query);
+        } catch (PDOException $error) {
+            http_response_code(500);
+            var_dump($error);
+            // An error has occurred return an error with the code
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
+        }
+    }
+
+    function searchUsers(
+        string $search_string,
+        string | null $user_account_id
+    ): DbResult {
+        // Tries to execute the operation but if any query fails go to the catch block
+        try {
+            // Sets up the query
+            $query = $this->db->prepare(
+                <<<SQL
+                    SELECT 
+                        account.account_id,
+                        account.username,
+                        account.avatar,
+                        account.account_id = :user_account_id as is_current_user,
+                        COUNT (deck.deck_id) as deck_no 
+                    FROM account
+                        LEFT JOIN deck ON account.account_id = deck.account_id
+                    WHERE account.username ILIKE :search_string
+                    GROUP BY account.account_id
+                    LIMIT 20;
+                SQL
+            );
+
+            // Binds the search_sting to the placeholder :search_string
+            $query->bindValue(":search_string", '%' . $search_string . '%', PDO::PARAM_STR);
+
+            // Binds the current users account_id to the placeholder :user_account_id
+            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
+
+
+
+            // Executes the query
+            $query->execute();
+
+            // Query has been a success returns the found rows
+            return new DbResult(ResultState::QUERY, query: $query);
+        } catch (PDOException $error) {
+            http_response_code(500);
+            var_dump($error);
+            // An error has occurred return an error with the code
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
+        }
+    }
+
+    function searchDecks(
+        string $search_string,
+        string | null $user_account_id
+    ): DbResult {
+        // Tries to execute the operation but if any query fails go to the catch block
+        try {
+            // Sets up the query
+            $query = $this->db->prepare(
+                <<<SQL
+                    SELECT 
+                        deck.deck_id,
+                        deck.title,
+                        account.username,
+                        deck.account_id = :user_account_id as is_owned,
+                        is_saved(deck.deck_id, :user_account_id) as is_saved,
+                        COUNT (play.play_id) as deck_play_no
+                    FROM deck
+                        LEFT JOIN account ON deck.account_id = account.account_id
+                        LEFT JOIN play ON play.deck_id = deck.deck_id
+                    WHERE deck.title ILIKE :search_string
+                    GROUP BY  deck.deck_id, account.account_id
+                    LIMIT 20
+                SQL
+            );
+
+            // Binds the search_sting to the placeholder :search_string
+            $query->bindValue(":search_string", '%' . $search_string . '%', PDO::PARAM_STR);
+
+            // Binds the current users account_id to the placeholder :user_account_id
+            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
+
+            // Executes the query
+            $query->execute();
+
+            // Query has been a success returns the found rows
+            return new DbResult(ResultState::QUERY, query: $query);
+        } catch (PDOException $error) {
+            http_response_code(500);
+            var_dump($error);
+            // An error has occurred return an error with the code
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
+        }
+    }
+
+    function searchTags(
+        string $search_string,
+        string | null $user_account_id
+    ): DbResult {
+        // Tries to execute the operation but if any query fails go to the catch block
+        try {
+            // Sets up the query
+            $query = $this->db->prepare(
+                <<<SQL
+                    SELECT 
+                        tag.tag_id,
+                        tag.title,
+                        is_followed(tag.tag_id, :user_account_id) as is_followed
+                    FROM tag
+                    WHERE tag.title ILIKE :search_string
+                    LIMIT 20
+                SQL
+            );
+
+            // Adds the search string to the query
+            $query->bindValue(":search_string", '%' . $search_string . '%', PDO::PARAM_STR);
+
+            // Binds the current users account_id to the placeholder :user_account_id
+            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
+
+            // Executes the query
+            $query->execute();
+
+            // Query has been a success returns the found rows
+            return new DbResult(ResultState::QUERY, query: $query);
+        } catch (PDOException $error) {
+            http_response_code(500);
+            var_dump($error);
+            // An error has occurred return an error with the code
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
+        }
+    }
+
+    function getRecentlyPlayed(
+        string $user_account_id
+    ): DbResult {
+        // Tries to execute the operation but if any query fails go to the catch block
+        try {
+            // Sets up the query
+            $query = $this->db->prepare(
+                <<<SQL
+                    SELECT 
+                        deck.deck_id, 
+                        deck.title, 
+                        account.username, 
+                        deck.account_id = :user_account_id as is_owned,
+                        is_saved(deck.deck_id, :user_account_id) as is_saved,
+                        COUNT (deck_play.play_id) as deck_play_no
+                    FROM play
+                        LEFT JOIN deck ON play.deck_id = deck.deck_id
+                        LEFT JOIN account ON deck.account_id = account.account_id 
+                        LEFT JOIN play as deck_play ON deck_play.deck_id = deck.deck_id
+                    WHERE play.account_id = :user_account_id
+                    GROUP BY deck.deck_id, account.account_id
+                    LIMIT 16
+                SQL
+            );
+
+            // Binds the current users account_id to the placeholder :user_account_id
+            $query->bindValue("user_account_id", $user_account_id, PDO::PARAM_STR);
+
+            // Executes the query
+            $query->execute();
+
+            // Query has been a success returns the found rows
+            return new DbResult(ResultState::QUERY, query: $query);
+        } catch (PDOException $error) {
+            http_response_code(500);
+            var_dump($error);
+            // An error has occurred return an error with the code
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
+        }
+    }
+
+    function getSaved(
+        string $user_account_id
+    ): DbResult {
+        // Tries to execute the operation but if any query fails go to the catch block
+        try {
+            // Sets up the query
+            $query = $this->db->prepare(
+                <<<SQL
+                    SELECT 
+                        deck.deck_id, 
+                        deck.title, 
+                        COUNT (play.play_id) as deck_play_no,
+                        account.username, 
+                        deck.account_id = :user_account_id as is_owned,
+                        is_saved(deck.deck_id, :user_account_id) as is_saved
+                    FROM save  
+                        LEFT JOIN deck ON save.deck_id = deck.deck_id
+                        LEFT JOIN account ON deck.account_id = account.account_id 
+                        LEFT JOIN play ON play.deck_id = deck.deck_id
+                    WHERE save.account_id = :user_account_id
+                    GROUP BY  deck.deck_id, account.account_id
+                    LIMIT 16
+                SQL
+            );
+
+            // Binds the current users account_id to the placeholder :user_account_id
+            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
+
+            // Executes the query
+            $query->execute();
+
+            // Query has been a success returns the found rows
+            return new DbResult(ResultState::QUERY, query: $query);
+        } catch (PDOException $error) {
+            http_response_code(500);
+            var_dump($error);
+            // An error has occurred return an error with the code
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
+        }
+    }
+
+    function getCreations(
+        string $account_id,
+        string | null $user_account_id
+    ): DbResult {
+        // Tries to execute the operation but if any query fails go to the catch block
+        try {
+            // Sets up the query
+            $query = $this->db->prepare(
+                <<<SQL
+                    SELECT 
+                        deck.deck_id, 
+                        deck.title, 
+                        account.username,
+                        deck.account_id = :user_account_id as is_owned,
+                        is_saved(deck.deck_id, :user_account_id),
+                        COUNT (play.play_id) as deck_play_no
+                    FROM deck
+                        LEFT JOIN account ON deck.account_id = account.account_id
+                        LEFT JOIN play ON play.deck_id = deck.deck_id
+                    WHERE deck.account_id = :account_id
+                    GROUP BY  deck.deck_id, account.account_id
+                    LIMIT 16
+                SQL
+            );
+
+            // Binds the account_id given to the placeholder :account_id
+            $query->bindValue(":account_id", $account_id, PDO::PARAM_STR);
+
+            // Binds the current users account_id to the placeholder :user_account_id
+            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
+
+            // Executes the query
+            $query->execute();
+
+            // Query has been a success returns the found rows
+            return new DbResult(ResultState::QUERY, query: $query);
+        } catch (PDOException $error) {
+            http_response_code(500);
+            var_dump($error);
+            // An error has occurred return an error with the code
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
+        }
+    }
+
+    function getTag(
+        string $tag_id,
+        string | null $user_account_id
+    ): DbResult {
+        // Tries to execute the operation but if any query fails go to the catch block
+        try {
+            // Sets up the query
+            $query = $this->db->prepare(
+                <<<SQL
+                    SELECT 
+                        tag.tag_id,
+                        tag.title,
+                        is_followed(tag.tag_id, :user_account_id) as is_followed
+                    FROM tag 
+                    WHERE tag_id = :tag_id
+                SQL
+            );
+
+            // Binds the tag_id given to the placeholder :tag_id
+            $query->bindValue(":tag_id", $tag_id, PDO::PARAM_STR);
+
+            // Binds the tag_id given to the placeholder :tag_id
+            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
+
+            // Executes the query
+            $query->execute();
+
+            // Query has been a success returns the found rows
+            return new DbResult(ResultState::QUERY, query: $query);
+        } catch (PDOException $error) {
+            http_response_code(500);
+            var_dump($error);
+            // An error has occurred return an error with the code
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
+        }
+    }
+
+    function getPopularByTag(
+        string $tag_id,
+        string | null $user_account_id
+    ): DbResult {
+        // Tries to execute the operation but if any query fails go to the catch block
+        try {
+            // Sets up the query
+            $query = $this->db->prepare(
+                <<<SQL
+                SELECT 
+                    deck.deck_id, 
+                    deck.title, 
+                    COUNT (play.play_id) as deck_play_no,
+                    deck.account_id = :user_account_id as is_owned,
+                    account.username, 
+                    is_saved(deck.deck_id, :user_account_id) as is_saved
+                FROM topic 
+                    LEFT JOIN deck ON topic.deck_id = deck.deck_id
+                    LEFT JOIN account ON deck.account_id = account.account_id
+                    LEFT JOIN play ON play.deck_id = deck.deck_id
+                WHERE topic.tag_id = :tag_id
+                GROUP BY  deck.deck_id, account.account_id
+                ORDER BY deck_play_no DESC 
+                LIMIT 16
+            SQL
+            );
+
+            // Binds the tag_id given to the placeholder :tag_id
+            $query->bindValue(":tag_id", $tag_id, PDO::PARAM_STR);
+
+            // Binds the current users account_id to the placeholder :user_account_id
+            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
+
+            // Executes the query
+            $query->execute();
+
+            // Query has been a success returns the found rows
+            return new DbResult(ResultState::QUERY, query: $query);
+        } catch (PDOException $error) {
+            http_response_code(500);
+            var_dump($error);
+            // An error has occurred return an error with the code
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
+        }
+    }
+
+    function getNewByTag(
+        string $tag_id,
+        string | null $user_account_id
+    ): DbResult {
+        // Tries to execute the operation but if any query fails go to the catch block
+        try {
+            // Sets up the query
+            $query = $this->db->prepare(
+                <<<SQL
+                    SELECT 
+                        deck.deck_id, 
+                        deck.title, 
+                        COUNT (play.play_id) as deck_play_no,
+                        account.username, 
+                        deck.account_id = :user_account_id as is_owned,
+                        is_saved(deck.deck_id, :user_account_id) as is_saved
+                    FROM topic   
+                        LEFT JOIN deck ON topic.deck_id = deck.deck_id
+                        LEFT JOIN account ON deck.account_id = account.account_id
+                        LEFT JOIN play ON play.deck_id = deck.deck_id
+                    WHERE topic.tag_id = :tag_id
+                    GROUP BY  deck.deck_id, account.account_id
+                    ORDER BY deck.timestamp DESC
+                    LIMIT 16
+                SQL
+            );
+
+            // Binds the tag_id given to the placeholder :tag_id
+            $query->bindValue(":tag_id", $tag_id, PDO::PARAM_STR);
+
+            // Binds the current users account_id to the placeholder :user_account_id
+            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
+
+            // Executes the query
+            $query->execute();
+
+            // Query has been a success returns the found rows
+            return new DbResult(ResultState::QUERY, query: $query);
+        } catch (PDOException $error) {
+            http_response_code(500);
+            var_dump($error);
+            // An error has occurred return an error with the code
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
+        }
+    }
+
+    public function getAllTags(
+        string | null $user_account_id
+    ): DbResult {
+        // Tries to execute the operation but if any query fails go to the catch block
+        try {
+            // Sets up the query
+            $query = $this->db->prepare(
+                <<<SQL
+                    SELECT 
+                        tag.tag_id,
+                        tag.title,
+                        is_followed(tag.tag_id, :user_account_id) as is_followed
+                    FROM tag
+                SQL
+            );
+
+            // Binds the current users account_id to the placeholder :user_account_id
+            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
+
+            // Executes the query
+            $query->execute();
+
+            // Query has been a success return the rows
+            return new DbResult(ResultState::QUERY, query: $query);
+        } catch (PDOException $error) {
+            http_response_code(500);
+            var_dump($error);
+            // An error has occurred return an error with the code
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
+        }
+    }
+
+    function getFollows(
+        string $account_id,
+        string | null $user_account_id
+    ): DbResult {
+        // Tries to execute the operation but if any query fails go to the catch block
+        try {
+            // Sets up the query
+            $query = $this->db->prepare(
+                <<<SQL
+                    SELECT 
+                        tag.title, 
+                        follow.tag_id ,
+                        is_followed(tag.tag_id, :user_account_id) as is_followed
+                    FROM follow
+                        LEFT JOIN tag ON tag.tag_id = follow.tag_id
+                    WHERE account_id=:account_id
+                SQL
+            );
+
+            // Binds the given user_id to the placeholder 
+            $query->bindValue(":account_id", $account_id, PDO::PARAM_STR);
+            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
+
+            // Executes the query
+            $query->execute();
+
+            // Query has been a success returns the found rows
+            return new DbResult(ResultState::QUERY, query: $query);
+        } catch (PDOException $error) {
+            http_response_code(500);
+            var_dump($error);
+            // An error has occurred return an error with the code
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
+        }
+    }
+
+    function getDeckTopics(
+        string $deck_id,
+        string | null $user_account_id
+    ): DbResult {
+        // Tries to execute the operation but if any query fails go to the catch block
+        try {
+            // Sets up the query
+            $query = $this->db->prepare(
+                <<<SQL
+                    SELECT 
+                        tag.title, 
+                        tag.tag_id, 
+                        is_followed(tag.tag_id, :user_account_id) as is_followed
+                    FROM topic 
+                        LEFT JOIN tag ON topic.tag_id = tag.tag_id
+                    WHERE deck_id=:deck_id
+                SQL
+            );
+
+            // Binds the deck_id to the placeholder :deck_id
+            $query->bindValue(":deck_id", $deck_id, PDO::PARAM_STR);
+            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
+
+
+            // Executes the query
+            $query->execute();
+
+            // Query has been a success returns the found rows
+            return new DbResult(ResultState::QUERY, query: $query);
+        } catch (PDOException $error) {
+            http_response_code(500);
+            var_dump($error);
+            // An error has occurred return an error with the code
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
+        }
+    }
+
+    function getTopicAnnotatedTags(
+        string $deck_id,
+        string | null $user_account_id
+    ): DbResult {
+        // Tries to execute the operation but if any query fails go to the catch block
+        try {
+            // Sets up the query
+            $query = $this->db->prepare(
+                <<<SQL
+                    SELECT 
+                        tag_id, 
+                        title,
+                        is_topic(tag.tag_id, :deck_id) as is_topic,
+                        is_followed(tag.tag_id, :user_account_id) as is_followed
+                    FROM tag
+                SQL
+            );
+
+            // Inserts the parameters to the query
+            $query->bindValue(":deck_id", $deck_id);
+            $query->bindValue(":user_account_id", $user_account_id);
+
+            // Executes the query
+            $query->execute();
+
+            // Query has been a success returns the found rows
+            return new DbResult(ResultState::QUERY, query: $query);
+        } catch (PDOException $error) {
+            http_response_code(500);
+            var_dump($error);
+            // An error has occurred return an error with the code
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
+        }
+    }
+
+    function getDeckCards(
+        string $deck_id
+    ): DbResult {
+        // Tries to execute the operation but if any query fails go to the catch block
+        try {
+            // Sets up the query
+            $query = $this->db->prepare(
+                <<<SQL
+                    SELECT 
+                        card.card_id, 
+                        card.question, 
+                        card.answer 
+                    FROM card 
+                    WHERE deck_id=:deck_id 
+                SQL
+            );
+
+            // Binds the deck_id given to the placeholder :deck_id
+            $query->bindValue(":deck_id", $deck_id, PDO::PARAM_STR);
+
+            // Executes the query
+            $query->execute();
+
+            // Query has been a success returns the found rows
+            return new DbResult(ResultState::QUERY, query: $query);
+        } catch (PDOException $error) {
+            http_response_code(500);
+            var_dump($error);
+            // An error has occurred return an error with the code
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
+        }
+    }
+
+    function getPlayCards(
+        string $deck_id
+    ): DbResult {
+        // Tries to execute the operation but if any query fails go to the catch block
+        try {
+            // Sets up the query
+            $query = $this->db->prepare(
+                <<<SQL
+                    SELECT 
+                        card.card_id,
+                        card.question,
+                        card.answer 
+                    FROM card 
+                    WHERE deck_id=:deck_id 
+                    ORDER BY RANDOM() 
+                    LIMIT 20 
+                SQL
+            );
+
+            // Binds the deck_id given to the placeholder :deck_id
+            $query->bindValue(":deck_id", $deck_id, PDO::PARAM_STR);
+
+            // Executes the query
+            $query->execute();
+
+            // Query has been a success returns the found rows
+            return new DbResult(ResultState::QUERY, query: $query);
+        } catch (PDOException $error) {
+            http_response_code(500);
+            var_dump($error);
+            // An error has occurred return an error with the code
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
+        }
+    }
+
+    function save(
+        string $deck_id,
+        string $user_account_id
+    ): DbResult {
+        // Tries to execute the operation but if any query fails go to the catch block
+        try {
+            // Sets up the insert
+            $query = $this->db->prepare(
+                <<<SQL
+                    INSERT INTO save (
+                        deck_id, 
+                        account_id
+                    ) VALUES (
+                        :deck_id, 
+                        :user_account_id
+                    )
+                SQL
+            );
+
+            // Binds the current users account_id to the placeholder :user_account_id
+            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
+
+            // Binds the specified deck_id to the :deck_id placeholder
+            $query->bindValue(":deck_id", $deck_id, PDO::PARAM_STR);
+
+            // Executes the insert
+            $query->execute();
+
+            // Insert has been an success
+            return new DbResult(ResultState::OK);
+        } catch (PDOException $error) {
+            http_response_code(500);
+            var_dump($error);
+            // An error has occurred return an error with the code
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
+        }
+    }
+
+    function deleteSave(
+        string $deck_id,
+        string $user_account_id
+    ): DbResult {
+        // Tries to execute the operation but if any query fails go to the catch block
+        try {
+            // Sets up the delete
+            $query = $this->db->prepare(
+                <<<SQL
+                    DELETE FROM save 
+                    WHERE deck_id=:deck_id AND account_id=:user_account_id
+                SQL
+            );
+
+            // Binds the current users account_id to the placeholder :user_account_id
+            $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
+
+            // Binds the specified deck_id to the :deck_id placeholder
+            $query->bindValue(":deck_id", $deck_id, PDO::PARAM_STR);
+
+            // Executes the delete
+            $query->execute();
+
+            // Delete has been an success
+            return new DbResult(ResultState::OK);
+        } catch (PDOException $error) {
+            http_response_code(500);
+            var_dump($error);
+            // An error has occurred return an error with the code
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
+        }
+    }
+
+    function recordPlay(
         string $deck_id,
         int $score,
         string | null $user_account_id
@@ -1464,12 +1466,12 @@ class Db
 
             $query->execute();
 
-            return DbResult::ok();
+            return new DbResult(ResultState::OK);
         } catch (PDOException $error) {
             http_response_code(500);
             var_dump($error);
             // An error has occurred return an error with the code
-            return DbResult::error($error->getCode());
+            return new DbResult(ResultState::ERROR, error: $error->getCode());
         }
     }
 }
@@ -1495,10 +1497,10 @@ enum ResultState
  */
 class DbResult
 {
-    private $state;
-    public $error;
-    public $query;
-    public $value;
+    private ResultState $state;
+    private int | null $error;
+    private PDOStatement | null $query;
+    private mixed $value;
 
     // Returns if the operation was a success or failure
     function isOk(): bool
@@ -1533,36 +1535,24 @@ class DbResult
         return $this->query->fetch();
     }
 
+    function errorCode(): int {
+        return $this->error;
+    }
+
+    function getValue(): mixed {
+        return $this->value;
+    }
+
     // Creates a db result all parameters except state are defaulted to null as they aren't all set
-    private function __construct(
+    public function __construct(
         ResultState $state,
         PDOStatement | null $query = null,
-        string | null $error = null,
+        int | null $error = null,
         mixed $value = null,
     ) {
         $this->state = $state;
         $this->query = $query;
         $this->error = $error;
         $this->value = $value;
-    }
-
-    public static function error(string $error)
-    {
-        return new DbResult(ResultState::ERROR, error: $error);
-    }
-
-    public static function query(PDOStatement $error)
-    {
-        return new DbResult(ResultState::QUERY, query: $error);
-    }
-
-    public static function ok()
-    {
-        return new DbResult(ResultState::OK);
-    }
-
-    public static function value(mixed $value)
-    {
-        return new DbResult(ResultState::VALUE, value: $value);
     }
 }

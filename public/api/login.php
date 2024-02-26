@@ -39,6 +39,11 @@ $db = new DB();
 // Find user from username
 $user_query = $db->getLogin($body["username"]);
 
+if (!$user_query->isOk()) {
+	http_response_code(500);
+	return;
+}
+
 // If the user doesn't exist 
 if ($user_query->isEmpty()) {
 	// Response of `Bad Request`

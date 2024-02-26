@@ -11,6 +11,7 @@ if (isset($_SESSION["account_id"])) {
 	return;
 }
 
+// Gets the input body and filters it
 $body = filter_input_array(INPUT_POST, [
 	"username" => [
 		"filter" => FILTER_VALIDATE_REGEXP,
@@ -30,15 +31,18 @@ $body = filter_input_array(INPUT_POST, [
 			'regexp' => "/^[0-9, a-f]{8}$/"
 		],
 	],
-	"likes" => [
-		"filter" => FILTER_VALIDATE_INT,
+	"follows" => [
+		"filter" => FILTER_VALIDATE_REGEXP,
+        "options" => [
+            'regexp' =>  '/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i'
+		],
 		'flags' => FILTER_FORCE_ARRAY
 	],
 ]);
 
 if (
 	in_array(false, $body, true) || // If any fields are invalid
-	($body["likes"] !== null && in_array(false, $body["likes"], true)) || // If likes exists and any of them are invalid
+	($body["follows"] !== null && in_array(false, $body["follows"], true)) || // If follows exists and any of them are invalid
 	$body["username"] === null || // If username is not set
 	$body["password"] === null || // If password is not set
 	$body["avatar"] === null // If avatar is not set
@@ -55,19 +59,19 @@ $result = $db->createAccount(
 	$body["username"],
 	password_hash($body["password"], PASSWORD_DEFAULT), // Hash password so even if passwords are gotten out of the database attackers cannot get plain text password
 	$body["avatar"],
-	$body["likes"]
+	$body["follows"]
 );
 
 // If the insert was successful
 if ($result->isOk()) {
 	// Store id of user
-	$_SESSION["account_id"] = $result->value;
+	$_SESSION["account_id"] = $result->getValue();
 
 	// Response of `Created`
 	http_response_code(201);
 
 	// If username is not unique
-} else if ($result->error == 23505) {
+} else if ($result->errorCode() == 23505) {
 	// Response of `Bad Request`
 	http_response_code(400);
 

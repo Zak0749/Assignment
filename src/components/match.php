@@ -9,7 +9,7 @@ $questions = random_from_array($all_questions, 4);
 
 ?>
 
-<section class="play-question match-question" data-question-text="match" data-index="<?= $i + 1 ?>" data-original="true">
+<section class="play-question match-question" data-question-text="match" data-index="<?= $i + 1 ?>" data-original="true"  style="display:<?= $i == 0 ? 'grid' : 'none' ?>">
     <main class="match-grid">
         <section>
             <?php foreach ($r->shuffleArray($questions) as $index => $question) : ?>

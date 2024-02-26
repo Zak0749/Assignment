@@ -21,7 +21,8 @@ $db = new DB();
 <head>
     <?php require "components/head.php" ?>
 
-    <script type="text/javascript" src="scripts/scripts.js"></script>
+    <!-- Styles for form elements -->
+    <link href="styles/forms.css" rel="stylesheet">
 </head>
 
 <body>
@@ -60,13 +61,13 @@ $db = new DB();
                 </div>
 
                 <div class="form-field hide-large">
-                    <label>Likes</label>
-                    <button class="secondary-button button" type="button" onclick="open_dialog('tag-select-dialog')" keyboard-shortcut="l">
+                    <label>Follows</label>
+                    <button class="secondary-button button" type="button" onclick="document.getElementById('tag-select-dialog').showModal()" keyboard-shortcut="f">
                         Show
                     </button>
                 </div>
 
-                <button type="submit" value="Submit" class="primary-button" type="submit">
+                <button type="submit" value="Submit" class="primary-button button" type="submit">
                     <span class="material-symbols-outlined">
                         check
                     </span>
@@ -83,11 +84,11 @@ $db = new DB();
                 <dialog class="cover-dialog small-only-dialog" id="tag-select-dialog">
                     <div class="spaced-apart">
                         <label>
-                            <h2>Likes</h2>
+                            <h2>Follows</h2>
                         </label>
 
                         <div class="icon-bar hide-large">
-                            <button class="header-icon" type="button" onclick="close_dialog('tag-select-dialog')" keyboard-shortcut="e">
+                            <button class="header-icon" type="button" onclick=" document.getElementById('tag-select-dialog').close()" keyboard-shortcut="e">
                                 <span class="material-symbols-outlined">
                                     close
                                 </span>
@@ -104,7 +105,7 @@ $db = new DB();
                             <ul class="tag-select-list">
                                 <?php foreach ($tag_query->array() as $tag) : ?>
                                     <label class="tag-select">
-                                        <input type="checkbox" name="likes" value="<?= htmlspecialchars($tag["tag_id"]) ?>">
+                                        <input type="checkbox" name="follows" value="<?= htmlspecialchars($tag["tag_id"]) ?>">
                                         <span class="tag-pill-label">
                                             <?= htmlspecialchars($tag["title"]) ?>
                                         </span>

@@ -8,11 +8,6 @@
 <!-- Styling -->
 <link href="styles/styles.css" rel="stylesheet">
 <link href="styles/navbar.css" rel="stylesheet">
-<link href="styles/panels.css" rel="stylesheet">
-<link href="styles/variables.css" rel="stylesheet">
-<link href="styles/search.css" rel="stylesheet">
-<link href="styles/forms.css" rel="stylesheet">
-<link href="styles/play.css" rel="stylesheet">
 
 <!-- Fonts and icons -->
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">

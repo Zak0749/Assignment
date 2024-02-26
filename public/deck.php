@@ -153,7 +153,12 @@ $deck = $deck_query->single();
                     <?php endif ?>
                 </ul>
 
-                <a class="primary-button button" href="play?deck_id=<?= htmlspecialchars($deck_id) ?>" keyboard-shortcut="enter">Play Round!</a>
+                <a class="primary-button button" href="play?deck_id=<?= htmlspecialchars($deck_id) ?>" keyboard-shortcut="enter">
+                    <span class="material-symbols-outlined">
+                        play_arrow
+                    </span>
+                    Play Round!
+                </a>
             </section>
 
             <section>

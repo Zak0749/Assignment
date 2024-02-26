@@ -57,6 +57,9 @@ if (!$deck["is_owned"]) {
 
 <head>
     <?php require "components/head.php" ?>
+
+    <!-- Styles for form elements -->
+    <link href="styles/forms.css" rel="stylesheet">
 </head>
 
 <body>
@@ -71,7 +74,7 @@ if (!$deck["is_owned"]) {
                 </h1>
 
                 <div class="icon-bar">
-                    <button class="header-icon" type="button" onclick="open_dialog('delete-dialog')" keyboard-shortcut="d">
+                    <button class="header-icon" type="button" onclick="document.getElementById('delete-dialog').showModal()" keyboard-shortcut="d">
                         <span class="material-symbols-outlined">
                             delete
                         </span>
@@ -85,10 +88,10 @@ if (!$deck["is_owned"]) {
             </header>
 
             <nav class="tab-bar">
-                <button onclick="changeTab(this,'info-tab')" class="selected-tab-button">
+                <button onclick="changeTab(this,'info-tab')" class="selected-tab-button" keyboard-shortcut="i">
                     Info
                 </button>
-                <button id="card-tab-button" onclick="changeTab(this,'card-tab')">
+                <button id="card-tab-button" onclick="changeTab(this,'card-tab')" keyboard-shortcut="c">
                     Cards
                 </button>
             </nav>
@@ -112,7 +115,7 @@ if (!$deck["is_owned"]) {
 
                     <div class="form-field hide-large">
                         <label>Topics</label>
-                        <button class="secondary-button button" type="button" onclick="open_dialog('tag-select-dialog')" keyboard-shortcut="t">
+                        <button class="secondary-button button" type="button" onclick="document.getElementById('tag-select-dialog').showModal()" keyboard-shortcut="t">
                             Show
                         </button>
                     </div>
@@ -132,7 +135,7 @@ if (!$deck["is_owned"]) {
                             </label>
 
                             <div class="icon-bar hide-large">
-                                <button class="header-icon" type="button" onclick="close_dialog('tag-select-dialog')" keyboard-shortcut="e">
+                                <button class="header-icon" type="button" onclick="document.getElementById('tag-select-dialog').close()" keyboard-shortcut="e">
                                     <span class="material-symbols-outlined">
                                         close
                                     </span>
@@ -142,7 +145,7 @@ if (!$deck["is_owned"]) {
 
                         <fieldset>
                             <?php
-                            $tags = $db->getAnnotatedTopics($deck_id, $_SESSION["account_id"] ?? null);
+                            $tags = $db->getTopicAnnotatedTags($deck_id, $_SESSION["account_id"] ?? null);
 
                             if (!$tags->isOk() || $tags->isEmpty()) : ?>
                                 <p>There was an error loading the tags please try again</p>
@@ -200,7 +203,7 @@ if (!$deck["is_owned"]) {
 
                         Add Card
                     </button>
-                    <button type="button" onclick="cardModeDelete()" class="danger-button button" keyboard-shortcut="m">
+                    <button type="button" onclick="document.getElementById('card-tab').dataset.mode = 'delete'()" class="danger-button button" keyboard-shortcut="m">
                         <span class="material-symbols-outlined">
                             delete
                         </span>
@@ -218,7 +221,7 @@ if (!$deck["is_owned"]) {
                         Undo Deletions
                     </button>
 
-                    <button type="button" onclick="cardModeEdit()" class="primary-button button edit-mode-button" keyboard-shortcut="m">
+                    <button type="button" onclick="document.getElementById('card-tab').dataset.mode = 'edit'" class="primary-button button edit-mode-button" keyboard-shortcut="m">
                         <span class="material-symbols-outlined">
                             edit
                         </span>
@@ -232,7 +235,7 @@ if (!$deck["is_owned"]) {
         <dialog class="danger-dialog" id="delete-dialog">
             <h2>Delete Deck</h2>
             <div class="beside">
-                <button class="light-danger-button button" onclick="close_dialog('delete-dialog')" keyboard-shortcut="e">Cancel</button>
+                <button class="light-danger-button button" onclick="document.getElementById('delete-dialog').close()" keyboard-shortcut="e">Cancel</button>
                 <!-- No keyboard shortcut as want users to be sure -->
                 <button class="danger-button button" onclick="deleteDeck()">Delete</button>
             </div>

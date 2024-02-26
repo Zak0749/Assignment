@@ -94,7 +94,7 @@ if ($result->isOk()) {
     http_response_code(201);
 
     // Give the new id of the deck
-    echo $result->value;
+    echo $result->getValue();
 } else {
     // Response of `Internal Server Error`
     http_response_code(500);

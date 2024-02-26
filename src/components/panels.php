@@ -57,14 +57,14 @@ function tag_panel($tag)
 					star
 				</span>
 			<?php endif ?>
-			<?= htmlspecialchars($tag['title']) ?>
+			<p><?= htmlspecialchars($tag['title']) ?></p>
 		</a>
 	</li>
 <?php }
 
 
 
-function user_panel($user)
+function account_panel($user)
 {
 ?>
 	<li class="user-panel">

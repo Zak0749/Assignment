@@ -18,6 +18,9 @@ $db = new Db();
 
 <head>
     <?php require "components/head.php" ?>
+
+    <!-- Styles for form elements -->
+    <link href="styles/forms.css" rel="stylesheet">
 </head>
 
 <body>
@@ -32,7 +35,7 @@ $db = new Db();
                 <button onclick="changeTab(this,'info-tab')" class="selected-tab-button" keyboard-shortcut="i">
                     Info
                 </button>
-                <button id="card-tab-button" onclick="changeTab(this,'card-tab')" keyboard-shortcut="q">
+                <button id="card-tab-button" onclick="changeTab(this,'card-tab')" keyboard-shortcut="c">
                     Cards
                 </button>
             </nav>
@@ -54,7 +57,7 @@ $db = new Db();
 
                     <div class="form-field hide-large">
                         <label>Topics</label>
-                        <button class="secondary-button" type="button" onclick="open_dialog('tag-select-dialog')" keyboard-shortcut="t">
+                        <button class="secondary-button" type="button" onclick="document.getElementById('tag-select-dialog').showModal()" keyboard-shortcut="t">
                             Show
                         </button>
                     </div>
@@ -74,7 +77,7 @@ $db = new Db();
                             </label>
 
                             <div class="icon-bar hide-large">
-                                <button class="header-icon" type="button" onclick="close_dialog('tag-select-dialog')" keyboard-shortcut="e">
+                                <button class="header-icon" type="button" onclick="document.getElementById('tag-select-dialog').close()" keyboard-shortcut="e">
                                     <span class="material-symbols-outlined">
                                         close
                                     </span>
@@ -114,7 +117,7 @@ $db = new Db();
                     <li>
                         <fieldset class="card-fieldset" name="cards">
                             <div class="card-editor form-field" oninput="matchHeights(this)">
-                                <textarea placeholder="question" name="question" class="card-question" required maxlength="128" oninvalid="changeTab(document.getElementById('card-tab-button'),'card-tab')"></textarea>
+                                <textarea placeholder="question" name="question" class="card-question" required maxlength="256" oninvalid="changeTab(document.getElementById('card-tab-button'),'card-tab')"></textarea>
                                 <textarea placeholder="answer" name="answer" class="card-answer" required maxlength="256" oninvalid="changeTab(document.getElementById('card-tab-button'),'card-tab')"></textarea>
                             </div>
                             <button class="card-delete-button" type="button" onclick="removeCard(this)">
@@ -133,7 +136,7 @@ $db = new Db();
 
                         Add Card
                     </button>
-                    <button type="button" onclick="cardModeDelete()" class="danger-button button" keyboard-shortcut="m">
+                    <button type="button" onclick="document.getElementById('card-tab').dataset.mode = 'delete'()" class="danger-button button" keyboard-shortcut="m">
                         <span class="material-symbols-outlined">
                             delete
                         </span>
@@ -151,7 +154,7 @@ $db = new Db();
                         Undo Deletions
                     </button>
 
-                    <button type="button" onclick="cardModeEdit()" class="primary-button edit-mode-button button" keyboard-shortcut="m">
+                    <button type="button" onclick="document.getElementById('card-tab').dataset.mode = 'edit'" class="primary-button edit-mode-button button" keyboard-shortcut="m">
                         <span class="material-symbols-outlined">
                             edit
                         </span>

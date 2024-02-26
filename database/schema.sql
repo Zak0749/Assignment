@@ -4,7 +4,7 @@ CREATE TABLE public.account(
   account_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   -- A unique and required 16 character string
   -- Name for the account user
-  username VARCHAR(16) UNIQUE NOT NULL, 
+  username VARCHAR(16) UNIQUE NOT NULL,
   -- A required 255 long string to meet needs of php password_hash 
   -- A hashed user password
   password VARCHAR(255) NOT NULL,
@@ -53,7 +53,7 @@ CREATE TABLE public.deck(
   description VARCHAR(256) NOT NULL,
   -- Date and time set when deck created
   -- When the user created their the deck
-  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
+  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 -- Table to store cards each with a question and answer
 CREATE TABLE public.card(
@@ -164,9 +164,12 @@ SELECT EXTRACT(
     DAY
     FROM LAG(timestamp, 1, CURRENT_TIMESTAMP) OVER (
         ORDER BY timestamp DESC
-      ) - timestamp
-  ) -- Gets the day part of the difference between the current row's timestamp and previous rows or for the first row the current timestamp
-FROM play
+      )
+  ) - EXTRACT (
+    DAY
+    FROM timestamp
+  )
+FROM play -- Gets the day part of the difference between the current row's timestamp and previous rows or for the first row the current timestamp
 WHERE play.account_id = account_id LOOP -- If the user has broken their streak
   IF date_diff > 1 THEN exit;
 -- Only want day differences of one as if it zero then same day
@@ -175,415 +178,1269 @@ END IF;
 END LOOP;
 RETURN streak;
 END $$ LANGUAGE plpgsql;
+INSERT INTO account (
+    account_id,
+    username,
+    password,
+    avatar,
+    timestamp
+  )
+VALUES (
+    'a3511a35-6f9e-4147-bc11-3bd3b581efa1',
+    'John_Doe',
+    '$2y$10$ftxZhQIQZowmfXd6LKiQD.8NbvVcKLL8yowMKdORkmUVohG55HRlS',
+    '1a3f9b7c',
+    '2023-10-22 15:30:00'
+  ),
+  (
+    '67e70953-55a0-4beb-9a97-6ff17af07691',
+    'Emily_Smith',
+    '$2y$10$SJK6Cv3hDHDmE9XMSV5hYudWdnUWzFxJIe6hH55616qV38Be1BOzC',
+    'e8d24f6a',
+    '2023-11-11 12:30:00'
+  ),
+  (
+    '96dcf4e0-4095-43df-955b-8bfa54baaf97',
+    'Sarah_Carter',
+    '$2y$10$qgS6BKQkpjAlv.NMsiSqR.ztzK2BSBoAsVpbhiMz/BCriTOPh8iCe',
+    'b0f63e2d',
+    '2023-10-14 12:00:00'
+  );
+INSERT INTO deck (
+    deck_id,
+    account_id,
+    title,
+    description,
+    timestamp
+  )
+VALUES (
+    '20630b8d-7d55-486f-8070-1c0f4ff2fca6',
+    '67e70953-55a0-4beb-9a97-6ff17af07691',
+    'Security Risks and Precautions',
+    'Remind yourself of the different simple attacks against your program and methods to prevent them.',
+    '2023-11-30 12:00:00'
+  ),
+  (
+    'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3',
+    '96dcf4e0-4095-43df-955b-8bfa54baaf97',
+    'Binary Basics',
+    'The number system used by all computers. Commit the basics and representation of datatypes to your long term memory. ',
+    '2023-11-02 12:30:00'
+  ),
+  (
+    'ff0678dd-2331-4615-b6e8-230614961dd2',
+    '67e70953-55a0-4beb-9a97-6ff17af07691',
+    'Newtons Laws',
+    'The fundamental laws of motion in physics. Practice answering the laws and what they are used for.',
+    '2023-11-03 12:30:00'
+  );
+INSERT INTO tag(tag_id, title)
+VALUES ('71def6cd-572f-4ecd-8a30-d51edba89d2a', 'Maths'),
+  (
+    '250fbc41-10c0-4b10-88ea-bf91c52f9918',
+    'Physics'
+  ),
+  (
+    '4e06f05f-16e1-4930-adca-355454466cee',
+    'Computing Science'
+  ),
+  (
+    'b5380134-4263-4c19-a0d1-37a0c5f3912e',
+    'Chemistry'
+  );
+INSERT INTO topic (tag_id, deck_id)
+VALUES (
+    '250fbc41-10c0-4b10-88ea-bf91c52f9918',
+    'ff0678dd-2331-4615-b6e8-230614961dd2'
+  ),
+  (
+    '4e06f05f-16e1-4930-adca-355454466cee',
+    'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3'
+  ),
+  (
+    '71def6cd-572f-4ecd-8a30-d51edba89d2a',
+    'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3'
+  );
+INSERT INTO follow (tag_id, account_id)
+VALUES (
+    '71def6cd-572f-4ecd-8a30-d51edba89d2a',
+    'a3511a35-6f9e-4147-bc11-3bd3b581efa1'
+  ),
+  (
+    '4e06f05f-16e1-4930-adca-355454466cee',
+    'a3511a35-6f9e-4147-bc11-3bd3b581efa1'
+  ),
+  (
+    '4e06f05f-16e1-4930-adca-355454466cee',
+    '67e70953-55a0-4beb-9a97-6ff17af07691'
+  );
+INSERT INTO save (account_id, deck_id)
+VALUES (
+    'a3511a35-6f9e-4147-bc11-3bd3b581efa1',
+    'ff0678dd-2331-4615-b6e8-230614961dd2'
+  ),
+  (
+    'a3511a35-6f9e-4147-bc11-3bd3b581efa1',
+    'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3'
+  ),
+  (
+    '96dcf4e0-4095-43df-955b-8bfa54baaf97',
+    'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3'
+  );
+INSERT INTO play (account_id, deck_id, score, timestamp)
+VALUES (
+    '67e70953-55a0-4beb-9a97-6ff17af07691',
+    'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3',
+    7,
+    '2023-11-02 12:30:00'
+  ),
+  (
+    '67e70953-55a0-4beb-9a97-6ff17af07691',
+    'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3',
+    8,
+    '2023-11-19 12:30:00'
+  ),
+  (
+    '67e70953-55a0-4beb-9a97-6ff17af07691',
+    'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3',
+    11,
+    '2023-11-16 12:30:00'
+  ),
+  (
+    '67e70953-55a0-4beb-9a97-6ff17af07691',
+    'ff0678dd-2331-4615-b6e8-230614961dd2',
+    4,
+    '2023-11-23 02:30:00'
+  ),
+  (
+    '96dcf4e0-4095-43df-955b-8bfa54baaf97',
+    'ff0678dd-2331-4615-b6e8-230614961dd2',
+    4,
+    '2023-11-30 02:30:00'
+  ),
+  (
+    '96dcf4e0-4095-43df-955b-8bfa54baaf97',
+    'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3',
+    10,
+    '2023-11-12 12:30:00'
+  ),
+  (
+    '96dcf4e0-4095-43df-955b-8bfa54baaf97',
+    'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3',
+    12,
+    '2023-11-13 12:30:00'
+  ),
+  (
+    '96dcf4e0-4095-43df-955b-8bfa54baaf97',
+    'ff0678dd-2331-4615-b6e8-230614961dd2',
+    7,
+    '2023-11-7 02:30:00'
+  );
+INSERT INTO card (card_id, deck_id, question, answer)
+VALUES (
+    '4191bb49-94c9-45ad-828d-49d01780f6e4',
+    '20630b8d-7d55-486f-8070-1c0f4ff2fca6',
+    'Firewall',
+    'Control network use'
+  ),
+  (
+    'd3214777-f504-48b1-96a2-21ee0917dde2',
+    '20630b8d-7d55-486f-8070-1c0f4ff2fca6',
+    'XSS Attack',
+    'Inject script tags into other users machines getting to run code on their browser'
+  ),
+  (
+    'efda5e2c-2211-4a18-b387-30f3195bb17c',
+    '20630b8d-7d55-486f-8070-1c0f4ff2fca6',
+    'SQL Injection',
+    'Injecting sql into database as string input is not sanitised '
+  ),
+  (
+    '2cde1440-38e0-4a6e-9de1-15326308f7b3',
+    '20630b8d-7d55-486f-8070-1c0f4ff2fca6',
+    'DOS attack',
+    'Spam requests to overload system'
+  ),
+  (
+    'c002a33c-f0f4-4f8b-81d6-685600f986e2',
+    '20630b8d-7d55-486f-8070-1c0f4ff2fca6',
+    'Prevent XSS Attack',
+    'Use htmlspecialchars when outputting'
+  ),
+  (
+    '9d36af5f-1883-4a30-a60e-6cebd5fcea55',
+    '20630b8d-7d55-486f-8070-1c0f4ff2fca6',
+    'Prevent SQL Injection',
+    'Use prepared statements'
+  ),
+  (
+    'cab96744-15d0-4435-bdb6-5a392c7b8d78',
+    '20630b8d-7d55-486f-8070-1c0f4ff2fca6',
+    'Prevent DOS attack',
+    'Timeout on lots of requests'
+  ),
+  (
+    'ad11d162-24a5-40f4-ab05-fb004a532be3',
+    '20630b8d-7d55-486f-8070-1c0f4ff2fca6',
+    'Encryption ',
+    'Scrambles the data so even if attacker gets it, they cannot read'
+  ),
+  (
+    'f725745c-81af-4b08-8e3f-803aacae780c',
+    '20630b8d-7d55-486f-8070-1c0f4ff2fca6',
+    'Private Key',
+    'A key that is used to decrypt data'
+  ),
+  (
+    'a0670d92-f911-4f01-b8d4-bad8ffe68d8b',
+    '20630b8d-7d55-486f-8070-1c0f4ff2fca6',
+    'Public key',
+    'A key used to encrypt data'
+  ),
+  (
+    '2737831d-cd3f-4a76-9974-f0a2f603ef14',
+    '20630b8d-7d55-486f-8070-1c0f4ff2fca6',
+    'Digital Certificate',
+    'Verifies a user sending a message is who they claim'
+  ),
+  (
+    '8396bf26-c8b4-4eb0-9386-05189fafba3e',
+    '20630b8d-7d55-486f-8070-1c0f4ff2fca6',
+    'Digital Signatures',
+    'Verifies an electronic message or document is authentic'
+  ),
+  (
+    'c3cead37-e1a6-427b-906b-1372fdb8168b',
+    '20630b8d-7d55-486f-8070-1c0f4ff2fca6',
+    'Tracking Cookies',
+    'Used to track users across websites'
+  ),
+  (
+    '0ab258f6-6721-4e34-bed3-1940745aba67',
+    'ff0678dd-2331-4615-b6e8-230614961dd2',
+    'Newtons 1st law',
+    'An object at rest remains at rest, and an object in motion remains in motion at constant speed and in a straight line unless acted on by an unbalanced force.'
+  ),
+  (
+    '8da557c8-b6df-4961-b7ab-b697545a710d',
+    'ff0678dd-2331-4615-b6e8-230614961dd2',
+    'Newtons 2nd law',
+    'F = ma'
+  ),
+  (
+    '337a5f16-86ba-490e-95bb-c4ae5611d943',
+    'ff0678dd-2331-4615-b6e8-230614961dd2',
+    'Newtons 3rd law',
+    'Whenever one object exerts a force on another object, the second object exerts an equal and opposite on the first.'
+  ),
+  (
+    '2896c6d3-40d9-4617-a750-69ef21d60856',
+    'ff0678dd-2331-4615-b6e8-230614961dd2',
+    'Unit of force',
+    'Newtons'
+  ),
+  (
+    'bc13f4e2-63c2-45d8-84af-8f061cd92752',
+    'ff0678dd-2331-4615-b6e8-230614961dd2',
+    'Unit of acceleration',
+    'Meters per second per second'
+  ),
+  (
+    'c136cde9-2ad3-4af5-8ad3-35e21d5d12ad',
+    'ff0678dd-2331-4615-b6e8-230614961dd2',
+    'Unit of mass',
+    'Kilograms'
+  ),
+  (
+    '8d343435-0c7a-4617-b9ce-bf74929ca196',
+    'ff0678dd-2331-4615-b6e8-230614961dd2',
+    'Rocket is propelled by',
+    'Newtons 3rd law'
+  ),
+  (
+    'c4b56f27-adb2-440a-b2f2-8c77abcc97c2',
+    'ff0678dd-2331-4615-b6e8-230614961dd2',
+    'A spaceship doesn’t slow down because',
+    'Newtons 1st laws'
+  ),
+  (
+    'b474e7c0-48b0-47f8-b593-fb110352dc57',
+    'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3',
+    'What base is binary',
+    'Base 2'
+  ),
+  (
+    '5bb3e3ea-f2cf-4a3a-be1a-3d1966cc66ee',
+    'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3',
+    'What are the two allowed symbols',
+    '1 and 0'
+  ),
+  (
+    '841e5bb0-7362-4c0a-b338-3407829da997',
+    'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3',
+    'Why is binary useful',
+    'Computers can only store 1’s or 0’s'
+  ),
+  (
+    'ad4cf1bc-75ec-451d-a9bc-8c44f494e220',
+    'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3',
+    'Represent Letters',
+    'ASCII'
+  ),
+  (
+    '74cf35d5-2a8c-4b32-bd52-11d7ffefb86f',
+    'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3',
+    'Represent Images',
+    'Array of pixels'
+  ),
+  (
+    'e14ce74c-fc1f-40d0-bd60-187336e53df9',
+    'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3',
+    'Range of a 8 bit unsigned integer ',
+    '0 -> 255'
+  ),
+  (
+    '29ae95ae-fc6f-4b51-9b96-43a28cffbd7e',
+    'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3',
+    'Range of a 8 bit signed integer',
+    '-128 -> 127'
+  ),
+  (
+    '34421b81-18df-483e-93de-fd8f07a2ab80',
+    'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3',
+    'Represent Decimal Numbers',
+    'Floating point system'
+  );
+-- -- Test Data
+INSERT INTO public.account (
+    account_id,
+    username,
+    password,
+    avatar,
+    timestamp
+  )
+VALUES (
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    'john_doe',
+    '$2y$10$Ya/zWJOE4bsmplhqh9VKkefUwFLvQKn89uxoKjF1UJFPzvlzOYtpm',
+    'a1b2c3d4',
+    '2023-11-11T12:30:00'
+  ),
+  -- password123
+  (
+    '7c9e6679-8b75-4d4b-a000-9c29efaa44b3',
+    'jane_smith',
+    '$2y$10$wuUeddhloqkbjH8wNnrnJ.iCqyb4qFNlDnwv/gtDkm3ZfoPFwePq2',
+    'e5f6g7h8',
+    '2023-11-11T12:35:00'
+  ),
+  --securepass456
+  (
+    'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+    'bob_jones',
+    '$2y$10$xOVZRSB212nfqQRD.ExYMOFCDhHbfP2DMfayvVSrIVtZev2qrCVeO',
+    'i9j0k1l2',
+    '2023-11-11T12:40:00'
+  ),
+  -- 'myp@ssword
+  (
+    'd82f9c72-ff43-429a-886f-cc961b308e91',
+    'alice_green',
+    '$2y$10$OSePb/DS4dOi6JpncitN8.3JqEo0OVzl8klROPVk143tragHpv0be',
+    'm3n4o5p6',
+    '2023-11-11T12:45:00'
+  ),
+  --strongPassword
+  (
+    '9c8e8f52-8a40-43d3-a050-482c3282adbc',
+    'sam_wilson',
+    '$2y$10$5L0TnrxSFj248xcp9EyxzeA2RafYHBdGHW.8hut7qAJqASvdgtXBm',
+    'q7r8s9t0',
+    '2023-11-11T12:50:00'
+  ),
+  --pass1234
+  (
+    'edc1e69a-ff46-493f-bc44-3e875a21177d',
+    'lisa_miller',
+    '$2y$10$jXCXLRb.9JMV7j9O3osdfeqYfdetEwl.oc2efIcwJbklVq4P5idxO',
+    'u1v2w3x4',
+    '2023-11-11T12:55:00'
+  ),
+  --password!23
+  (
+    'eb7a1c0e-522c-4f40-83e9-3b3b7ce34c65',
+    'michael_knight',
+    '$2y$10$qTNP/BKEr9dt3JB/jGnQ9us7UDhDk7eRN7VggmxAVcb2Pkk02HlpS',
+    'y5z6a7b8',
+    '2023-11-11T13:00:00'
+  ),
+  --kn1ghtRider
+  (
+    '74316e29-57dd-43b6-8aae-92a03df6f8eb',
+    'emily_white',
+    '$2y$10$LMWotrg5k7oa8/TWKCh3XO3lloFbFVh5TZkGarcbhcTpsQfbjFHrC',
+    'c9d0e1f2',
+    '2023-11-11T13:05:00'
+  ),
+  --p@ssw0rd
+  (
+    '4654a13b-0909-45c6-bc5a-674a0793e63b',
+    'ryan_black',
+    '$2y$10$uc1YgA2UPmx5JFa3wHoiLOJa7Av2K8oxMkXYgvo4Z4vBDsyMWHeEy',
+    'g3h4i5j6',
+    '2023-11-11T13:10:00'
+  ),
+  --blackp@ss
+  (
+    'c5c83c5b-7e83-4935-8a67-58939225a1e9',
+    'susan_blue',
+    '$2y$10$gakDNXY4s4vAOecxAfZaHuH0kjLTNBvRaFn9GGHteX5mzKbbqgH3C',
+    'k7l8m9n0',
+    '2023-11-11T13:15:00'
+  );
+-- 
+INSERT INTO public.deck (
+    deck_id,
+    account_id,
+    title,
+    description,
+    timestamp
+  )
+VALUES (
+    'f8d6f63a-3d3d-429e-bd9a-7743f4b111e1',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    'History Flashcards',
+    'Flashcards about historical events',
+    '2023-11-10T14:30:00'
+  ),
+  (
+    'd570c9c5-1342-4c5d-b82a-2491f45008b3',
+    'd82f9c72-ff43-429a-886f-cc961b308e91',
+    'Mathematics Fundamentals',
+    'Fundamental concepts in mathematics',
+    '2023-11-10T14:35:00'
+  ),
+  (
+    'ef9989bf-0cf1-4713-9ab3-4ac1f6d7a0d9',
+    '7c9e6679-8b75-4d4b-a000-9c29efaa44b3',
+    'Literature Masterpieces',
+    'Flashcards about classic literature',
+    '2023-11-10T14:40:00'
+  ),
+  (
+    'bdf8c6ef-38fb-4c35-b103-b96a47a0e4da',
+    'eb7a1c0e-522c-4f40-83e9-3b3b7ce34c65',
+    'Chemistry Basics',
+    'Basic concepts in chemistry',
+    '2023-11-10T14:45:00'
+  ),
+  (
+    '9b628635-bf41-4cb5-86d1-9c8c754c46b1',
+    '9c8e8f52-8a40-43d3-a050-482c3282adbc',
+    'Spanish Vocabulary',
+    'Flashcards to build Spanish vocabulary',
+    '2023-11-10T14:50:00'
+  ),
+  (
+    '4f5c9977-35ee-4dcd-953d-d2c4ba17be38',
+    'edc1e69a-ff46-493f-bc44-3e875a21177d',
+    'Programming Concepts',
+    'Fundamental concepts in programming',
+    '2023-11-10T14:55:00'
+  ),
+  (
+    'b1c4c4ac-01d0-4e35-b6c8-0c49ebf8f68b',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    'Health and Fitness Tips',
+    'Tips for a healthy lifestyle',
+    '2023-11-10T15:00:00'
+  ),
+  (
+    '15e07d6f-207c-4747-b06b-3d9cb1de1d8d',
+    '9c8e8f52-8a40-43d3-a050-482c3282adbc',
+    'Art History Highlights',
+    'Flashcards about famous artworks and artists',
+    '2023-11-10T15:05:00'
+  ),
+  (
+    '228d305f-d6e9-473d-b502-79f0ebed7188',
+    '9c8e8f52-8a40-43d3-a050-482c3282adbc',
+    'Crime and law',
+    'Flashcards about famous artworks and artists',
+    '2023-11-10T15:05:00'
+  ),
+  (
+    'da91fc42-091c-4f80-896f-0a4827d760d0',
+    '9c8e8f52-8a40-43d3-a050-482c3282adbc',
+    'MacCaig poetry',
+    'Flashcards about famous artworks and artists',
+    '2023-11-10T15:05:00'
+  ),
+  (
+    '74cc1600-a3f7-4423-93ff-0967a2b9d71c',
+    '9c8e8f52-8a40-43d3-a050-482c3282adbc',
+    'Quantum Physics',
+    'Flashcards about famous artworks and artists',
+    '2023-11-10T15:05:00'
+  ),
+  (
+    '572766eb-a8b0-421d-880f-6fea8efb6f74',
+    '9c8e8f52-8a40-43d3-a050-482c3282adbc',
+    'Engineering schematics',
+    'Flashcards about famous artworks and artists',
+    '2023-11-10T15:05:00'
+  ),
+  (
+    'd5220719-8d62-4705-bf6f-0291eaf88fc5',
+    '9c8e8f52-8a40-43d3-a050-482c3282adbc',
+    'Maths Identities',
+    'Flashcards about famous artworks and artists',
+    '2023-11-11T15:05:00'
+  ),
+  (
+    'df5e19a0-c98d-410f-976e-f18e3bf9bbe4',
+    '9c8e8f52-8a40-43d3-a050-482c3282adbc',
+    'French Openings',
+    'Flashcards about famous artworks and artists',
+    '2023-11-10T15:05:00'
+  );
+INSERT INTO public.card (deck_id, question, answer)
+VALUES (
+    'f8d6f63a-3d3d-429e-bd9a-7743f4b111e1',
+    'What year did World War II end?',
+    '1945'
+  ),
+  (
+    'f8d6f63a-3d3d-429e-bd9a-7743f4b111e1',
+    'Who was the U.S. president during World War II?',
+    'Franklin D. Roosevelt'
+  ),
+  (
+    'f8d6f63a-3d3d-429e-bd9a-7743f4b111e1',
+    'country was the first to use atomic bombs in warfare?',
+    'United States'
+  ),
+  (
+    'f8d6f63a-3d3d-429e-bd9a-7743f4b111e1',
+    'the chemical symbol for uranium?',
+    'U'
+  ),
+  (
+    'f8d6f63a-3d3d-429e-bd9a-7743f4b111e1',
+    'In  year did the Cold War end?',
+    '1991'
+  ),
+  (
+    'f8d6f63a-3d3d-429e-bd9a-7743f4b111e1',
+    'the capital of Germany?',
+    'Berlin'
+  ),
+  (
+    'f8d6f63a-3d3d-429e-bd9a-7743f4b111e1',
+    'Who wrote "To Kill a Mockingbird"?',
+    'Harper Lee'
+  ),
+  (
+    'f8d6f63a-3d3d-429e-bd9a-7743f4b111e1',
+    'city hosted the 2016 Summer Olympics?',
+    'Rio de Janeiro'
+  ),
+  (
+    'd570c9c5-1342-4c5d-b82a-2491f45008b3',
+    'the value of pi (π)?',
+    '3.14159'
+  ),
+  (
+    'd570c9c5-1342-4c5d-b82a-2491f45008b3',
+    'known as the "Father of Mathematics"?',
+    'Archimedes'
+  ),
+  (
+    'd570c9c5-1342-4c5d-b82a-2491f45008b3',
+    'the Pythagorean theorem?',
+    'a² + b² = c²'
+  ),
+  (
+    'd570c9c5-1342-4c5d-b82a-2491f45008b3',
+    'the sum of the angles in a triangle?',
+    '180 degrees'
+  ),
+  (
+    'd570c9c5-1342-4c5d-b82a-2491f45008b3',
+    'Who developed the laws of motion?',
+    'Isaac Newton'
+  ),
+  (
+    'd570c9c5-1342-4c5d-b82a-2491f45008b3',
+    'the capital of France?',
+    'Paris'
+  ),
+  (
+    'd570c9c5-1342-4c5d-b82a-2491f45008b3',
+    'Who wrote "The Hitchhikers Guide to the Galaxy"?',
+    'Douglas Adams'
+  ),
+  (
+    'ef9989bf-0cf1-4713-9ab3-4ac1f6d7a0d9',
+    'Who wrote "Romeo and Juliet"?',
+    'William Shakespeare'
+  ),
+  (
+    'ef9989bf-0cf1-4713-9ab3-4ac1f6d7a0d9',
+    'In  century did the Renaissance begin?',
+    '14th century'
+  ),
+  (
+    'ef9989bf-0cf1-4713-9ab3-4ac1f6d7a0d9',
+    'Who painted the Mona Lisa?',
+    'Leonardo da Vinci'
+  ),
+  (
+    'ef9989bf-0cf1-4713-9ab3-4ac1f6d7a0d9',
+    'In  city is the Louvre Museum located?',
+    'Paris'
+  ),
+  (
+    'ef9989bf-0cf1-4713-9ab3-4ac1f6d7a0d9',
+    'considered the father of modern physics?',
+    'Albert Einstein'
+  ),
+  (
+    'ef9989bf-0cf1-4713-9ab3-4ac1f6d7a0d9',
+    'the theory of relativity?',
+    'E=mc²'
+  ),
+  (
+    'ef9989bf-0cf1-4713-9ab3-4ac1f6d7a0d9',
+    'known as the "Bard of Avon"?',
+    'William Shakespeare'
+  ),
+  (
+    'ef9989bf-0cf1-4713-9ab3-4ac1f6d7a0d9',
+    'the meaning of the term "Renaissance"?',
+    'Rebirth'
+  ),
+  (
+    'bdf8c6ef-38fb-4c35-b103-b96a47a0e4da',
+    'the chemical symbol for gold?',
+    'Au'
+  ),
+  (
+    'bdf8c6ef-38fb-4c35-b103-b96a47a0e4da',
+    'a chemical element?',
+    'A substance that cannot be broken down into simpler substances by chemical means'
+  ),
+  (
+    'bdf8c6ef-38fb-4c35-b103-b96a47a0e4da',
+    'the most abundant gas in Earths atmosphere?',
+    'Nitrogen'
+  ),
+  (
+    'bdf8c6ef-38fb-4c35-b103-b96a47a0e4da',
+    'the chemical formula for water?',
+    'H₂O'
+  ),
+  (
+    'bdf8c6ef-38fb-4c35-b103-b96a47a0e4da',
+    'a chemical reaction?',
+    'The process by  substances are transformed into different substances'
+  ),
+  (
+    'bdf8c6ef-38fb-4c35-b103-b96a47a0e4da',
+    'the pH scale used for?',
+    'Measuring the acidity or basicity of a solution'
+  ),
+  (
+    'bdf8c6ef-38fb-4c35-b103-b96a47a0e4da',
+    'known as the "Father of Chemistry"?',
+    'Antoine Lavoisier'
+  ),
+  (
+    'bdf8c6ef-38fb-4c35-b103-b96a47a0e4da',
+    'an isotope?',
+    'Atoms of the same element with different numbers of neutrons'
+  ),
+  (
+    '9b628635-bf41-4cb5-86d1-9c8c754c46b1',
+    'How do you say "hello" in Spanish?',
+    'Hola'
+  ),
+  (
+    '9b628635-bf41-4cb5-86d1-9c8c754c46b1',
+    'the capital of Spain?',
+    'Madrid'
+  ),
+  (
+    '9b628635-bf41-4cb5-86d1-9c8c754c46b1',
+    'a famous Spanish artist known for his surrealist paintings?',
+    'Salvador Dalí'
+  ),
+  (
+    '9b628635-bf41-4cb5-86d1-9c8c754c46b1',
+    'the currency of Spain?',
+    'Euro'
+  ),
+  (
+    '9b628635-bf41-4cb5-86d1-9c8c754c46b1',
+    'spanish dish consisting of rice, saffron, meats and vegetables?',
+    'Paella'
+  ),
+  (
+    '9b628635-bf41-4cb5-86d1-9c8c754c46b1',
+    'Spanish architect known for his unique and avant-garde designs?',
+    'Antoni Gaudí'
+  ),
+  (
+    '9b628635-bf41-4cb5-86d1-9c8c754c46b1',
+    'the largest city in Spain?',
+    'Madrid'
+  ),
+  (
+    '4f5c9977-35ee-4dcd-953d-d2c4ba17be38',
+    'a loop in programming?',
+    'A sequence of instructions that is continually repeated until a certain condition is met'
+  ),
+  (
+    '4f5c9977-35ee-4dcd-953d-d2c4ba17be38',
+    'the difference between "for" and "while" loops?',
+    '"For" loops are used when the number of iterations is known, while "while" loops are used when the condition for termination is not known initially'
+  ),
+  (
+    '4f5c9977-35ee-4dcd-953d-d2c4ba17be38',
+    'the purpose of conditional statements in programming?',
+    'To make decisions and execute different code blocks based on specific conditions'
+  ),
+  (
+    '4f5c9977-35ee-4dcd-953d-d2c4ba17be38',
+    'an array?',
+    'A data structure that stores a collection of elements, each identified by an index or a key'
+  ),
+  (
+    '4f5c9977-35ee-4dcd-953d-d2c4ba17be38',
+    'the difference between a function and a method in programming?',
+    'A function is a block of code that performs a specific task, while a method is a function associated with an object'
+  ),
+  (
+    '4f5c9977-35ee-4dcd-953d-d2c4ba17be38',
+    'the purpose of comments in code?',
+    'To provide explanations or additional information for human readers and developers'
+  ),
+  (
+    '4f5c9977-35ee-4dcd-953d-d2c4ba17be38',
+    'the concept of "scope" in programming?',
+    'The region of the program where a variable can be accessed'
+  ),
+  (
+    '4f5c9977-35ee-4dcd-953d-d2c4ba17be38',
+    'the role of a version control system in software development?',
+    'To track changes in the source code and coordinate work among multiple developers'
+  ),
+  (
+    'b1c4c4ac-01d0-4e35-b6c8-0c49ebf8f68b',
+    'What are some tips for a healthy lifestyle?',
+    'Exercise regularly, eat a balanced diet, get enough sleep'
+  ),
+  (
+    'b1c4c4ac-01d0-4e35-b6c8-0c49ebf8f68b',
+    'How many hours of sleep are recommended for adults?',
+    '7-9 hours'
+  ),
+  (
+    'b1c4c4ac-01d0-4e35-b6c8-0c49ebf8f68b',
+    'the importance of staying hydrated?',
+    'It helps maintain bodily functions, regulate temperature, and support overall health'
+  ),
+  (
+    'b1c4c4ac-01d0-4e35-b6c8-0c49ebf8f68b',
+    'the recommended daily intake of fruits and vegetables?',
+    '5 servings'
+  ),
+  (
+    'b1c4c4ac-01d0-4e35-b6c8-0c49ebf8f68b',
+    'How does regular exercise benefit mental health?',
+    'It reduces stress, improves mood, and enhances cognitive function'
+  ),
+  (
+    'b1c4c4ac-01d0-4e35-b6c8-0c49ebf8f68b',
+    'the significance of a balanced diet?',
+    'It provides essential nutrients for the body to function properly'
+  ),
+  (
+    'b1c4c4ac-01d0-4e35-b6c8-0c49ebf8f68b',
+    'Why is it important to manage stress?',
+    'High stress levels can negatively impact physical and mental health'
+  ),
+  (
+    'b1c4c4ac-01d0-4e35-b6c8-0c49ebf8f68b',
+    'What are some benefits of adequate sleep?',
+    'Improved concentration, mood, and overall well-being'
+  ),
+  (
+    '15e07d6f-207c-4747-b06b-3d9cb1de1d8d',
+    'Who painted the Mona Lisa?',
+    'Leonardo da Vinci'
+  ),
+  (
+    '15e07d6f-207c-4747-b06b-3d9cb1de1d8d',
+    'In  century did the Renaissance occur?',
+    '14th to 17th century'
+  ),
+  (
+    '15e07d6f-207c-4747-b06b-3d9cb1de1d8d',
+    'the significance of the Sistine Chapel ceiling?',
+    'Painted by Michelangelo, it is considered a masterpiece of Renaissance art'
+  ),
+  (
+    '15e07d6f-207c-4747-b06b-3d9cb1de1d8d',
+    'Who sculpted the statue of David?',
+    'Michelangelo'
+  ),
+  (
+    '15e07d6f-207c-4747-b06b-3d9cb1de1d8d',
+    'artist known for realistic portrayals rural life?',
+    'Pieter Bruegel the Elder'
+  ),
+  (
+    '15e07d6f-207c-4747-b06b-3d9cb1de1d8d',
+    'chiaroscuro in art?',
+    'The use of strong contrasts between light and dark to create a sense of volume and three-dimensionality'
+  ),
+  (
+    '15e07d6f-207c-4747-b06b-3d9cb1de1d8d',
+    'considered the founder of Impressionism?',
+    'Claude Monet'
+  ),
+  (
+    '15e07d6f-207c-4747-b06b-3d9cb1de1d8d',
+    'surrealism in art?',
+    'A 20th-century avant-garde movement that sought to release the creative potential of the unconscious mind'
+  );
+INSERT INTO public.tag (tag_id, title)
+VALUES (
+    '3e25960a-58c6-4f01-81f3-2c7a6c0a1111',
+    'History'
+  ),
+  (
+    'b91cbbb1-cc6a-4e0b-a788-133e071f3333',
+    'Literature'
+  ),
+  (
+    'ce072a37-051f-4a6b-87b3-1ef236734444',
+    'Science'
+  ),
+  (
+    'e98643b1-83cf-4f21-9361-798c49c55555',
+    'Language'
+  ),
+  (
+    '6f6c6887-7070-45ef-95a2-9b53b2356666',
+    'Programming'
+  ),
+  ('bd822ac2-1ae7-4daa-8f15-80989ff77777', 'Health'),
+  ('67ea0bc3-13c9-4bb3-b6eb-8ef48a288888', 'Art'),
+  (
+    'b512d3e5-9e29-4b3d-98bb-d3aa10599999',
+    'Technology'
+  ),
+  (
+    '24a4f0b9-0d12-4e62-831b-5b6ce9671010',
+    'Environment'
+  ),
+  ('727a0b1b-60ff-4b6d-8a15-ba7a43212121', 'Python'),
+  (
+    'bb7a6dd4-c2e2-4e79-8140-ebc0e4f31313',
+    'Geography'
+  ),
+  (
+    '5558d622-6940-4c39-8d8e-6972a7a11414',
+    'Economics'
+  ),
+  ('ff5260d2-0eb5-4b8c-99d0-9d62efb51515', 'Music'),
+  ('c77f5f63-47a7-46d5-88d1-419a98e51616', 'French');
+INSERT INTO public.topic (deck_id, tag_id)
+VALUES (
+    'f8d6f63a-3d3d-429e-bd9a-7743f4b111e1',
+    '3e25960a-58c6-4f01-81f3-2c7a6c0a1111'
+  ),
+  (
+    'd570c9c5-1342-4c5d-b82a-2491f45008b3',
+    '71def6cd-572f-4ecd-8a30-d51edba89d2a'
+  ),
+  (
+    'ef9989bf-0cf1-4713-9ab3-4ac1f6d7a0d9',
+    'b91cbbb1-cc6a-4e0b-a788-133e071f3333'
+  ),
+  (
+    'bdf8c6ef-38fb-4c35-b103-b96a47a0e4da',
+    'ce072a37-051f-4a6b-87b3-1ef236734444'
+  ),
+  (
+    '9b628635-bf41-4cb5-86d1-9c8c754c46b1',
+    'e98643b1-83cf-4f21-9361-798c49c55555'
+  ),
+  (
+    '4f5c9977-35ee-4dcd-953d-d2c4ba17be38',
+    '6f6c6887-7070-45ef-95a2-9b53b2356666'
+  ),
+  (
+    'b1c4c4ac-01d0-4e35-b6c8-0c49ebf8f68b',
+    'bd822ac2-1ae7-4daa-8f15-80989ff77777'
+  ),
+  (
+    '15e07d6f-207c-4747-b06b-3d9cb1de1d8d',
+    '67ea0bc3-13c9-4bb3-b6eb-8ef48a288888'
+  ),
+  (
+    '228d305f-d6e9-473d-b502-79f0ebed7188',
+    '3e25960a-58c6-4f01-81f3-2c7a6c0a1111'
+  ),
+  (
+    'da91fc42-091c-4f80-896f-0a4827d760d0',
+    'b91cbbb1-cc6a-4e0b-a788-133e071f3333'
+  ),
+  (
+    '74cc1600-a3f7-4423-93ff-0967a2b9d71c',
+    '250fbc41-10c0-4b10-88ea-bf91c52f9918'
+  ),
+  (
+    '572766eb-a8b0-421d-880f-6fea8efb6f74',
+    'ce072a37-051f-4a6b-87b3-1ef236734444'
+  ),
+  (
+    'd5220719-8d62-4705-bf6f-0291eaf88fc5',
+    '71def6cd-572f-4ecd-8a30-d51edba89d2a'
+  ),
+  (
+    'df5e19a0-c98d-410f-976e-f18e3bf9bbe4',
+    'c77f5f63-47a7-46d5-88d1-419a98e51616'
+  );
+INSERT INTO public.follow (account_id, tag_id)
+VALUES (
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    '3e25960a-58c6-4f01-81f3-2c7a6c0a1111'
+  ),
+  (
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    'b91cbbb1-cc6a-4e0b-a788-133e071f3333'
+  ),
+  (
+    'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+    '71def6cd-572f-4ecd-8a30-d51edba89d2a'
+  ),
+  (
+    'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+    'e98643b1-83cf-4f21-9361-798c49c55555'
+  ),
+  (
+    'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+    'ce072a37-051f-4a6b-87b3-1ef236734444'
+  ),
+  (
+    'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+    '6f6c6887-7070-45ef-95a2-9b53b2356666'
+  ),
+  (
+    'd82f9c72-ff43-429a-886f-cc961b308e91',
+    'e98643b1-83cf-4f21-9361-798c49c55555'
+  ),
+  (
+    'd82f9c72-ff43-429a-886f-cc961b308e91',
+    'bd822ac2-1ae7-4daa-8f15-80989ff77777'
+  ),
+  (
+    '9c8e8f52-8a40-43d3-a050-482c3282adbc',
+    '67ea0bc3-13c9-4bb3-b6eb-8ef48a288888'
+  ),
+  (
+    '9c8e8f52-8a40-43d3-a050-482c3282adbc',
+    'b512d3e5-9e29-4b3d-98bb-d3aa10599999'
+  ),
+  (
+    'edc1e69a-ff46-493f-bc44-3e875a21177d',
+    '6f6c6887-7070-45ef-95a2-9b53b2356666'
+  ),
+  (
+    'eb7a1c0e-522c-4f40-83e9-3b3b7ce34c65',
+    'bd822ac2-1ae7-4daa-8f15-80989ff77777'
+  ),
+  (
+    'eb7a1c0e-522c-4f40-83e9-3b3b7ce34c65',
+    '67ea0bc3-13c9-4bb3-b6eb-8ef48a288888'
+  ),
+  (
+    '74316e29-57dd-43b6-8aae-92a03df6f8eb',
+    'e98643b1-83cf-4f21-9361-798c49c55555'
+  ),
+  (
+    '4654a13b-0909-45c6-bc5a-674a0793e63b',
+    'ce072a37-051f-4a6b-87b3-1ef236734444'
+  ),
+  (
+    '4654a13b-0909-45c6-bc5a-674a0793e63b',
+    '24a4f0b9-0d12-4e62-831b-5b6ce9671010'
+  ),
+  (
+    'c5c83c5b-7e83-4935-8a67-58939225a1e9',
+    'b512d3e5-9e29-4b3d-98bb-d3aa10599999'
+  ),
+  (
+    'c5c83c5b-7e83-4935-8a67-58939225a1e9',
+    'ce072a37-051f-4a6b-87b3-1ef236734444'
+  );
+INSERT INTO public.save (account_id, deck_id)
+VALUES (
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    'f8d6f63a-3d3d-429e-bd9a-7743f4b111e1'
+  ),
+  (
+    '7c9e6679-8b75-4d4b-a000-9c29efaa44b3',
+    'd570c9c5-1342-4c5d-b82a-2491f45008b3'
+  ),
+  (
+    'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+    'ef9989bf-0cf1-4713-9ab3-4ac1f6d7a0d9'
+  ),
+  (
+    'd82f9c72-ff43-429a-886f-cc961b308e91',
+    'bdf8c6ef-38fb-4c35-b103-b96a47a0e4da'
+  ),
+  (
+    '9c8e8f52-8a40-43d3-a050-482c3282adbc',
+    '9b628635-bf41-4cb5-86d1-9c8c754c46b1'
+  ),
+  (
+    'edc1e69a-ff46-493f-bc44-3e875a21177d',
+    '4f5c9977-35ee-4dcd-953d-d2c4ba17be38'
+  ),
+  (
+    'eb7a1c0e-522c-4f40-83e9-3b3b7ce34c65',
+    'b1c4c4ac-01d0-4e35-b6c8-0c49ebf8f68b'
+  ),
+  (
+    '74316e29-57dd-43b6-8aae-92a03df6f8eb',
+    '15e07d6f-207c-4747-b06b-3d9cb1de1d8d'
+  );
+INSERT INTO public.play (play_id, account_id, deck_id, score)
+VALUES (
+    '4e4bfcc9-13cd-4e2a-b2c4-c0af4d2e1111',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    'f8d6f63a-3d3d-429e-bd9a-7743f4b111e1',
+    80
+  ),
+  (
+    '50c1c87d-b2e7-47c2-9ed2-d076d1c32222',
+    '7c9e6679-8b75-4d4b-a000-9c29efaa44b3',
+    'd570c9c5-1342-4c5d-b82a-2491f45008b3',
+    95
+  ),
+  (
+    '5c38fddb-bf39-43e7-af61-853924111333',
+    'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+    'ef9989bf-0cf1-4713-9ab3-4ac1f6d7a0d9',
+    75
+  ),
+  (
+    '62e6c333-2e25-4b7f-b26b-868898555555',
+    'd82f9c72-ff43-429a-886f-cc961b308e91',
+    'bdf8c6ef-38fb-4c35-b103-b96a47a0e4da',
+    90
+  ),
+  (
+    '6d839522-7c45-4fe7-a6e1-620ce56b6b66',
+    '9c8e8f52-8a40-43d3-a050-482c3282adbc',
+    '9b628635-bf41-4cb5-86d1-9c8c754c46b1',
+    85
+  ),
+  (
+    '7dd5816e-9e8a-4b0d-a7c4-8fb550aaf111',
+    'edc1e69a-ff46-493f-bc44-3e875a21177d',
+    '4f5c9977-35ee-4dcd-953d-d2c4ba17be38',
+    70
+  ),
+  (
+    '838aa4ae-736c-4918-8e9d-2e4c1c116688',
+    'eb7a1c0e-522c-4f40-83e9-3b3b7ce34c65',
+    'b1c4c4ac-01d0-4e35-b6c8-0c49ebf8f68b',
+    88
+  ),
+  (
+    '8cf41a0f-2334-4c06-926c-d2f8ea111999',
+    '74316e29-57dd-43b6-8aae-92a03df6f8eb',
+    '15e07d6f-207c-4747-b06b-3d9cb1de1d8d',
+    92
+  );
+INSERT INTO public.play (account_id, deck_id, score, timestamp)
+VALUES (
+    'a3511a35-6f9e-4147-bc11-3bd3b581efa1',
+    'f8d6f63a-3d3d-429e-bd9a-7743f4b111e1',
+    8,
+    '2024-02-25T14:30:00'
+  ),
+  (
+    'a3511a35-6f9e-4147-bc11-3bd3b581efa1',
+    'f8d6f63a-3d3d-429e-bd9a-7743f4b111e1',
+    4,
+    '2024-02-24T14:30:00'
+  ),
+  (
+    'a3511a35-6f9e-4147-bc11-3bd3b581efa1',
+    'f8d6f63a-3d3d-429e-bd9a-7743f4b111e1',
+    11,
+    '2024-02-23T14:30:00'
+  );
+INSERT INTO tag (title)
+VALUES ('test tag 0'),
+('test tag 1'),
+('test tag 2'),
+('test tag 3'),
+('test tag 4'),
+('test tag 5'),
+('test tag 6'),
+('test tag 7'),
+('test tag 8'),
+('test tag 9'),
+('test tag 10'),
+('test tag 11'),
+('test tag 12'),
+('test tag 13'),
+('test tag 14'),
+('test tag 15'),
+('test tag 16'),
+('test tag 17'),
+('test tag 18'),
+('test tag 19'),
+('test tag 20'),
+('test tag 21'),
+('test tag 22'),
+('test tag 23'),
+('test tag 24');
+INSERT INTO account (username, password, avatar) VALUES
 
-INSERT INTO account (account_id, username, password, avatar, timestamp) VALUES
-	('a3511a35-6f9e-4147-bc11-3bd3b581efa1', 'John_Doe',  '$2y$10$ftxZhQIQZowmfXd6LKiQD.8NbvVcKLL8yowMKdORkmUVohG55HRlS', '1a3f9b7c', '2023-10-22 15:30:00'),
-	('67e70953-55a0-4beb-9a97-6ff17af07691', 'Emily_Smith',  '$2y$10$SJK6Cv3hDHDmE9XMSV5hYudWdnUWzFxJIe6hH55616qV38Be1BOzC', 'e8d24f6a', '2023-11-11 12:30:00'),	
-	('96dcf4e0-4095-43df-955b-8bfa54baaf97', 'Sarah_Carter',  '$2y$10$qgS6BKQkpjAlv.NMsiSqR.ztzK2BSBoAsVpbhiMz/BCriTOPh8iCe', 'b0f63e2d', '2023-10-14 12:00:00');
-	
-INSERT INTO deck (deck_id, account_id, title, description, timestamp) VALUES 
-	('20630b8d-7d55-486f-8070-1c0f4ff2fca6', '67e70953-55a0-4beb-9a97-6ff17af07691', 'Security Risks and Precautions', 'Remind yourself of the different simple attacks against your program and methods to prevent them.', '2023-11-30 12:00:00'),
-	('ce97ac0f-8819-4eea-bc3d-db55ba31c7c3', '96dcf4e0-4095-43df-955b-8bfa54baaf97', 'Binary Basics', 'The number system used by all computers. Commit the basics and representation of datatypes to your long term memory. ', '2023-11-02 12:30:00'),
-	('ff0678dd-2331-4615-b6e8-230614961dd2', '67e70953-55a0-4beb-9a97-6ff17af07691', 'Newtons Laws', 'The fundamental laws of motion in physics. Practice answering the laws and what they are used for.', '2023-11-03 12:30:00');
-	
-INSERT INTO tag(tag_id, title) VALUES 
-	('71def6cd-572f-4ecd-8a30-d51edba89d2a', 'Maths'),
-	('250fbc41-10c0-4b10-88ea-bf91c52f9918', 'Physics'),
-	('4e06f05f-16e1-4930-adca-355454466cee', 'Computing Science'),
-	('b5380134-4263-4c19-a0d1-37a0c5f3912e', 'Chemistry');
-	
-INSERT INTO topic (tag_id, deck_id) VALUES 
-	(
-		'250fbc41-10c0-4b10-88ea-bf91c52f9918', 'ff0678dd-2331-4615-b6e8-230614961dd2'
-	),
-	(
-		'4e06f05f-16e1-4930-adca-355454466cee', 'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3'
-	),
-	(
-		'71def6cd-572f-4ecd-8a30-d51edba89d2a', 'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3'
-	);
-	
-INSERT INTO follow (tag_id, account_id) VALUES
-	('71def6cd-572f-4ecd-8a30-d51edba89d2a', 'a3511a35-6f9e-4147-bc11-3bd3b581efa1'),
-	('4e06f05f-16e1-4930-adca-355454466cee', 'a3511a35-6f9e-4147-bc11-3bd3b581efa1'),
-	('4e06f05f-16e1-4930-adca-355454466cee', '67e70953-55a0-4beb-9a97-6ff17af07691');
-	
+  ('test account 0', 'password', '123456'),('test account 1', 'password', '123456'),('test account 2', 'password', '123456'),('test account 3', 'password', '123456'),('test account 4', 'password', '123456'),('test account 5', 'password', '123456'),('test account 6', 'password', '123456'),('test account 7', 'password', '123456'),('test account 8', 'password', '123456'),('test account 9', 'password', '123456'),('test account 10', 'password', '123456'),('test account 11', 'password', '123456'),('test account 12', 'password', '123456'),('test account 13', 'password', '123456'),('test account 14', 'password', '123456'),('test account 15', 'password', '123456'),('test account 16', 'password', '123456'),('test account 17', 'password', '123456'),('test account 18', 'password', '123456'),('test account 19', 'password', '123456'),('test account 20', 'password', '123456'),('test account 21', 'password', '123456'),('test account 22', 'password', '123456'),('test account 23', 'password', '123456'),('test account 24', 'password', '123456');
 
-INSERT INTO save (account_id, deck_id) VALUES
-	('a3511a35-6f9e-4147-bc11-3bd3b581efa1', 'ff0678dd-2331-4615-b6e8-230614961dd2'),
-	('a3511a35-6f9e-4147-bc11-3bd3b581efa1', 'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3'),
-	('96dcf4e0-4095-43df-955b-8bfa54baaf97', 'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3');
-	
-INSERT INTO play (account_id, deck_id, score, timestamp) VALUES
-	('67e70953-55a0-4beb-9a97-6ff17af07691', 'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3', 7, '2023-11-02 12:30:00'),
-	('67e70953-55a0-4beb-9a97-6ff17af07691', 'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3', 8, '2023-11-19 12:30:00'),
-	('67e70953-55a0-4beb-9a97-6ff17af07691', 'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3', 11, '2023-11-16 12:30:00'),
-	('67e70953-55a0-4beb-9a97-6ff17af07691', 'ff0678dd-2331-4615-b6e8-230614961dd2', 4, '2023-11-23 02:30:00'),
-	('96dcf4e0-4095-43df-955b-8bfa54baaf97', 'ff0678dd-2331-4615-b6e8-230614961dd2', 4, '2023-11-30 02:30:00'),
-	('96dcf4e0-4095-43df-955b-8bfa54baaf97', 'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3', 10, '2023-11-12 12:30:00'),
-	('96dcf4e0-4095-43df-955b-8bfa54baaf97', 'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3', 12, '2023-11-13 12:30:00'),
-	('96dcf4e0-4095-43df-955b-8bfa54baaf97', 'ff0678dd-2331-4615-b6e8-230614961dd2', 7, '2023-11-7 02:30:00');
-	
-INSERT INTO card (card_id, deck_id, question, answer) VALUES
-	('4191bb49-94c9-45ad-828d-49d01780f6e4', '20630b8d-7d55-486f-8070-1c0f4ff2fca6', 'Firewall', 'Control network use'),
-	('d3214777-f504-48b1-96a2-21ee0917dde2', '20630b8d-7d55-486f-8070-1c0f4ff2fca6', 'XSS Attack', 'Inject script tags into other users machines getting to run code on their browser'),
-	('efda5e2c-2211-4a18-b387-30f3195bb17c', '20630b8d-7d55-486f-8070-1c0f4ff2fca6', 'SQL Injection', 'Injecting sql into database as string input is not sanitised '),
-	('2cde1440-38e0-4a6e-9de1-15326308f7b3', '20630b8d-7d55-486f-8070-1c0f4ff2fca6', 'DOS attack', 'Spam requests to overload system'),
-	('c002a33c-f0f4-4f8b-81d6-685600f986e2', '20630b8d-7d55-486f-8070-1c0f4ff2fca6', 'Prevent XSS Attack', 'Use htmlspecialchars when outputting'),
-	('9d36af5f-1883-4a30-a60e-6cebd5fcea55', '20630b8d-7d55-486f-8070-1c0f4ff2fca6', 'Prevent SQL Injection', 'Use prepared statements'),
-	('cab96744-15d0-4435-bdb6-5a392c7b8d78', '20630b8d-7d55-486f-8070-1c0f4ff2fca6', 'Prevent DOS attack', 'Timeout on lots of requests'),
-	('ad11d162-24a5-40f4-ab05-fb004a532be3', '20630b8d-7d55-486f-8070-1c0f4ff2fca6', 'Encryption ', 'Scrambles the data so even if attacker gets it, they cannot read'),
-	('f725745c-81af-4b08-8e3f-803aacae780c', '20630b8d-7d55-486f-8070-1c0f4ff2fca6', 'Private Key', 'A key that is used to decrypt data'),
-	('a0670d92-f911-4f01-b8d4-bad8ffe68d8b', '20630b8d-7d55-486f-8070-1c0f4ff2fca6', 'Public key', 'A key used to encrypt data'),
-	('2737831d-cd3f-4a76-9974-f0a2f603ef14', '20630b8d-7d55-486f-8070-1c0f4ff2fca6', 'Digital Certificate', 'Verifies a user sending a message is who they claim'),
-	('8396bf26-c8b4-4eb0-9386-05189fafba3e', '20630b8d-7d55-486f-8070-1c0f4ff2fca6', 'Digital Signatures', 'Verifies an electronic message or document is authentic'),
-	('c3cead37-e1a6-427b-906b-1372fdb8168b', '20630b8d-7d55-486f-8070-1c0f4ff2fca6', 'Tracking Cookies', 'Used to track users across websites'),
-	
-	('0ab258f6-6721-4e34-bed3-1940745aba67', 'ff0678dd-2331-4615-b6e8-230614961dd2', 'Newtons 1st law', 'An object at rest remains at rest, and an object in motion remains in motion at constant speed and in a straight line unless acted on by an unbalanced force.'),
-	('8da557c8-b6df-4961-b7ab-b697545a710d', 'ff0678dd-2331-4615-b6e8-230614961dd2', 'Newtons 2nd law', 'F = ma'),
-	('337a5f16-86ba-490e-95bb-c4ae5611d943', 'ff0678dd-2331-4615-b6e8-230614961dd2', 'Newtons 3rd law', 'Whenever one object exerts a force on another object, the second object exerts an equal and opposite on the first.'),
-	('2896c6d3-40d9-4617-a750-69ef21d60856', 'ff0678dd-2331-4615-b6e8-230614961dd2', 'Unit of force', 'Newtons'),
-	('bc13f4e2-63c2-45d8-84af-8f061cd92752', 'ff0678dd-2331-4615-b6e8-230614961dd2', 'Unit of acceleration', 'Meters per second per second'),
-	('c136cde9-2ad3-4af5-8ad3-35e21d5d12ad', 'ff0678dd-2331-4615-b6e8-230614961dd2', 'Unit of mass', 'Kilograms'),
-	('8d343435-0c7a-4617-b9ce-bf74929ca196', 'ff0678dd-2331-4615-b6e8-230614961dd2', 'Rocket is propelled by', 'Newtons 3rd law'),
-	('c4b56f27-adb2-440a-b2f2-8c77abcc97c2', 'ff0678dd-2331-4615-b6e8-230614961dd2', 'A spaceship doesn’t slow down because', 'Newtons 1st laws'),
-	
-	
-	('b474e7c0-48b0-47f8-b593-fb110352dc57', 'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3', 'What base is binary', 'Base 2'),
-	('5bb3e3ea-f2cf-4a3a-be1a-3d1966cc66ee', 'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3', 'What are the two allowed symbols', '1 and 0'),
-	('841e5bb0-7362-4c0a-b338-3407829da997', 'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3', 'Why is binary useful', 'Computers can only store 1’s or 0’s'),
-	('ad4cf1bc-75ec-451d-a9bc-8c44f494e220', 'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3', 'Represent Letters', 'ASCII'),
-	('74cf35d5-2a8c-4b32-bd52-11d7ffefb86f', 'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3', 'Represent Images', 'Array of pixels'),
-	('e14ce74c-fc1f-40d0-bd60-187336e53df9', 'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3', 'Range of a 8 bit unsigned integer ', '0 -> 255'),
-	('29ae95ae-fc6f-4b51-9b96-43a28cffbd7e', 'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3', 'Range of a 8 bit signed integer', '-128 -> 127'),
-	('34421b81-18df-483e-93de-fd8f07a2ab80', 'ce97ac0f-8819-4eea-bc3d-db55ba31c7c3', 'Represent Decimal Numbers', 'Floating point system');
-	
-
--- passwords are plain text of password and order added e.g. first one is password1 etc
--- INSERT INTO public.account (
---     account_id,
---     username,
---     password,
---     avatar,
---     timestamp
---   )
--- VALUES (
---     '868eefa5-f494-4cb5-81fc-4c238d0087a9',
---     'John_Doe',
---     '$2y$10$ftxZhQIQZowmfXd6LKiQD.8NbvVcKLL8yowMKdORkmUVohG55HRlS',
---     '1a3f9b7c',
---     '2023-10-22 15:30:00'
---   ),
---   -- 
---   (
---     '13ec0796-2f37-43ba-9013-44295f167793',
---     'Emily_Smith',
---     '$2y$10$SJK6Cv3hDHDmE9XMSV5hYudWdnUWzFxJIe6hH55616qV38Be1BOzC',
---     'e8d24f6a',
---     '2023-11-11 12:30:00'
---   ),
---   (
---     '0d87505f-a97c-45dd-b4c5-e6255c86363d',
---     'Alex_Jones',
---     '$2y$10$3Mw0C/DLc6IR3D4syNw23uxuSuf7.r3U3YHwO/Fwk2oe5B2jlzhuq',
---     '5c7a8d91',
---     '2023-10-28 20:15:00'
---   ),
---   (
---     'd78dbe66-51f1-4065-b5cb-33d8c8f8be28',
---     'Sarah_Carter',
---     '$2y$10$qgS6BKQkpjAlv.NMsiSqR.ztzK2BSBoAsVpbhiMz/BCriTOPh8iCe',
---     'b0f63e2d',
---     '2023-10-14 12:00:00'
---   ),
---   (
---     '5aafc41b-6a89-46e5-b889-058fa2f02072',
---     'David_Miller',
---     '$2y$10$jXnhveUlO43zhyDsDLiwtOpDpH2JVJV2bsaLeuMcDzCG5YmeEvURS',
---     '9a84c5f7',
---     '2023-10-31 18:20:00'
---   ),
---   (
---     'a418927d-0894-4aa8-baef-a2c77cf6d8bd',
---     'Olivia_Clark',
---     '$2y$10$kAudVkxr2t0Alv4pb8ZRWO6lSYkn6UkzyobugBnxof2GKFej1wRTy',
---     '3e6d7a8b',
---     '2023-10-25 07:55:00'
---   ),
---   (
---     '880e6429-5d92-41f0-82e4-a7f45b51f843',
---     'Ethan_Taylor',
---     '$2y$10$.v4prdIIGnvXLQMJC4nffOcaW6QvYDvIcGVaUyS0nvGh20N35LyHa',
---     'f1c9204e',
---     '2023-10-17 23:10:00'
---   ),
---   (
---     '7644923d-928b-488d-9547-68d6370561ae',
---     'Ava_Wilson',
---     '$2y$10$zsqx01q0cwR2S4.5/h6oEu/ie5yO8hepgjGid5p0imbO4Uy8AoM/a',
---     '2b5f8dca',
---     '2023-10-29 14:40:00'
---   ),
---   (
---     '68c99a2a-bdc3-437f-acc5-7699bf3da23f',
---     'Liam_Brown',
---     '$2y$10$SZPJZ7q3muy1ayrbshEkjumDL/D0a8PGsiAyHQic.vxgXn4YdoTdK',
---     'd7a6f4e8',
---     '2023-10-12 10:25:00'
---   ),
---   (
---     '86f87bb6-8a53-4df9-94b0-e9c14f908355',
---     'Grace_Martin',
---     '$2y$10$QzKwxhmk7iPExKuQgbfQLOhz0ET54Jx3/IRULAp9aRXx2YpxmHrbG',
---     '8c3b1f9d',
---     '2023-10-20 17:05:00'
---   );
--- INSERT INTO tag (tag_id, title)
--- VALUES (
---     '09b6863a-3d36-4e6a-bac7-168cf9b84b36',
---     'Maths'
---   ),
---   (
---     'bc8d6c01-6231-4d68-bb03-3c28c4bc87d1',
---     'Physics'
---   ),
---   (
---     'ef1e9b9b-762b-4ff3-bca5-9c3bca65ea7c',
---     'Chemistry'
---   ),
---   (
---     'a6ebd3f4-8fe7-4920-889c-173c95f2a295',
---     'Biology'
---   ),
---   (
---     'd59820e8-54df-4c36-a2c3-2167b6f85ef2',
---     'Computing Science'
---   ),
---   (
---     'b0c0d594-58f5-47d3-90fe-7a1f29283f92',
---     'Business'
---   ),
---   (
---     '4b34da56-67d0-429a-8233-2e4051d0e2f1',
---     'Administration'
---   ),
---   (
---     '7e90a2f1-65c8-4ba6-8f7a-2e3a8357b91b',
---     'History'
---   ),
---   (
---     '4372a732-cb8b-46a8-b9a2-8c1a8e3d2b92',
---     'Geography'
---   ),
---   (
---     '51d89760-3e65-4f8d-8de9-f67da26895e1',
---     'Modern Studies'
---   ),
---   (
---     '7c0e3c6a-c0b5-4653-b243-8b6c235f23e1',
---     'English'
---   ),
---   ('d8bb3e23-ea12-4e91-bb0f-5a1c4a1ba111', 'French'),
---   ('54bdaaf2-07a0-4f8a-9a8c-287d642c3495', 'German'),
---   ('ec2e8b08-b6a0-4fbb-90d9-18726c021e8c', 'Music'),
---   ('f9911d03-6f39-45d3-b10c-fd08e2e65af0', 'Art'),
---   (
---     'ff1f9c3a-3cfe-4ec7-95e1-b690688f0c5a',
---     'Graphic Communication'
---   ),
---   (
---     '3d071417-24a2-48e5-98b0-4f956ea88333',
---     'Engineering Science'
---   ),
---   (
---     '134a21a0-8ff7-4b7a-8925-9ee4e7817f02',
---     'Design and Manufacture'
---   );
--- INSERT INTO follow (account_id, tag_id)
--- VALUES (
---     '868eefa5-f494-4cb5-81fc-4c238d0087a9',
---     '09b6863a-3d36-4e6a-bac7-168cf9b84b36'
---   ),
---   (
---     '13ec0796-2f37-43ba-9013-44295f167793',
---     'bc8d6c01-6231-4d68-bb03-3c28c4bc87d1'
---   ),
---   (
---     '13ec0796-2f37-43ba-9013-44295f167793',
---     'ef1e9b9b-762b-4ff3-bca5-9c3bca65ea7c'
---   ),
---   (
---     '13ec0796-2f37-43ba-9013-44295f167793',
---     'a6ebd3f4-8fe7-4920-889c-173c95f2a295'
---   ),
---   (
---     '0d87505f-a97c-45dd-b4c5-e6255c86363d',
---     'b0c0d594-58f5-47d3-90fe-7a1f29283f92'
---   ),
---   (
---     '0d87505f-a97c-45dd-b4c5-e6255c86363d',
---     '4b34da56-67d0-429a-8233-2e4051d0e2f1'
---   ),
---   (
---     '5aafc41b-6a89-46e5-b889-058fa2f02072',
---     'd59820e8-54df-4c36-a2c3-2167b6f85ef2'
---   ),
---   (
---     '5aafc41b-6a89-46e5-b889-058fa2f02072',
---     '09b6863a-3d36-4e6a-bac7-168cf9b84b36'
---   ),
---   (
---     '5aafc41b-6a89-46e5-b889-058fa2f02072',
---     'bc8d6c01-6231-4d68-bb03-3c28c4bc87d1'
---   ),
---   (
---     '5aafc41b-6a89-46e5-b889-058fa2f02072',
---     '3d071417-24a2-48e5-98b0-4f956ea88333'
---   ),
---   (
---     'a418927d-0894-4aa8-baef-a2c77cf6d8bd',
---     '7e90a2f1-65c8-4ba6-8f7a-2e3a8357b91b'
---   ),
---   (
---     'a418927d-0894-4aa8-baef-a2c77cf6d8bd',
---     '4372a732-cb8b-46a8-b9a2-8c1a8e3d2b92'
---   ),
---   (
---     'a418927d-0894-4aa8-baef-a2c77cf6d8bd',
---     '51d89760-3e65-4f8d-8de9-f67da26895e1'
---   ),
---   (
---     'a418927d-0894-4aa8-baef-a2c77cf6d8bd',
---     '7c0e3c6a-c0b5-4653-b243-8b6c235f23e1'
---   ),
---   (
---     'a418927d-0894-4aa8-baef-a2c77cf6d8bd',
---     '54bdaaf2-07a0-4f8a-9a8c-287d642c3495'
---   ),
---   (
---     '880e6429-5d92-41f0-82e4-a7f45b51f843',
---     'd8bb3e23-ea12-4e91-bb0f-5a1c4a1ba111'
---   ),
---   (
---     '880e6429-5d92-41f0-82e4-a7f45b51f843',
---     'ec2e8b08-b6a0-4fbb-90d9-18726c021e8c'
---   ),
---   (
---     '880e6429-5d92-41f0-82e4-a7f45b51f843',
---     'f9911d03-6f39-45d3-b10c-fd08e2e65af0'
---   ),
---   (
---     '7644923d-928b-488d-9547-68d6370561ae',
---     'ff1f9c3a-3cfe-4ec7-95e1-b690688f0c5a'
---   ),
---   (
---     '7644923d-928b-488d-9547-68d6370561ae',
---     '134a21a0-8ff7-4b7a-8925-9ee4e7817f02'
---   ),
---   (
---     '68c99a2a-bdc3-437f-acc5-7699bf3da23f',
---     'ec2e8b08-b6a0-4fbb-90d9-18726c021e8c'
---   ),
---   (
---     '86f87bb6-8a53-4df9-94b0-e9c14f908355',
---     '7c0e3c6a-c0b5-4653-b243-8b6c235f23e1'
---   ),
---   (
---     '86f87bb6-8a53-4df9-94b0-e9c14f908355',
---     '51d89760-3e65-4f8d-8de9-f67da26895e1'
---   ),
---   (
---     '86f87bb6-8a53-4df9-94b0-e9c14f908355',
---     'ef1e9b9b-762b-4ff3-bca5-9c3bca65ea7c'
---   );
--- INSERT INTO deck (
---     deck_id,
---     account_id,
---     title,
---     description,
---     timestamp
---   )
--- VALUES (
---     '3c036bcc-2d05-4f87-9c01-c1a01e8f32a7',
---     '13ec0796-2f37-43ba-9013-44295f167793',
---     'Scientific Uncertainties',
---     'Delve into the heart of scientific inquiry with these flash cards on uncertainties. Explore the multifaceted aspects of uncertainty, from measurement errors to model limitations, and grasp the essential skills of communicating and navigating uncertainties in the dynamic world of scientific research.',
---     '2023-11-20 15:45:27'
---   ),
---   (
---     'f6e8f4d4-04f3-4d49-a3b1-398cb14c3dd1',
---     '09b6863a-3d36-4e6a-bac7-168cf9b84b36',
---     'Standard Derivatives',
---     'Explore the fundamental concepts of standard derivatives with these flashcards. Dive into the world of calculus and understand the principles behind rates of change, tangents, and instantaneous rates.',
---     '2023-12-05 10:30:15'
---   ),
---   (
---     'bfc5e570-4e74-4b0a-a314-0c1a4cfc5edf',
---     '0d87505f-a97c-45dd-b4c5-e6255c86363d',
---     'Organizational Structures',
---     'Gain insights into different organizational structures with these flashcards. From hierarchical to matrix structures, explore the advantages and disadvantages of each, and understand how they impact an organizations dynamics.',
---     '2023-12-08 14:20:45'
---   ),
---   (
---     '749e85a8-4c7e-4e91-b07d-47a04997d5b8',
---     '5aafc41b-6a89-46e5-b889-058fa2f02072',
---     'Binary Basics',
---     'Master the fundamentals of binary systems with these flashcards. Learn how binary code is used to represent information in computers and understand the building blocks of digital technology.',
---     '2023-12-12 16:45:30'
---   ),
---   (
---     'd79d476c-6fc7-46ae-b47b-4d094c6db9ae',
---     '5aafc41b-6a89-46e5-b889-058fa2f02072',
---     'Forces in Physics',
---     'Explore the world of forces in physics with these flashcards. From Newtons laws to gravitational forces, delve into the principles that govern motion and interactions between objects.',
---     '2023-12-15 11:10:22'
---   ),
---   (
---     '6b89a670-2b16-49a3-9f4c-4c88e46ea04c',
---     'a418927d-0894-4aa8-baef-a2c77cf6d8bd',
---     'German Greetings',
---     'Learn essential German greetings and expressions with these flashcards. Perfect your conversational skills and immerse yourself in the basics of the German language.',
---     '2023-12-18 09:55:18'
---   ),
---   (
---     'aab6aa8d-9d49-40d4-8f55-93c47c2f79d2',
---     'a418927d-0894-4aa8-baef-a2c77cf6d8bd',
---     'Paragraph Structure',
---     'Enhance your writing skills with these flashcards on paragraph structure. Follow the PEEL method (Point, Evidence, Explanation, Link) to create well-organized and coherent paragraphs.',
---     '2023-12-22 13:25:50'
---   ),
---   (
---     'e736ea45-1ba6-4c95-a746-8819510f8c6d',
---     '880e6429-5d92-41f0-82e4-a7f45b51f843',
---     'French Art',
---     'Embark on a journey through French art with these flashcards. Discover prominent artists, art movements, and masterpieces that have shaped the rich cultural landscape of France.',
---     '2023-12-25 17:40:12'
---   ),
---   (
---     '7c66cb8c-3cc2-40d8-8f6d-0e594fd1944a',
---     'd78dbe66-51f1-4065-b5cb-33d8c8f8be28',
---     'Practical Woodwork',
---     'Get hands-on with practical woodwork using these flashcards. Learn essential techniques, tools, and safety precautions for crafting woodwork projects.',
---     '2023-12-28 19:15:37'
---   ),
---   (
---     '2a5e6204-5a25-481a-994c-66f8bb4d0c61',
---     '68c99a2a-bdc3-437f-acc5-7699bf3da23f',
---     'Music Symbols',
---     'Discover the language of music through these flashcards on music symbols. From notes and rests to dynamic markings, enhance your understanding of musical notation.',
---     '2024-01-02 08:50:05'
---   ),
---   (
---     '3d5839da-5d0a-4c38-8ec1-8bcac8de97e0',
---     '86f87bb6-8a53-4df9-94b0-e9c14f908355',
---     'Periodic Table',
---     'Explore the elements of the periodic table with these flashcards. Understand the properties, atomic structures, and trends that define each element in the periodic system.',
---     '2024-01-05 12:05:28'
---   ), 
---   (
---     '3d5839da-5d0a-4c38-8ec1-8bcac8de97e0',
---     '86f87bb6-8a53-4df9-94b0-e9c14f908355',
---     'Security Risks and Precautions',
---     'Dive into the world of cybersecurity with these flashcards on security risks and precautions. Understand common threats, vulnerabilities, and best practices to safeguard digital information.',
---     '2024-01-08 14:30:50'
---   );
+INSERT INTO deck (title, account_id, description)
+VALUES (
+    'test deck 0',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    ''
+  ),
+(
+    'test deck 1',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    ''
+  ),
+(
+    'test deck 2',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    ''
+  ),
+(
+    'test deck 3',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    ''
+  ),
+(
+    'test deck 4',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    ''
+  ),
+(
+    'test deck 5',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    ''
+  ),
+(
+    'test deck 6',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    ''
+  ),
+(
+    'test deck 7',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    ''
+  ),
+(
+    'test deck 8',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    ''
+  ),
+(
+    'test deck 9',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    ''
+  ),
+(
+    'test deck 10',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    ''
+  ),
+(
+    'test deck 11',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    ''
+  ),
+(
+    'test deck 12',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    ''
+  ),
+(
+    'test deck 13',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    ''
+  ),
+(
+    'test deck 14',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    ''
+  ),
+(
+    'test deck 15',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    ''
+  ),
+(
+    'test deck 16',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    ''
+  ),
+(
+    'test deck 17',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    ''
+  ),
+(
+    'test deck 18',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    ''
+  ),
+(
+    'test deck 19',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    ''
+  ),
+(
+    'test deck 20',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    ''
+  ),
+(
+    'test deck 21',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    ''
+  ),
+(
+    'test deck 22',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    ''
+  ),
+(
+    'test deck 23',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    ''
+  ),
+(
+    'test deck 24',
+    '0f8fad5b-d9cb-469f-a165-70867728950e',
+    ''
+  );

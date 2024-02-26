@@ -30,7 +30,7 @@ if (in_array(null, $body, true) || in_array(false, $body, true)) {
 // Establish database connection
 $db = new Db();
 
-$result = $db->savePlay(
+$result = $db->recordPlay(
     $body["deck_id"],
     $body["score"],
     $_SESSION["account_id"] ?? null

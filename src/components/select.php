@@ -10,7 +10,7 @@ $question_part = random_from_array(["question", "answer"]);
 $answer_part = $question_part == "question" ? "answer" : "question";
 ?>
 
-<section class="select-question play-question" data-correct-id="<?= htmlspecialchars($correct_question["card_id"]) ?>" data-question-text="<?= htmlspecialchars($correct_question["question"]) ?>" data-index="<?= $i + 1 ?>" data-original="true">
+<section class="select-question play-question" data-correct-id="<?= htmlspecialchars($correct_question["card_id"]) ?>" data-question-text="<?= htmlspecialchars($correct_question["question"]) ?>" data-index="<?= $i + 1 ?>" data-original="true"  style="display:<?= $i == 0 ? 'grid' : 'none' ?>">
 
         <header class="question-display">
                 <p class="<?= $question_part ?>-card">
