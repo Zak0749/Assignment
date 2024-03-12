@@ -67,7 +67,7 @@ $deck = $deck_query->single();
                     <?php endif ?>
 
                     <?php if (isset($_SESSION["account_id"])) : ?>
-                        <button data-deck-id="<?= htmlspecialchars($deck_id) ?>" data-save="<?= boolval($deck["is_saved"]) ?>" id="save_toggle" class="header-icon" onclick="toggleSave(this)" keyboard-shortcut="s">
+                        <button data-deck-id="<?= htmlspecialchars($deck_id) ?>" data-save="<?= $deck["is_saved"] ? "true":"false" ?>" id="save_toggle" class="header-icon" onclick="toggleSave(this)" keyboard-shortcut="s">
                             <?php if ($deck["is_saved"]) : ?>
                                 <span class="material-symbols-outlined">
                                     bookmark_added

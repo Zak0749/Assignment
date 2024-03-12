@@ -229,10 +229,12 @@ a:hover {
 
 .light-danger-button {
     background-color: var(--danger-background);
+    color: var(--light-text)
 }
 
 .light-danger-button:hover {
     background-color: var(--danger);
+    color: var(--light-text-hover)
 }
 
 .success-button {
@@ -577,6 +579,10 @@ header {
     padding: 0;
     text-decoration: none;
     color: var(--secondary-text);
+}
+
+.deck-panel-icons {
+    display: flex;
 }
 
 /* Styles for larger devices */

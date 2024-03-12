@@ -57,7 +57,7 @@ $db = new Db();
 
                     <div class="form-field hide-large">
                         <label>Topics</label>
-                        <button class="secondary-button" type="button" onclick="document.getElementById('tag-select-dialog').showModal()" keyboard-shortcut="t">
+                        <button class="secondary-button button" type="button" onclick="document.getElementById('tag-select-dialog').showModal()" keyboard-shortcut="t">
                             Show
                         </button>
                     </div>
@@ -136,7 +136,7 @@ $db = new Db();
 
                         Add Card
                     </button>
-                    <button type="button" onclick="document.getElementById('card-tab').dataset.mode = 'delete'()" class="danger-button button" keyboard-shortcut="m">
+                    <button type="button" onclick="document.getElementById('card-tab').dataset.mode = 'delete'" class="danger-button button" keyboard-shortcut="m">
                         <span class="material-symbols-outlined">
                             delete
                         </span>

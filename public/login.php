@@ -30,12 +30,12 @@ if (isset($_SESSION["account_id"])) {
         <form class="form" onsubmit="loginUser(this); return false;">
             <div class="form-field" id="username">
                 <label for="username">Username</label>
-                <input name="username" type="text" required minlength="3" maxlength="16" pattern="[\w]+" oninput="this.setCustomValidity('')" />
+                <input name="username" type="text" required minlength="3" maxlength="16" pattern="[\w]+" title="Letters, Numbers and underscores only" oninput="this.setCustomValidity('')" />
             </div>
 
             <div class="form-field" id="password">
                 <label for="password">Password</label>
-                <input name="password" type="password" required minlength="8" maxlength="24" pattern="[\S]+" oninput="this.setCustomValidity('')" />
+                <input name="password" type="password" required minlength="8" maxlength="24" pattern="[\S]+" title="Whitespace characters are not allowed" oninput="this.setCustomValidity('')" />
             </div>
 
             <button type="submit" class="primary-button button" id="submit">

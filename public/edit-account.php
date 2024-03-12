@@ -82,22 +82,22 @@ $user = $user_query->single();
 
 				<div class="form-field">
 					<label for="username">Username</label>
-					<input name="username" type="username" value="<?= htmlspecialchars($user["username"]) ?>" required minlength="3" maxlength="16" pattern="[\w]+" oninput="this.setCustomValidity('');" />
+					<input name="username" type="username" value="<?= htmlspecialchars($user["username"]) ?>" required minlength="3" maxlength="16" pattern="[\w]+" title="Letters, Numbers and underscores only" oninput="this.setCustomValidity('');" />
 				</div>
 
 				<div class="form-field">
 					<label for="password">Password</label>
-					<input minlength="8" maxlength="24" pattern="[\S]+" name="password" type="password" oninput="checkPasswordsMatch(this)" />
+					<input minlength="8" maxlength="24" title="Whitespace characters are not allowed" pattern="[\S]+" name="password" type="password" oninput="checkPasswordsMatch(this)" />
 				</div>
 
 				<div class="form-field">
 					<label for="confirm-password">Confirm Password</label>
-					<input name="confirm-password" type="password" minlength="8" maxlength="24" pattern="[\S]+" name="password" type="password" oninput="checkPasswordsMatch(this)" />
+					<input name="confirm-password" type="password" minlength="8" maxlength="24" title="Whitespace characters are not allowed" pattern="[\S]+" name="password" type="password" oninput="checkPasswordsMatch(this)" />
 				</div>
 
 				<div class="form-field hide-large">
 					<label>Follows</label>
-					<button class="secondary-button button" type="button" onclick="document.getElementById('tag-select-dialog').showModal()" keyboard-shortcut="l">
+					<button class="secondary-button button" type="button" onclick="document.getElementById('tag-select-dialog').showModal()" keyboard-shortcut="f">
 						Show
 					</button>
 				</div>

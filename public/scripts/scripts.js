@@ -162,7 +162,7 @@ async function createAccount(createAccountForm) {
 async function toggleSave(toggleButton) {
     let data = new URLSearchParams(window.location.search);
 
-    if (toggleButton.dataset.save) {
+    if (toggleButton.dataset.save == 'true') {
         let result = await fetch('api/delete-save', {
             method: 'POST',
             headers: {
@@ -172,8 +172,8 @@ async function toggleSave(toggleButton) {
         });
 
         if (result.ok) {
+            toggleButton.dataset.save = 'false'
             toggleButton.children[0].innerHTML = 'bookmark_add';
-            toggleButton.dataset.save = true
         } else {
             // Send an error to the user
             alert("Oh no! An error occurred, this shouldn't have happened, please try again later");
@@ -188,8 +188,8 @@ async function toggleSave(toggleButton) {
         });
 
         if (result.ok) {
+            toggleButton.dataset.save = 'true'
             toggleButton.children[0].innerHTML = 'bookmark_added';
-            toggleButton.dataset.save = false
         } else {
             // Send an error to the user
             alert("Oh no! An error occurred, this shouldn't have happened, please try again later");
@@ -714,10 +714,10 @@ function results() {
 
     document.getElementById('correct-number').innerText = correct_number
     document.getElementById('wrong-number').innerText = wrong_number
-    
-    const canvas = document.getElementById('results-chart');
 
-    new Chart(canvas, {
+    const canvas1 = document.getElementById('results-chart1');
+
+    new Chart(canvas1, {
         type: 'doughnut',
         data: {
             labels: [
@@ -820,13 +820,11 @@ window.addEventListener("load", () => {
     })
 
     Object.entries(shortcutItems).forEach(([key, elements]) => {
+
         Mousetrap.bind(key, () => {
-            elements.forEach((element) => {
-                // If element is visible
-                if (element.offsetParent !== null) {
-                    element.click()
-                }
-            })
+elements
+    .filter((element) => element.offsetParent !== null) // only gets the elements that are visible on screen
+    .forEach((element) => element.click())
         });
     })
 

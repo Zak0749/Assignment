@@ -1288,8 +1288,12 @@ VALUES (
     11,
     '2024-02-23T14:30:00'
   );
+
+INSERT INTO tag (tag_id, title) VALUES
+  ('294d1c54-9b5b-428f-9bcc-4e6433b691f5', 'test tag');
+
 INSERT INTO tag (title)
-VALUES ('test tag 0'),
+VALUES 
 ('test tag 1'),
 ('test tag 2'),
 ('test tag 3'),
@@ -1314,133 +1318,262 @@ VALUES ('test tag 0'),
 ('test tag 22'),
 ('test tag 23'),
 ('test tag 24');
+
+
 INSERT INTO account (username, password, avatar) VALUES
 
   ('test account 0', 'password', '123456'),('test account 1', 'password', '123456'),('test account 2', 'password', '123456'),('test account 3', 'password', '123456'),('test account 4', 'password', '123456'),('test account 5', 'password', '123456'),('test account 6', 'password', '123456'),('test account 7', 'password', '123456'),('test account 8', 'password', '123456'),('test account 9', 'password', '123456'),('test account 10', 'password', '123456'),('test account 11', 'password', '123456'),('test account 12', 'password', '123456'),('test account 13', 'password', '123456'),('test account 14', 'password', '123456'),('test account 15', 'password', '123456'),('test account 16', 'password', '123456'),('test account 17', 'password', '123456'),('test account 18', 'password', '123456'),('test account 19', 'password', '123456'),('test account 20', 'password', '123456'),('test account 21', 'password', '123456'),('test account 22', 'password', '123456'),('test account 23', 'password', '123456'),('test account 24', 'password', '123456');
 
-INSERT INTO deck (title, account_id, description)
+INSERT INTO deck (deck_id, title, account_id, description)
 VALUES (
+  '0037541d-2d0c-4f54-abbd-30b7dbe31021',
     'test deck 0',
     '0f8fad5b-d9cb-469f-a165-70867728950e',
     ''
   ),
 (
+  '690384af-2663-4fdb-b39e-84c85e11c81f',
     'test deck 1',
     '0f8fad5b-d9cb-469f-a165-70867728950e',
     ''
   ),
 (
+  'a1c13469-6636-4ee6-9424-9ef360d9053f',
     'test deck 2',
     '0f8fad5b-d9cb-469f-a165-70867728950e',
     ''
   ),
 (
+  '2e1dd210-e973-4975-b09f-4cad4994be73',
     'test deck 3',
     '0f8fad5b-d9cb-469f-a165-70867728950e',
     ''
   ),
 (
+  'ac192c6b-b5bc-488a-96d5-320295758a8b',
     'test deck 4',
     '0f8fad5b-d9cb-469f-a165-70867728950e',
     ''
   ),
 (
+  'c06f6800-827d-4fc6-a53f-13ef58bfb7d8',
     'test deck 5',
     '0f8fad5b-d9cb-469f-a165-70867728950e',
     ''
   ),
 (
+  '0c6e00ab-374f-4885-bf46-3f2d5c30c6fb',
     'test deck 6',
     '0f8fad5b-d9cb-469f-a165-70867728950e',
     ''
   ),
 (
+  '1e5c3449-589b-43e0-b927-f3935719726c',
     'test deck 7',
     '0f8fad5b-d9cb-469f-a165-70867728950e',
     ''
   ),
 (
+  'e5286a34-22bd-4864-8b71-11334bb2eb5e',
     'test deck 8',
     '0f8fad5b-d9cb-469f-a165-70867728950e',
     ''
   ),
 (
+  '1a3f1e2d-62e1-4e05-b4b1-c5d22a5afcce',
     'test deck 9',
     '0f8fad5b-d9cb-469f-a165-70867728950e',
     ''
   ),
 (
+  '5b47699f-b62b-4b65-a1bd-1284a0ef98a8',
     'test deck 10',
     '0f8fad5b-d9cb-469f-a165-70867728950e',
     ''
   ),
 (
+  '6926d964-9e6a-4066-872b-2029cb9a8bf6',
     'test deck 11',
     '0f8fad5b-d9cb-469f-a165-70867728950e',
     ''
   ),
 (
+  '9caae4c0-216e-4c75-b67f-d0d2542a608e',
     'test deck 12',
     '0f8fad5b-d9cb-469f-a165-70867728950e',
     ''
   ),
 (
+  'c198daec-7e61-4d09-a000-09e547a3d48d',
     'test deck 13',
     '0f8fad5b-d9cb-469f-a165-70867728950e',
     ''
   ),
 (
+  '28bb9c0a-aa2e-4f49-8a8a-e66a03b931c0',
     'test deck 14',
     '0f8fad5b-d9cb-469f-a165-70867728950e',
     ''
   ),
 (
+  'd1a759c5-74aa-4931-b9e9-3dd75d8632d7',
     'test deck 15',
     '0f8fad5b-d9cb-469f-a165-70867728950e',
     ''
   ),
 (
+  'ede64763-450c-4625-a419-b5855c28c51b',
     'test deck 16',
     '0f8fad5b-d9cb-469f-a165-70867728950e',
     ''
   ),
 (
+  'baae3411-6829-4b2f-b077-98c09ef1767e',
     'test deck 17',
     '0f8fad5b-d9cb-469f-a165-70867728950e',
     ''
   ),
 (
+  '97fd9b5c-dcd2-4c2b-9284-5aafe5a2f0ec',
     'test deck 18',
     '0f8fad5b-d9cb-469f-a165-70867728950e',
     ''
   ),
 (
+  '830640b4-5af1-47f0-ab7d-1dbab0729f91',
     'test deck 19',
     '0f8fad5b-d9cb-469f-a165-70867728950e',
     ''
   ),
 (
+  '6fb8dc63-c1bc-4fe7-bc7c-7b75f39e9852',
     'test deck 20',
     '0f8fad5b-d9cb-469f-a165-70867728950e',
     ''
   ),
 (
+  '935bd375-bf35-426f-bee1-9ba84bbf01d7',
     'test deck 21',
     '0f8fad5b-d9cb-469f-a165-70867728950e',
     ''
   ),
 (
+  'dda4c042-a98e-4a36-95e7-3f54fc27fcf6',
     'test deck 22',
     '0f8fad5b-d9cb-469f-a165-70867728950e',
     ''
   ),
 (
+  'eedfc507-7643-49df-af99-d576c85dd672',
     'test deck 23',
     '0f8fad5b-d9cb-469f-a165-70867728950e',
     ''
   ),
 (
+  '2498f116-d43c-4a47-bdc1-392d9d1ff564',
     'test deck 24',
     '0f8fad5b-d9cb-469f-a165-70867728950e',
     ''
+  );
+
+INSERT INTO topic (deck_id, tag_id) VALUES
+  (
+  '0037541d-2d0c-4f54-abbd-30b7dbe31021',
+    '294d1c54-9b5b-428f-9bcc-4e6433b691f5'
+  ),
+(
+  '690384af-2663-4fdb-b39e-84c85e11c81f',
+    '294d1c54-9b5b-428f-9bcc-4e6433b691f5'
+  ),
+(
+  'a1c13469-6636-4ee6-9424-9ef360d9053f',
+    '294d1c54-9b5b-428f-9bcc-4e6433b691f5'
+  ),
+(
+  '2e1dd210-e973-4975-b09f-4cad4994be73',
+    '294d1c54-9b5b-428f-9bcc-4e6433b691f5'
+  ),
+(
+  'ac192c6b-b5bc-488a-96d5-320295758a8b',
+    '294d1c54-9b5b-428f-9bcc-4e6433b691f5'
+  ),
+(
+  'c06f6800-827d-4fc6-a53f-13ef58bfb7d8',
+    '294d1c54-9b5b-428f-9bcc-4e6433b691f5'
+  ),
+(
+  '0c6e00ab-374f-4885-bf46-3f2d5c30c6fb',
+    '294d1c54-9b5b-428f-9bcc-4e6433b691f5'
+  ),
+(
+  '1e5c3449-589b-43e0-b927-f3935719726c',
+    '294d1c54-9b5b-428f-9bcc-4e6433b691f5'
+  ),
+(
+  'e5286a34-22bd-4864-8b71-11334bb2eb5e',
+    '294d1c54-9b5b-428f-9bcc-4e6433b691f5'
+  ),
+(
+  '1a3f1e2d-62e1-4e05-b4b1-c5d22a5afcce',
+    '294d1c54-9b5b-428f-9bcc-4e6433b691f5'
+  ),
+(
+  '5b47699f-b62b-4b65-a1bd-1284a0ef98a8',
+    '294d1c54-9b5b-428f-9bcc-4e6433b691f5'
+  ),
+(
+  '6926d964-9e6a-4066-872b-2029cb9a8bf6',
+    '294d1c54-9b5b-428f-9bcc-4e6433b691f5'
+  ),
+(
+  '9caae4c0-216e-4c75-b67f-d0d2542a608e',
+    '294d1c54-9b5b-428f-9bcc-4e6433b691f5'
+  ),
+(
+  'c198daec-7e61-4d09-a000-09e547a3d48d',
+    '294d1c54-9b5b-428f-9bcc-4e6433b691f5'
+  ),
+(
+  '28bb9c0a-aa2e-4f49-8a8a-e66a03b931c0',
+    '294d1c54-9b5b-428f-9bcc-4e6433b691f5'
+  ),
+(
+  'd1a759c5-74aa-4931-b9e9-3dd75d8632d7',
+    '294d1c54-9b5b-428f-9bcc-4e6433b691f5'
+  ),
+(
+  'ede64763-450c-4625-a419-b5855c28c51b',
+    '294d1c54-9b5b-428f-9bcc-4e6433b691f5'
+  ),
+(
+  'baae3411-6829-4b2f-b077-98c09ef1767e',
+    '294d1c54-9b5b-428f-9bcc-4e6433b691f5'
+  ),
+(
+  '97fd9b5c-dcd2-4c2b-9284-5aafe5a2f0ec',
+    '294d1c54-9b5b-428f-9bcc-4e6433b691f5'
+  ),
+(
+  '830640b4-5af1-47f0-ab7d-1dbab0729f91',
+    '294d1c54-9b5b-428f-9bcc-4e6433b691f5'
+  ),
+(
+  '6fb8dc63-c1bc-4fe7-bc7c-7b75f39e9852',
+    '294d1c54-9b5b-428f-9bcc-4e6433b691f5'
+  ),
+(
+  '935bd375-bf35-426f-bee1-9ba84bbf01d7',
+    '294d1c54-9b5b-428f-9bcc-4e6433b691f5'
+  ),
+(
+  'dda4c042-a98e-4a36-95e7-3f54fc27fcf6',
+    '294d1c54-9b5b-428f-9bcc-4e6433b691f5'
+  ),
+(
+  'eedfc507-7643-49df-af99-d576c85dd672',
+    '294d1c54-9b5b-428f-9bcc-4e6433b691f5'
+  ),
+(
+  '2498f116-d43c-4a47-bdc1-392d9d1ff564',
+    '294d1c54-9b5b-428f-9bcc-4e6433b691f5'
   );

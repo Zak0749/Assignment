@@ -36,7 +36,7 @@ $db = new DB();
         </header>
 
 
-        <form class="split-main" onsubmit="createAccount(this); return false;" oninput="contentChanged()">
+        <form class="split-main" onsubmit="createAccount(this); return false;">
             <section>
                 <?php $seed = randomise_avatar() ?>
                 <button name="avatar" class="avatar-input" type="button" value="<?= $seed ?>" style="background-image: url(https://api.dicebear.com/7.x/bottts/svg?backgroundColor=ffadad,ffd6a5,fdffb6,caffbf,9bf6ff,a0c4ff,bdb2ff,ffc6ff,fffffc&seed=<?= $seed  ?>" onclick="randomiseAvatar(this);" keyboard-shortcut="r">
@@ -47,17 +47,17 @@ $db = new DB();
 
                 <div class="form-field">
                     <label for="username">Username</label>
-                    <input name="username" type="username" minlength="3" maxlength="16" pattern="[\w]+" required oninput="this.setCustomValidity('')" />
+                    <input name="username" type="username" minlength="3" maxlength="16" pattern="[\w]+" title="Letters, Numbers and underscores only" required oninput="this.setCustomValidity('')" />
                 </div>
 
                 <div class="form-field">
                     <label for="password">Password</label>
-                    <input minlength="8" maxlength="24" pattern="[\S]+" name="password" type="password" required oninput="checkPasswordsMatch(this)" />
+                    <input minlength="8" maxlength="24" pattern="[\S]+" title="Whitespace characters are not allowed" name="password" type="password" required oninput="checkPasswordsMatch(this)" />
                 </div>
 
                 <div class="form-field">
                     <label for="confirm-password">Confirm Password</label>
-                    <input name="confirm-password" type="password" required minlength="8" maxlength="24" pattern="[\S]+" oninput="checkPasswordsMatch(this)" />
+                    <input name="confirm-password" type="password" required minlength="8" maxlength="24" title="Whitespace characters are not allowed" pattern="[\S]+" oninput="checkPasswordsMatch(this)" />
                 </div>
 
                 <div class="form-field hide-large">

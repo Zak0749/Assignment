@@ -18,8 +18,8 @@ function deck_panel(array $deck, DbResult $tag_query)
 					<div class="plays"><?= htmlspecialchars($deck["deck_play_no"]) ?> plays</div>
 
 				</div>
-				<div>
-					<?php if (isset($_SESSION["account_id"])) : ?>
+				<?php if (isset($_SESSION["account_id"])) : ?>
+					<div class="deck-panel-icons">
 						<?php if ($deck["is_saved"]) : ?>
 							<span class="material-symbols-outlined">
 								bookmark_added
@@ -34,8 +34,8 @@ function deck_panel(array $deck, DbResult $tag_query)
 								person
 							</span>
 						<?php endif ?>
-					<?php endif ?>
-				</div>
+					</div>
+				<?php endif ?>
 			</header>
 
 			<?php if ($tag_query->isOk() && !$tag_query->isEmpty()) : ?>

@@ -18,13 +18,19 @@ $account_id = filter_input(
     ]
 );
 
-// If account_id is not set and logged in set the account_id to the session account_id
-if ($account_id === null && isset($_SESSION["account_id"])) {
-    $account_id = $_SESSION["account_id"];
+// If account_id is not set and logged in set the account_id to the session account_id if not logged in give unauthorised error 
+if ($account_id === null) {
+    if (isset($_SESSION["account_id"])) {
+        $account_id = $_SESSION["account_id"];
+    } else {
+        http_response_code(401);
+        require("errors/401.php");
+        exit;
+    }
 }
 
-// If deck_id is invalid or not set send user to error page
-if ($account_id === null || $account_id === false) {
+// If deck_id is invalid send user to the bad request error page
+if ($account_id === false) {
     http_response_code(400);
     require("errors/400.php");
     exit;

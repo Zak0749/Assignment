@@ -203,7 +203,7 @@ if (!$deck["is_owned"]) {
 
                         Add Card
                     </button>
-                    <button type="button" onclick="document.getElementById('card-tab').dataset.mode = 'delete'()" class="danger-button button" keyboard-shortcut="m">
+                    <button type="button" onclick="document.getElementById('card-tab').dataset.mode = 'delete'" class="danger-button button" keyboard-shortcut="m">
                         <span class="material-symbols-outlined">
                             delete
                         </span>

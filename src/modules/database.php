@@ -318,7 +318,7 @@ class Db
         // Tries to execute the operation but if any query fails go to the catch block
         try {
             // Sets up the delete
-            $query = $this->db->prepare("DELETE FROM user WHERE account_id=:account_id");
+            $query = $this->db->prepare("DELETE FROM account WHERE account_id=:user_account_id");
 
             // Binds the current users account_id to the placeholder :user_account_id
             $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
@@ -678,7 +678,7 @@ class Db
                         LEFT JOIN play ON play.deck_id = deck.deck_id
                     GROUP BY  deck.deck_id, account.account_id
                     ORDER BY deck.timestamp DESC
-                    LIMIT 16
+                    LIMIT 20
                 SQL
             );
 
@@ -721,7 +721,7 @@ class Db
                     WHERE follow.account_id=:user_account_id
                     GROUP BY  deck.deck_id, account.account_id
                     ORDER BY deck_play_no DESC 
-                    LIMIT 16 
+                    LIMIT 20
                 SQL
             );
 
@@ -761,7 +761,7 @@ class Db
                         LEFT JOIN play ON play.deck_id = deck.deck_id
                     GROUP BY deck.deck_id, account.account_id
                     ORDER BY deck_play_no DESC
-                    LIMIT 16
+                    LIMIT 20
                 SQL
             );
 
@@ -809,8 +809,6 @@ class Db
 
             // Binds the current users account_id to the placeholder :user_account_id
             $query->bindValue(":user_account_id", $user_account_id, PDO::PARAM_STR);
-
-
 
             // Executes the query
             $query->execute();
@@ -928,7 +926,7 @@ class Db
                         LEFT JOIN play as deck_play ON deck_play.deck_id = deck.deck_id
                     WHERE play.account_id = :user_account_id
                     GROUP BY deck.deck_id, account.account_id
-                    LIMIT 16
+                    LIMIT 20
                 SQL
             );
 
@@ -969,7 +967,6 @@ class Db
                         LEFT JOIN play ON play.deck_id = deck.deck_id
                     WHERE save.account_id = :user_account_id
                     GROUP BY  deck.deck_id, account.account_id
-                    LIMIT 16
                 SQL
             );
 
@@ -1010,7 +1007,7 @@ class Db
                         LEFT JOIN play ON play.deck_id = deck.deck_id
                     WHERE deck.account_id = :account_id
                     GROUP BY  deck.deck_id, account.account_id
-                    LIMIT 16
+                    ORDER BY deck.timestamp
                 SQL
             );
 
@@ -1093,7 +1090,7 @@ class Db
                 WHERE topic.tag_id = :tag_id
                 GROUP BY  deck.deck_id, account.account_id
                 ORDER BY deck_play_no DESC 
-                LIMIT 16
+                LIMIT 20
             SQL
             );
 
@@ -1139,7 +1136,7 @@ class Db
                     WHERE topic.tag_id = :tag_id
                     GROUP BY  deck.deck_id, account.account_id
                     ORDER BY deck.timestamp DESC
-                    LIMIT 16
+                    LIMIT 20
                 SQL
             );
 
