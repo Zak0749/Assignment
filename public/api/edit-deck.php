@@ -27,7 +27,7 @@ $body = filter_input_array(INPUT_POST, [
     "description" => [
         "filter" => FILTER_VALIDATE_REGEXP,
         "options" => [
-            'regexp' => "/^.{3,256}$/"
+            'regexp' => "/.{3,256}/"
         ]
     ],
     "added_topics" => [
@@ -97,13 +97,13 @@ if ($body["edited_cards"]) {
             "question" => [
                 "filter" => FILTER_VALIDATE_REGEXP,
                 "options" => [
-                    'regexp' => "/^.{0,256}$/"
+                    'regexp' => "/.{0,256}/"
                 ]
             ],
             "answer" => [
                 "filter" => FILTER_VALIDATE_REGEXP,
                 "options" => [
-                    'regexp' => "/^.{0,256}$/"
+                    'regexp' => "/.{0,256}/"
                 ]
             ],
         ]);

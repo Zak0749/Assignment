@@ -285,10 +285,9 @@ async function deleteAccount() {
 }
 
 /**
- *  * @param {HTMLButtonElement} id - the edit deck form
  * @param {string} id - the edit deck form
  */
-function changeTab(button, id) {
+function changeTab(id) {
     let old_tab = document.getElementsByClassName('selected-tab')[0];
     let old_button = document.getElementsByClassName('selected-tab-button')[0];
 
@@ -298,7 +297,10 @@ function changeTab(button, id) {
     let new_tab = document.getElementById(id);
 
     new_tab.classList.add('selected-tab')
-    button.classList.add('selected-tab-button')
+
+    let new_button = document.getElementById(id + '-button');
+
+    new_button.classList.add('selected-tab-button')
 }
 
 /**
@@ -320,8 +322,8 @@ function addCard() {
     newCard.innerHTML = `
         <fieldset class="card-fieldset" name="cards">
             <div class="card-editor form-field" oninput="matchHeights(this)">
-                <textarea placeholder="question" name="question" class="card-question" required="" maxlength="128" oninvalid="changeTab(document.getElementById('card-tab-button'),'card-tab')"></textarea>
-                <textarea placeholder="answer" name="answer" class="card-answer" required="" maxlength="256" oninvalid="changeTab(document.getElementById('card-tab-button'),'card-tab')"></textarea>
+                <textarea placeholder="question" name="question" class="card-question" required="" maxlength="128" ></textarea>
+                <textarea placeholder="answer" name="answer" class="card-answer" required="" maxlength="256"></textarea>
             </div>
             <button class="card-delete-button" type="button" onclick="removeCard(this)">
                 <span class="material-symbols-outlined">
@@ -408,6 +410,33 @@ function matchHeights(button) {
  *  * @param {HTMLFormElement} createDeckForm - the edit deck form
  */
 async function createDeck(createDeckForm) {
+    // If current tab has any invalid fields
+    let currentTabIncorrect = Array.from(document.querySelectorAll(".selected-tab :invalid"));
+    if (currentTabIncorrect.length !== 0) {
+        currentTabIncorrect.forEach((incorrectField) => {
+            incorrectField.reportValidity()
+        })
+
+        return
+    }
+
+    // Get the other tab
+    let otherTab = document.querySelector(".tabbed-main > :not(.selected-tab)")
+    // gets all the invalid elements in the other tab
+    let otherTabIncorrect = Array.from(otherTab.querySelectorAll(":invalid"));
+
+    // If any invalid elements
+    if (otherTabIncorrect.length !== 0) {
+        // Switch to other tab
+        changeTab(otherTab.id)
+
+        otherTabIncorrect.forEach((incorrectField) => {
+            incorrectField.reportValidity()
+        })
+
+        return
+    }
+
     // Enstatite data structure to send data to server
     let data = new URLSearchParams();
 
@@ -456,6 +485,33 @@ async function createDeck(createDeckForm) {
  *  * @param {HTMLFormElement} form - the edit deck form
  */
 async function submitEditDeck(editDeckForm) {
+    // If current tab has any invalid fields
+    let currentTabIncorrect = Array.from(document.querySelectorAll(".selected-tab :invalid"));
+    if (currentTabIncorrect.length !== 0) {
+        currentTabIncorrect.forEach((incorrectField) => {
+            incorrectField.reportValidity()
+        })
+
+        return
+    }
+
+    // Get the other tab
+    let otherTab = document.querySelector(".tabbed-main > :not(.selected-tab)")
+    // gets all the invalid elements in the other tab
+    let otherTabIncorrect = Array.from(otherTab.querySelectorAll(":invalid"));
+
+    // If any invalid elements
+    if (otherTabIncorrect.length !== 0) {
+        otherTabIncorrect.forEach((incorrectField) => {
+            incorrectField.reportValidity()
+        })
+
+        // Switch to other tab
+        changeTab(otherTab.id)
+
+        return
+    }
+
     // Enstatite data structure to send data to server
     let data = new URLSearchParams();
 
@@ -715,9 +771,9 @@ function results() {
     document.getElementById('correct-number').innerText = correct_number
     document.getElementById('wrong-number').innerText = wrong_number
 
-    const canvas1 = document.getElementById('results-chart1');
+    const canvas = document.getElementById('results-chart');
 
-    new Chart(canvas1, {
+    new Chart(canvas, {
         type: 'doughnut',
         data: {
             labels: [
@@ -822,9 +878,9 @@ window.addEventListener("load", () => {
     Object.entries(shortcutItems).forEach(([key, elements]) => {
 
         Mousetrap.bind(key, () => {
-elements
-    .filter((element) => element.offsetParent !== null) // only gets the elements that are visible on screen
-    .forEach((element) => element.click())
+            elements
+                .filter((element) => element.offsetParent !== null) // only gets the elements that are visible on screen
+                .forEach((element) => element.click())
         });
     })
 

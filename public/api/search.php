@@ -87,3 +87,7 @@ if (!$deck_query->isOk()) :
 		</ul>
 	</section>
 <?php endif; ?>
+
+<?php if ($deck_query->isEmpty() && $account_query->isEmpty() && $tag_query->isEmpty()): ?>
+	No Results were found. Please try a different term
+<?php endif; ?>

@@ -3,7 +3,7 @@
 use database\Db;
 
 // Sets the response type
-header("Content-type:application/json");
+header("Content-type:text/html");
 
 // If not logged in give error code and stop request
 if (!isset($_SESSION["account_id"])) {
@@ -24,7 +24,7 @@ $body = filter_input_array(INPUT_POST, [
     "description" => [
         "filter" => FILTER_VALIDATE_REGEXP,
         "options" => [
-            'regexp' => "/^.{3,256}$/"
+            'regexp' => "/.{3,256}/"
         ]
     ],
     "topics" => [
@@ -55,13 +55,13 @@ $body["cards"] = array_map(function ($card) {
         "question" => [
             "filter" => FILTER_VALIDATE_REGEXP,
             "options" => [
-                'regexp' => "/^.{0,32}$/"
+                'regexp' => "/.{0,256}/"
             ]
         ],
         "answer" => [
             "filter" => FILTER_VALIDATE_REGEXP,
             "options" => [
-                'regexp' => "/^.{0,256}$/"
+                'regexp' => "/.{0,256}/"
             ]
         ],
     ]);
@@ -77,6 +77,7 @@ if (
     in_array(false, $body["cards"], true)
 ) {
     http_response_code(400);
+    var_dump($body);
     return;
 }
 

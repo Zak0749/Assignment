@@ -32,17 +32,17 @@ $db = new Db();
             <h1>Create</h1>
 
             <nav class="tab-bar">
-                <button onclick="changeTab(this,'info-tab')" class="selected-tab-button" keyboard-shortcut="i">
+                <button id='info-tab-button' onclick="changeTab('info-tab')" class="selected-tab-button" keyboard-shortcut="i">
                     Info
                 </button>
-                <button id="card-tab-button" onclick="changeTab(this,'card-tab')" keyboard-shortcut="c">
+                <button id="card-tab-button" onclick="changeTab('card-tab')" keyboard-shortcut="c">
                     Cards
                 </button>
             </nav>
         </header>
 
 
-        <form class="tabbed-main" onsubmit="createDeck(this); return false">
+        <form class="tabbed-main" onsubmit="createDeck(this); return false" novalidate>
             <section id="info-tab" class="split-main selected-tab">
                 <section>
                     <div class="form-field">
@@ -110,15 +110,15 @@ $db = new Db();
             <section id="card-tab" data-mode="edit">
                 <legend>Cards:
                     <!-- Pointer events stop clicking and inputing while still validating as readoly stops html validaiton -->
-                    <input id="card-counter" type="number" value="1" min="8" oninvalid="changeTab(document.getElementById('card-tab-button'), 'card-tab')">
+                    <input id="card-counter" type="number" value="1" min="8"> 
                 </legend>
 
                 <ul id="card-edit-list">
                     <li>
                         <fieldset class="card-fieldset" name="cards">
                             <div class="card-editor form-field" oninput="matchHeights(this)">
-                                <textarea placeholder="question" name="question" class="card-question" required maxlength="256" oninvalid="changeTab(document.getElementById('card-tab-button'),'card-tab')"></textarea>
-                                <textarea placeholder="answer" name="answer" class="card-answer" required maxlength="256" oninvalid="changeTab(document.getElementById('card-tab-button'),'card-tab')"></textarea>
+                                <textarea placeholder="question" name="question" class="card-question" required maxlength="256""></textarea>
+                                <textarea placeholder="answer" name="answer" class="card-answer" required maxlength="256" "></textarea>
                             </div>
                             <button class="card-delete-button" type="button" onclick="removeCard(this)">
                                 <span class="material-symbols-outlined">

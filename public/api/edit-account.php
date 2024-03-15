@@ -20,7 +20,7 @@ $body = filter_input_array(INPUT_POST, [
 		"options" => [
 			'regexp' => "/^[\S]{8,24}$/"
 		]
-	],
+	], 
 	"avatar" => [
 		"filter" => FILTER_VALIDATE_REGEXP,
 		'options' => [
@@ -51,6 +51,7 @@ if (
 	($body["added_follows"] !== null && in_array(false, $body["added_follows"], true))
 ) {
 	http_response_code(400);
+	var_dump($body);
 	return;
 }
 // Establishes a connection 

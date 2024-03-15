@@ -88,10 +88,10 @@ if (!$deck["is_owned"]) {
             </header>
 
             <nav class="tab-bar">
-                <button onclick="changeTab(this,'info-tab')" class="selected-tab-button" keyboard-shortcut="i">
+                <button id="info-tab-button" onclick="changeTab('info-tab')" class="selected-tab-button" keyboard-shortcut="i">
                     Info
                 </button>
-                <button id="card-tab-button" onclick="changeTab(this,'card-tab')" keyboard-shortcut="c">
+                <button id="card-tab-button" onclick="changeTab('card-tab')" keyboard-shortcut="c">
                     Cards
                 </button>
             </nav>
@@ -172,8 +172,7 @@ if (!$deck["is_owned"]) {
                     <p>There was an error loading the cards please try again </p>
                 <?php else : ?>
                     <legend>Cards:
-                        <!-- Pointer events stop clicking and inputing while still validating as readoly stops html validaiton -->
-                        <input id="card-counter" type="number" value="<?= htmlspecialchars($cards->rowCount()) ?>" min="8" oninvalid="changeTab(document.getElementById('card-tab-button'),'card-tab')">
+=                        <input id="card-counter" type="number" value="<?= htmlspecialchars($cards->rowCount()) ?>" min="8"=>
                     </legend>
 
                     <ul id="card-edit-list">
@@ -181,8 +180,8 @@ if (!$deck["is_owned"]) {
                             <li>
                                 <fieldset class="card-fieldset" name="cards" id="<?= htmlspecialchars($card["card_id"]) ?>">
                                     <div class="card-editor form-field" oninput="matchHeights(this)" onload="matchHeights(this)">
-                                        <textarea placeholder="question" name="question" class="card-question" required maxlength="128" oninvalid="changeTab(document.getElementById('card-tab-button'),'card-tab')"><?= htmlspecialchars($card["question"]) ?></textarea>
-                                        <textarea placeholder="answer" name="answer" class="card-answer" required maxlength="256" oninvalid="changeTab(document.getElementById('card-tab-button'),'card-tab')"><?= htmlspecialchars($card["answer"]) ?></textarea>
+                                        <textarea placeholder="question" name="question" class="card-question" required maxlength="128" ><?= htmlspecialchars($card["question"]) ?></textarea>
+                                        <textarea placeholder="answer" name="answer" class="card-answer" required maxlength="256"><?= htmlspecialchars($card["answer"]) ?></textarea>
                                     </div>
                                     <button class="card-delete-button" type="button" onclick="removeCard(this)">
                                         <span class="material-symbols-outlined">

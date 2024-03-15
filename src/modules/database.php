@@ -53,7 +53,7 @@ class Db
                         :username, 
                         :password, 
                         :avatar
-                    ) RETURNS account_id
+                    ) RETURNING account_id
             SQL
             );
 
@@ -103,7 +103,7 @@ class Db
             return new DbResult(ResultState::VALUE, value: $account_id);
         } catch (PDOException $error) {
             http_response_code(500);
-            var_dump($error);
+            // var_dump($error);
             // An error has occurred return an error with the code
             return new DbResult(ResultState::ERROR, error: $error->getCode());
         }
@@ -188,7 +188,6 @@ class Db
             return new DbResult(ResultState::QUERY, query: $query);
         } catch (PDOException $error) {
             http_response_code(500);
-            var_dump($error);
             // An error has occurred return an error with the code
             return new DbResult(ResultState::ERROR, error: $error->getCode());
         }
@@ -306,7 +305,6 @@ class Db
             return new DbResult(ResultState::OK);
         } catch (PDOException $error) {
             http_response_code(500);
-            var_dump($error);
             // An error has occurred return an error with the code
             return new DbResult(ResultState::ERROR, error: $error->getCode());
         }
